@@ -5,42 +5,48 @@ public class WFCCanvas<T> {
     private List<Boolean> isCollapsed;
     private List<List<T>> possibleStatesList;
     private Random random;
-    private List<Optional<T>> in;
+    private int size;
 
     public WFCCanvas(WFC<T> wfc, List<Optional<T>> in){
-        this.in = in;
-        List<Boolean> isCollapsed = new ArrayList<>(in.size());
-        List<List<T>> possibleStatesList = new ArrayList<>(in.size());
+        this.size = in.size();
+        List<Boolean> isCollapsed = new ArrayList<>(size);
+        List<List<T>> possibleStatesList = new ArrayList<>(size);
 
         this.isCollapsed = isCollapsed;
         this.possibleStatesList = possibleStatesList;
         this.wfc = wfc;
         this.random = wfc.random;
 
-        for (int i = 0; i < in.size(); i++) {
+        for (int i = 0; i < size; i++) {
             Optional<T> opt = in.get(i);
             if (opt.isPresent()){
                 possibleStatesList.add(List.of(opt.get()));
                 isCollapsed.add(true);
-            } else {
-                List<T> possibleStates = possibleStates(i);
-
-                if(possibleStates.size() == 0) throw new RuntimeException("Invalid input");
-
-                possibleStatesList.add(possibleStates);
-
-                isCollapsed.add(false); //setting it false because other nodes didn't take this into account for possible states
+            }
+            else{
+                possibleStatesList.add(new ArrayList<>(wfc.values));
+                isCollapsed.add(false);
             }
         }
+        for (int i = 0; i < size; i++) {
+            Optional<T> opt = in.get(i);
+            if (opt.isEmpty()) {
+                List<T> possibleStates = possibleStates(i);
 
+                if (possibleStates.size() == 0) throw new RuntimeException("Invalid input");
+
+                possibleStatesList.set(i, possibleStates);
+
+            }
+        }
     }
 
-    private List<T> possibleStates(int i){ //TODO generate this from something else but the input
+    private List<T> possibleStates(int i){
         List<T> allowed = new ArrayList<>(wfc.values);
 
         //set up constraints based on previous element
-        if(i>0 && in.get(i-1).isPresent()){
-            T prev = in.get(i-1).get();
+        if(i>0 && isCollapsed.get(i-1)){
+            T prev = possibleStatesList.get(i-1).get(0);
 
             Set<T> allowedByPrev = new HashSet<>();
             for(NeighborPair<T> np : wfc.neighborPairs){
@@ -52,8 +58,8 @@ public class WFCCanvas<T> {
         }
 
         //set up constraints based on next element
-        if(i<in.size()-1 && in.get(i+1).isPresent()){
-            T next = in.get(i+1).get();
+        if(i<size-1 && isCollapsed.get(i+1)){
+            T next = possibleStatesList.get(i+1).get(0);
 
             Set<T> allowedByNext = new HashSet<>();
             for(NeighborPair<T> np : wfc.neighborPairs){
@@ -74,7 +80,7 @@ public class WFCCanvas<T> {
     public boolean collapseNext(){
         int indexToCollapse = -1;
         int numOfStates = -1;
-        for (int i = 0; i < in.size(); i++){
+        for (int i = 0; i < size; i++){
             if(!isCollapsed.get(i)){
                 List<T> possibleStates = possibleStatesList.get(i);
                 if(possibleStates.size() < numOfStates || numOfStates == -1){
@@ -94,7 +100,7 @@ public class WFCCanvas<T> {
         if(indexToCollapse > 0 && !isCollapsed.get(indexToCollapse-1)){
             refreshPossibleStates(indexToCollapse-1);
         }
-        if(indexToCollapse < in.size() - 1 && !isCollapsed.get(indexToCollapse+1)){
+        if(indexToCollapse < size - 1 && !isCollapsed.get(indexToCollapse+1)){
             refreshPossibleStates(indexToCollapse+1);
         }
 
@@ -107,8 +113,8 @@ public class WFCCanvas<T> {
     }
     
     public List<T> output(){
-        List<T> out = new ArrayList<>(in.size());
-        for (int i = 0; i < in.size(); i++) {
+        List<T> out = new ArrayList<>(size);
+        for (int i = 0; i < size; i++) {
             if(isCollapsed.get(i)){
                 List<T> possibleStates = possibleStatesList.get(i);
                 if (possibleStates.size() != 1) throw new RuntimeException("Wrongly collapsed field with size: " + possibleStates.size());
