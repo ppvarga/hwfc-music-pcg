@@ -13,3 +13,21 @@ Another possibility is, instead of using neighbor-pairs, we could look at multip
 Sort of unrelated to the whole hierarchical WFC topic: to avoid running into situations where we cannot fill the canvas, we can keep a stack of all the decisions that the machine has made. If we run into a contradiction, we look at the last decision on the stack, we make the weight of that decision 0 and generate it again. Storing all these states might be expensive, it might not be. It's worth a try.
 
 **END 10:18**
+
+---
+
+**Post-meeting mind dump - START 24/11 13:41**
+
+Let's not care about the position of the tile within the canvas for now - the constraints obtained from the hierarchy will take care of things being sort of in the right place.
+
+Underlying chord for a section could be one of the levels - it directly and logically influences the note choices in lower levels.
+
+Homework: map out a structure with at least three meaningful levels of hierarchy. One of them will probably be the chord thing. If the map is somewhat clear, start implementing it.
+
+Lookup structure for notes within keys and for notes within chords. I would like to define a structure that, given a key, tells me how likely a given note-transition is. Same for a given chord.
+If we use underlying chords, these will have their "preferences" for notes, but the key of the composition (or of the section) also has its own. How do we balance between these? Again, this could be a static ratio, or something defined by a higher level.
+I would like to define this structure in as generic of a way as possible, so that constructing it would just be naming the given key or chord. I don't want to hardcode things for each root-note, so I will use music theory to make generic models.
+
+Constraints are nice: maybe we should have a system where a decision above can completely rule out some possibilities on lower levels, instead of making them unlikely.
+
+**END 13:57**
