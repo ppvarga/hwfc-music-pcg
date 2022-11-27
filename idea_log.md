@@ -1,4 +1,4 @@
-**START 22/11 9:30**
+###START 22/11 9:30
 
 Now: Uniform random choice from all allowed neighborhoods. 
 We would like some set of weighted probabilities.
@@ -12,11 +12,11 @@ Another possibility is, instead of using neighbor-pairs, we could look at multip
 
 Sort of unrelated to the whole hierarchical WFC topic: to avoid running into situations where we cannot fill the canvas, we can keep a stack of all the decisions that the machine has made. If we run into a contradiction, we look at the last decision on the stack, we make the weight of that decision 0 and generate it again. Storing all these states might be expensive, it might not be. It's worth a try.
 
-**END 10:18**
+###END 10:18
 
 ---
 
-**Post-meeting mind dump - START 24/11 13:41**
+###Post-meeting mind dump - START 24/11 13:41
 
 Let's not care about the position of the tile within the canvas for now - the constraints obtained from the hierarchy will take care of things being sort of in the right place.
 
@@ -30,4 +30,39 @@ I would like to define this structure in as generic of a way as possible, so tha
 
 Constraints are nice: maybe we should have a system where a decision above can completely rule out some possibilities on lower levels, instead of making them unlikely.
 
-**END 13:57**
+###END 13:57
+
+---
+
+###START 27/11 18:29
+
+If one of the levels stands for the chord progression, there might be an interesting mechanic there.
+In the branch of music theory called functional analysis, chords in a key have functions. For most functions, multiple chords are able to fulfill them. That means that perhaps we could have another, closely related layer above the chords, which would stand for the functions. A canvas that corresponds to a single function would contain a single chord. 
+This might interact with WFC in an interesting way, where the choice of a tile on a canvas is only determined by the restrictions gathered from above and the neighbors in other canvases. For this to be really interesting, we would need to define inter-canvas behaviour, which is out of our scope for now. Just an idea.
+
+The same underlying chord could also mean multiple different things for layers below. 
+Maybe we want to define two types of "I" chord - a start and a resolution behaviour. The chord played underneath would be the same but the melody would have different restrictions based on which variation the chord is.
+
+A key problem is that the melody should probably be separated into phrases: bursts of multiple notes, with longer rests between different phrases than within a single phrase. However, there is a problem with layering: 
+I think it should be possible to have a chord contain multiple phrases, but it should also be possible to have a phrase last for multiple chords. One way to resolve this could be to not model phrases at all. Instead, we could have a special note type in the melody layer that stands for longer rests (which helps separate these non-modeled "phrases"), and to - again - maintain the integrity of a melody over chord changes.
+
+
+####HOMEWORK
+
+Our basic composition will just be a chord progression and a melody on top.
+
+Constant layer: a set of basic parameters that won't change throughout the piece. For now: tempo, time signature, key, possible lengths of melody notes.
+Later, we can also define an extra layer that allows us to change these.
+
+Section layer: distinguishing different sections in the piece. With a modern example: intro, verse, build-up, chorus, bridge, outro.
+This layer could be responsible for the types of chord progressions on the layer below (Does it resolve? How long are the chords?), as well as the amount of rest a melody takes. (Lengths and frequency of rests.)
+We could also experiment with this layer choosing the intruments that play the music (then these instruments would be chosen from a pool defined in the constant layer). 
+
+Chord layer: each section should have a chord progression. We will be able to directly map this to what the instruments actually play. (Maybe through a filter that determines extensions and voicings. That could be inherited from a layer above as well (section?)).
+
+Melody layer: pretty staightforward - notes for the melody, as well as rests. The lengths of the notes are largely dictated be the section, while the pitches are largely dictated by the chords. 
+
+###END 19:14
+
+---
+
