@@ -1,4 +1,4 @@
-###START 22/11 9:30
+##START 22/11 9:30
 
 Now: Uniform random choice from all allowed neighborhoods. 
 We would like some set of weighted probabilities.
@@ -12,11 +12,11 @@ Another possibility is, instead of using neighbor-pairs, we could look at multip
 
 Sort of unrelated to the whole hierarchical WFC topic: to avoid running into situations where we cannot fill the canvas, we can keep a stack of all the decisions that the machine has made. If we run into a contradiction, we look at the last decision on the stack, we make the weight of that decision 0 and generate it again. Storing all these states might be expensive, it might not be. It's worth a try.
 
-###END 10:18
+##END 10:18
 
 ---
 
-###Post-meeting mind dump - START 24/11 13:41
+##Post-meeting mind dump - START 24/11 13:41
 
 Let's not care about the position of the tile within the canvas for now - the constraints obtained from the hierarchy will take care of things being sort of in the right place.
 
@@ -30,11 +30,11 @@ I would like to define this structure in as generic of a way as possible, so tha
 
 Constraints are nice: maybe we should have a system where a decision above can completely rule out some possibilities on lower levels, instead of making them unlikely.
 
-###END 13:57
+##END 13:57
 
 ---
 
-###START 27/11 18:29
+##START 27/11 18:29
 
 If one of the levels stands for the chord progression, there might be an interesting mechanic there.
 In the branch of music theory called functional analysis, chords in a key have functions. For most functions, multiple chords are able to fulfill them. That means that perhaps we could have another, closely related layer above the chords, which would stand for the functions. A canvas that corresponds to a single function would contain a single chord. 
@@ -47,7 +47,7 @@ A key problem is that the melody should probably be separated into phrases: burs
 I think it should be possible to have a chord contain multiple phrases, but it should also be possible to have a phrase last for multiple chords. One way to resolve this could be to not model phrases at all. Instead, we could have a special note type in the melody layer that stands for longer rests (which helps separate these non-modeled "phrases"), and to - again - maintain the integrity of a melody over chord changes.
 
 
-####HOMEWORK
+###HOMEWORK
 
 Our basic composition will just be a chord progression and a melody on top.
 
@@ -62,7 +62,34 @@ Chord layer: each section should have a chord progression. We will be able to di
 
 Melody layer: pretty staightforward - notes for the melody, as well as rests. The lengths of the notes are largely dictated be the section, while the pitches are largely dictated by the chords. 
 
-###END 19:14
+##END 19:14
 
 ---
 
+##START 06/12 13:48
+
+A layer above will determine the size of the canvases on the layer below. Different values taken on the same layer can lead to differently sized canvases on the layer below. The number of sections is hardcoded in the constant layer.
+
+So for chords: each section will have a chord progression with a number and length of chords determined by the section layer. The pool of chords to choose from is determined by the key, from the constant layer. The voicing of each chord is uniform within a section, decided by it.
+
+For the melody: the approximate lengths of notes are determined by the section, the pool of notes to select from is determined by the key, but is weighed by the underlying chord. Rests between phrases are special notes, with different rules applying to their lengths - coming from the section layer as well.
+
+The chord layer could have an abstract version where, instead of deciding each concrete chord directly from the section (and the constant) layer, first, only the function of the chord is determined (is it at rest, in motion, in tension?). The concrete part of the chord layer could then 1) choose from multiple chords with the same function (e.g. I and vi) and 2) choose extensions for these chords (e.g. I or Imaj7 or Iadd9).
+
+Something important with sections in real compositions is repetition - in the same piece, different instances of the same section usually have very similar structures, chord progressions, melody shapes. A way to deal with this would be to have a central reference for each type of section - with all instances of that section sending their collapses to that reference and that being propagated to all instances. We should also allow for some mutation within this, as having sections which are exactly the same can become boring. Maybe only a fraction of the collapses should be sent/propagated?
+
+For dealing with multiple neighboring canvases on the same layer, we could add a dummy "START" and "END" tile to each canvas, which could also contain information about the neighboring canvas. This would also be nice to - for example - define the fact that the intro can only come in the beginning of a piece and an outro can only come in the end.
+
+Our basic setup with a chord progression and a single line of melody is exactly that - simple. In the real world, it is much more common to have multiple instruments alongside the main melody, "implying" the chord progression with their choices of notes. These would be exact elements of the chord. Maybe another way to think about all of this is to have the section and the chord layers, and then multiple parallel "melody" layers. 
+
+For example, we could have a bass layer, one that takes in the root of the chord as a "strongly preferred note", maybe some extra notes to throw here and there for variation, and the layer itself would mostly be responsible for creating an interesting rhythm with those notes. 
+
+Of course, we could have a "pad" layer which plays most/all of the notes of the chord, but we can still play around with that. What if it's not statically playing all the notes, but splitting the chord tile into different pieces with different voicings, or what if it is arpeggiating the chord a bit? For the arpeggiation example, that rule could be decided in the section layer. 
+
+We could also have a layer for percussion. I am primarily trained in rock and similar genres, so I would be most comfortable with a drumkit-type layout. For that, I would have no problem defining types of "beats" for each section.
+
+With all these different layers working independently of each other, rhythms would probably be all over the place. What if we had an abstract rhythm layer? It would determine in one place for each voice, when they are "encouraged" to play a note. This could be used to line up the bass voice with the kickdrum, and it could also solve another issue whose idea has been haunting me since I started thinking about this project: lining up the melody with the beat of the piece. If we think about note lengths just on the scale of notes neighboring each other, generating one note with an "irregular" length (e.g. a dotted eighth note when all other notes are quarters and eighths) would lead to a bunch of the following notes being "off-grid", syncopated. Of course, that is not inherently a problem but unregulated syncopations would most likely sound pretty peculiar. If, instead, we defined a layer whose job it is to determine when the melody should play a note, with a more global view of which "slots" are on the grid and which are off it, we could define a melody with a much nicer-sounding rhythm.
+
+##END 14:50
+
+---
