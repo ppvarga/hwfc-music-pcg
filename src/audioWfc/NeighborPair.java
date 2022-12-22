@@ -1,3 +1,5 @@
+package audioWfc;
+
 import java.util.Objects;
 
 public class NeighborPair<T> {

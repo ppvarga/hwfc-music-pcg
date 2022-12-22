@@ -1,3 +1,5 @@
+package audioWfc;
+
 import java.util.*;
 
 public class WFCCanvas<T> {
@@ -44,7 +46,7 @@ public class WFCCanvas<T> {
     private List<T> possibleStates(int i){
         List<T> allowed = new ArrayList<>(wfc.values);
 
-        //set up constraints based on previous element
+        //set up audioWfc.constraints based on previous element
         if(i>0 && isCollapsed.get(i-1)){
             T prev = possibleStatesList.get(i-1).get(0);
 
@@ -57,7 +59,7 @@ public class WFCCanvas<T> {
             allowed.retainAll(allowedByPrev);
         }
 
-        //set up constraints based on next element
+        //set up audioWfc.constraints based on next element
         if(i<size-1 && isCollapsed.get(i+1)){
             T next = possibleStatesList.get(i+1).get(0);
 

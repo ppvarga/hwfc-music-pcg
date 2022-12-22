@@ -1,0 +1,15 @@
+package audioWfc;
+
+public class PlayableNote extends Tile{
+    OctavedNote pitch;
+    int start;
+    int end;
+    int velocity;
+
+    public PlayableNote(OctavedNote pitch, int start, int end, int velocity) {
+        this.pitch = pitch;
+        this.start = start;
+        this.end = end;
+        this.velocity = velocity;
+    }
+}

@@ -1,3 +1,5 @@
+package audioWfc;
+
 import javax.sound.midi.MidiEvent;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Sequence;
@@ -13,17 +15,17 @@ public class SequencerBuilder {
     private static final int CHANNEL = 1;
     private static final float DEFAULT_BPM = 120f;
 
-    public static Sequencer buildSequencer(Set<Note> notes){
+    public static Sequencer buildSequencer(Set<PlayableNote> notes){
         try{
             Sequencer sequencer = MidiSystem.getSequencer();
             sequencer.open();
             Sequence sequence = new Sequence(Sequence.PPQ, 4);
             Track track = sequence.createTrack();
             
-            for(Note note : notes){
-                track.add(makeEvent(START_NOTE, CHANNEL, note.pitch(), note.velocity(), note.start()));
+            for(PlayableNote note : notes){
+                track.add(makeEvent(START_NOTE, CHANNEL, note.pitch.pitch(), note.velocity, note.start));
 
-                track.add(makeEvent(END_NOTE, CHANNEL, note.pitch(), note.velocity(), note.end()));
+                track.add(makeEvent(END_NOTE, CHANNEL, note.pitch.pitch(), note.velocity, note.end));
             }
 
             sequencer.setSequence(sequence);

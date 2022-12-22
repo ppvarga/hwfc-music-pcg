@@ -1,3 +1,5 @@
+package audioWfc;
+
 import java.util.*;
 
 public class WFC<T> {
@@ -54,7 +56,7 @@ public class WFC<T> {
     private T collapse(List<Optional<T>> in, int i){
         List<T> allowed = new ArrayList<>(this.values);
 
-        //set up constraints based on previous element
+        //set up audioWfc.constraints based on previous element
         if(i>0 && in.get(i-1).isPresent()){
             T prev = in.get(i-1).get();
 
@@ -67,7 +69,7 @@ public class WFC<T> {
             allowed.retainAll(allowedByPrev);
         }
 
-        //set up constraints based on next element
+        //set up audioWfc.constraints based on next element
         if(i<in.size()-1 && in.get(i+1).isPresent()){
             T next = in.get(i+1).get();
 
