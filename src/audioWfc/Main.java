@@ -1,9 +1,13 @@
 package audioWfc;
 
+import audioWfc.constraints.ChordStepSizeHardConstraint;
 import audioWfc.constraints.ChordsInKeyConstraint;
+import audioWfc.constraints.ConstraintUtils;
 import audioWfc.constraints.NotesInKeyConstraint;
 import audioWfc.musicTheory.Key;
 import audioWfc.musicTheory.MajorKey;
+import audioWfc.musicTheory.Note;
+import audioWfc.musicTheory.chords.Chord;
 import audioWfc.musicTheory.chords.ChordQuality;
 
 import java.util.List;
@@ -27,7 +31,15 @@ public class Main {
 
     private static void chordsAndNotesDemo(){
         Key key = new MajorKey(C);
-        System.out.println(new ChordsInKeyConstraint(key).allowedTiles());
-        System.out.println(new NotesInKeyConstraint(key).allowedTiles());
+        Set<Chord> chords = new ChordsInKeyConstraint(key).allowedTiles();
+        Set<NeighborPair<Chord>> chordPairs = ConstraintUtils
+                .applyHardConstraint(WFCUtils.allCombinationsNoRepeats(chords),
+                        new ChordStepSizeHardConstraint(Set.of(3,4)));
+        System.out.println(chordPairs);
+
+
+
+        Set<Note> notes = new NotesInKeyConstraint(key).allowedTiles();
+        Set<NeighborPair<Note>> notePairs = WFCUtils.allCombinationsNoRepeats(notes);
     }
 }

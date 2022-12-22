@@ -14,7 +14,6 @@ public class WFC<T> {
     }
 
     public WFC(List<T> example){
-        this();
         Set<NeighborPair<T>> neighborPairs = new HashSet<>();
         for (int i = 0; i < example.size()-1; i++) {
             NeighborPair<T> np = new NeighborPair<>(example.get(i), example.get(i+1));
@@ -45,6 +44,11 @@ public class WFC<T> {
         while (canvas.collapseNext());
 
         return canvas.output();
+    }
+
+    public List<T> generate(int size){
+        List<Optional<T>> empties = new ArrayList<>(Collections.nCopies(size, Optional.empty()));
+        return generate(empties);
     }
 
     /**

@@ -40,4 +40,15 @@ public class NoteUtils {
     public static Note relativeNote(Note root, int value){
         return intToNote(noteToInt(root) + value);
     }
+
+    public static int distance(Note base, Note other){
+        int diff = noteToInt(other) - noteToInt(base);
+        if(diff>6) diff -= 12;
+        if(diff<-5) diff += 12;
+        return diff;
+    }
+
+    public static int absoluteDistance(Note base, Note other){
+        return Math.abs(distance(base, other));
+    }
 }

@@ -5,7 +5,7 @@ import audioWfc.musicTheory.Note;
 
 import java.util.Set;
 
-public class NotesInKeyConstraint extends SingleConstraint<Note>{
+public class NotesInKeyConstraint implements SingleConstraint<Note>{
     private Key key;
 
     public NotesInKeyConstraint(Key key){

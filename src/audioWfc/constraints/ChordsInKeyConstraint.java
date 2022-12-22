@@ -6,7 +6,7 @@ import audioWfc.musicTheory.chords.Chord;
 
 import java.util.Set;
 
-public class ChordsInKeyConstraint extends SingleConstraint<Chord>{
+public class ChordsInKeyConstraint implements SingleConstraint<Chord>{
     private Key key;
 
     public ChordsInKeyConstraint(Key key){
