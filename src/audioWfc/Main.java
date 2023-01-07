@@ -3,7 +3,9 @@ package audioWfc;
 import audioWfc.constraints.ChordStepSizeHardConstraint;
 import audioWfc.constraints.ChordsInKeyConstraint;
 import audioWfc.constraints.Constraint;
+import audioWfc.constraints.ConstraintSet;
 import audioWfc.constraints.ConstraintUtils;
+import audioWfc.constraints.MelodyStartsOnNoteHardConstraint;
 import audioWfc.constraints.MelodyStepSizeHardConstraint;
 import audioWfc.constraints.NotesInKeyConstraint;
 import audioWfc.musicTheory.Key;
@@ -14,6 +16,7 @@ import audioWfc.musicTheory.chords.ChordQuality;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
 
 import static audioWfc.musicTheory.Note.C;
@@ -31,9 +34,29 @@ public class Main {
         System.out.println(wfc.generate(List.of(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.of(1), Optional.empty(), Optional.empty())));
     }
 
-    private static void chordsAndNotesDemo(){
+    private static void chordsAndNotesDemo() {
         Key key = new MajorKey(C);
-        Set<Chord> chordOptions = new ChordsInKeyConstraint(key).allowedTiles();
+
+        Set<Chord> chordOptions = key.getBasicChords();
+        ConstraintSet<Chord> constraintSetChords = new ConstraintSet<>(Set.of(new ChordStepSizeHardConstraint(Set.of(3,4,5))));
+        TileCanvas<Chord> chordWFC = new TileCanvas<>(chordOptions, constraintSetChords, 8, new Random());
+        List<Chord> chords = chordWFC.generate();
+        System.out.println(chords);
+
+        for(Chord chord : chords){
+            Set<Note> noteOptions = key.getNotes();
+            ConstraintSet<Note> constraintSetNotes = new ConstraintSet<>(Set.of(
+                    new MelodyStepSizeHardConstraint(Set.of(1,2,3)),
+                    new MelodyStartsOnNoteHardConstraint(chord.getThird())
+            ));
+            TileCanvas<Note> noteWFC = new TileCanvas<>(noteOptions, constraintSetNotes, 4, new Random());
+            List<Note> melodySegment = noteWFC.generate();
+            System.out.println(chord + " - " + melodySegment);
+        }
+
+
+
+                /*
         Set<NeighborPair<Chord>> chordPairs = ConstraintUtils
                 .applyHardConstraint(WFCUtils.allCombinationsNoRepeats(chordOptions),
                         new ChordStepSizeHardConstraint(Set.of(3,4,5)));
@@ -55,5 +78,6 @@ public class Main {
             System.out.println(chord + " - " + melodySegment);
         }
 
+                 */
     }
 }

@@ -1,22 +1,41 @@
 package audioWfc.constraints;
 
 import audioWfc.NeighborPair;
+import audioWfc.Tile;
 import audioWfc.musicTheory.Note;
 import audioWfc.musicTheory.NoteUtils;
 import audioWfc.musicTheory.chords.Chord;
 
 import java.util.Set;
 
-public class ChordStepSizeHardConstraint extends HardConstraint<NeighborPair<Chord>> {
+public class ChordStepSizeHardConstraint implements HardConstraint<Chord> {
     private Set<Integer> allowedStepSizes;
 
     @Override
-    public boolean check(NeighborPair<Chord> pair) {
-        Chord chord1 = pair.getFirst();
-        Chord chord2 = pair.getSecond();
+    public boolean check(Tile<Chord> tile) {
+        return checkWithPrev(tile) && checkWithNext(tile);
+    }
+
+    private boolean checkWithPrev(Tile<Chord> tile) {
+        Tile<Chord> prev = tile.getPrev();
+        if(!prev.isCollapsed()) return true;
+        Chord chord1 = prev.getValue();
+        Chord chord2 = tile.getValue();
+        return checkConcrete(chord1, chord2);
+    }
+
+    private boolean checkWithNext(Tile<Chord> tile) {
+        Tile<Chord> next = tile.getNext();
+        if(!next.isCollapsed()) return true;
+        Chord chord1 = tile.getValue();
+        Chord chord2 = next.getValue();
+        return checkConcrete(chord1, chord2);
+    }
+
+
+    private boolean checkConcrete(Chord chord1, Chord chord2) {
         int distance = NoteUtils.absoluteDistance(chord1.getRoot(), chord2.getRoot());
-        if(allowedStepSizes.contains(distance)) return true;
-        return false;
+        return allowedStepSizes.contains(distance);
     }
 
     public ChordStepSizeHardConstraint(Set<Integer> allowedStepSizes){

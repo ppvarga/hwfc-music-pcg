@@ -1,6 +1,6 @@
 package audioWfc;
 
-public class PlayableNote extends Tile{
+public class PlayableNote{
     OctavedNote pitch;
     int start;
     int end;

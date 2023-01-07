@@ -1,5 +1,7 @@
 package audioWfc.constraints;
 
-public abstract class HardConstraint<T> implements Constraint<T>{
-    public abstract boolean check(T tile);
+import audioWfc.Tile;
+
+public interface HardConstraint<T> extends Constraint<T>{
+    public abstract boolean check(Tile<T> tile);
 }

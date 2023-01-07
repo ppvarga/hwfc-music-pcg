@@ -1,4 +1,4 @@
 package audioWfc;
 
-public class Section extends Tile{
+public class Section{
 }

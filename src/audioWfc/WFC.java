@@ -2,10 +2,19 @@ package audioWfc;
 
 import java.util.*;
 
+import audioWfc.constraints.Constraint;
+import audioWfc.constraints.ConstraintSet;
+import org.apache.commons.math3.distribution.EnumeratedDistribution;
+import org.apache.commons.math3.util.Pair;
+
+import static java.util.stream.Collectors.toList;
+
 public class WFC<T> {
     Set<NeighborPair<T>> neighborPairs;
     Set<T> values;
     Random random;
+
+    ConstraintSet<T> constraintSet;
 
     public WFC(){
         this.neighborPairs = new HashSet<>();
@@ -60,7 +69,7 @@ public class WFC<T> {
     private T collapse(List<Optional<T>> in, int i){
         List<T> allowed = new ArrayList<>(this.values);
 
-        //set up audioWfc.constraints based on previous element
+        //set up constraints based on previous element
         if(i>0 && in.get(i-1).isPresent()){
             T prev = in.get(i-1).get();
 
@@ -73,7 +82,7 @@ public class WFC<T> {
             allowed.retainAll(allowedByPrev);
         }
 
-        //set up audioWfc.constraints based on next element
+        //set up constraints based on next element
         if(i<in.size()-1 && in.get(i+1).isPresent()){
             T next = in.get(i+1).get();
 
@@ -87,12 +96,16 @@ public class WFC<T> {
             allowed.retainAll(allowedByNext);
         }
 
-        int numOptions = allowed.size();
+        return selectOptionUnweighted(allowed);
+    }
+
+    private T selectOptionUnweighted(List<T> options) {
+        int numOptions = options.size();
         if(numOptions == 0){
             throw new RuntimeException("Collapse unsuccessful");
         }
         int randomIndex = random.nextInt(numOptions);
-        return allowed.get(randomIndex);
+        return options.get(randomIndex);
     }
 
     private PriorityQueue<Integer> queueIndices(List<Optional<T>> in){
