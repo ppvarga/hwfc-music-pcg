@@ -19,7 +19,7 @@ public class MajorKey extends Key {
 
     @Override
     public List<ChordQuality> basicChordQualities() {
-        return List.of(MAJOR, NULL, MINOR, NULL, MINOR, MAJOR, NULL, MAJOR, NULL, MINOR, NULL, DIMINISHED);
+        return List.of(MAJOR, NULL, MINOR, NULL, MINOR, MAJOR, NULL, MAJOR, NULL, MINOR, NULL, NULL);
     }
 
     public MajorKey(Note root){

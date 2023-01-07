@@ -2,7 +2,9 @@ package audioWfc;
 
 import audioWfc.constraints.ChordStepSizeHardConstraint;
 import audioWfc.constraints.ChordsInKeyConstraint;
+import audioWfc.constraints.Constraint;
 import audioWfc.constraints.ConstraintUtils;
+import audioWfc.constraints.MelodyStepSizeHardConstraint;
 import audioWfc.constraints.NotesInKeyConstraint;
 import audioWfc.musicTheory.Key;
 import audioWfc.musicTheory.MajorKey;
@@ -31,15 +33,27 @@ public class Main {
 
     private static void chordsAndNotesDemo(){
         Key key = new MajorKey(C);
-        Set<Chord> chords = new ChordsInKeyConstraint(key).allowedTiles();
+        Set<Chord> chordOptions = new ChordsInKeyConstraint(key).allowedTiles();
         Set<NeighborPair<Chord>> chordPairs = ConstraintUtils
-                .applyHardConstraint(WFCUtils.allCombinationsNoRepeats(chords),
-                        new ChordStepSizeHardConstraint(Set.of(3,4)));
-        System.out.println(chordPairs);
+                .applyHardConstraint(WFCUtils.allCombinationsNoRepeats(chordOptions),
+                        new ChordStepSizeHardConstraint(Set.of(3,4,5)));
+        //System.out.println("Chord pairs: " + chordPairs);
 
+        WFC<Chord> chordWFC = new WFC<>(chordPairs);
+        List<Chord> chordProgression = chordWFC.generate(8);
+        System.out.println("Chord progression: " + chordProgression);
 
+        Set<Note> noteOptions = new NotesInKeyConstraint(key).allowedTiles();
+        Set<NeighborPair<Note>> notePairs = ConstraintUtils
+                .applyHardConstraint(WFCUtils.allCombinations(noteOptions),
+                        new MelodyStepSizeHardConstraint(Set.of(1,2,3)));
 
-        Set<Note> notes = new NotesInKeyConstraint(key).allowedTiles();
-        Set<NeighborPair<Note>> notePairs = WFCUtils.allCombinationsNoRepeats(notes);
+        for(Chord chord : chordProgression){
+            WFC<Note> noteWFC = new WFC<>(notePairs);
+            List<Note> melodySegment = noteWFC.generate(
+                    List.of(Optional.of(chord.getThird()), Optional.empty(), Optional.empty(), Optional.empty()));
+            System.out.println(chord + " - " + melodySegment);
+        }
+
     }
 }

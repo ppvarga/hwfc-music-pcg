@@ -45,15 +45,16 @@ public abstract class Key extends NoteSet {
         List<ChordQuality> qualities = basicChordQualities();
         for(int value : noteValues()){
             Note chordRoot = NoteUtils.relativeNote(root, value);
-            Chord chord;
+            Chord chord = null;
+            boolean fail = false;
             switch (qualities.get(value)){
                 case MAJOR -> chord = new MajorChord(chordRoot);
                 case MINOR -> chord = new MinorChord(chordRoot);
                 case DIMINISHED -> chord = new DiminishedChord(chordRoot);
                 case AUGMENTED -> chord = new AugmentedChord(chordRoot);
-                default -> throw new RuntimeException("Invalid chord quality");
+                default -> fail = true;
             }
-            out.add(chord);
+            if(!fail) out.add(chord);
         }
         return out;
     }
