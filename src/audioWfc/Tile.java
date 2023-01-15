@@ -6,6 +6,7 @@ import org.apache.commons.math3.util.Pair;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class Tile<T> {
@@ -26,11 +27,15 @@ public class Tile<T> {
         this.value = value;
     }
 
-    public Tile(TileCanvas<T> canvas, int position){
+    public Tile(TileCanvas<T> canvas, int position, Set<T> options){
         this.canvas = canvas;
         this.position = position;
         this.status = TileStatus.ACTIVE;
-        this.optionWeights = canvas.getAllOptions().stream().map(i -> new Pair<>(i, 1d)).collect(Collectors.toList());
+        this.optionWeights = options.stream().map(i -> new Pair<>(i, 1d)).collect(Collectors.toList());
+    }
+
+    public Tile(TileCanvas<T> canvas, int position){
+        this(canvas, position, canvas.getAllOptions());
     }
 
     private Tile(){}
@@ -47,8 +52,8 @@ public class Tile<T> {
         return out;
     }
 
-    private Tile hypotheticalTile(T value){
-        Tile out = new Tile(canvas, position, value);
+    private Tile<T> hypotheticalTile(T value){
+        Tile<T> out = new Tile(canvas, position, value);
         out.setPrev(prev);
         out.setNext(next);
         return out;

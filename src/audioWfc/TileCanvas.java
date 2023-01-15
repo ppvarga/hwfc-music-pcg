@@ -1,6 +1,7 @@
 package audioWfc;
 
 import audioWfc.constraints.ConstraintSet;
+import audioWfc.musicTheory.OptionsPerCell;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,30 +21,17 @@ public class TileCanvas<T> {
     private TileSelector pq;
     private Random random;
 
-    public TileCanvas(Set<T> allOptions, ConstraintSet<T> constraints, List<Optional<T>> input, Random random){
-        int n = input.size();
-        if(n < 1) throw new IllegalArgumentException();
-        this.allOptions = allOptions;
+    public TileCanvas(int n, OptionsPerCell<T> options, ConstraintSet<T> constraints, Random random){
+        this.allOptions = options.getAllOptions();
         this.constraints = constraints;
         this.size = n;
         this.collapsed = 0;
         this.tiles = new ArrayList<>();
 
-        if(input.get(0).isEmpty()){
-            this.tiles.add(new Tile<>(this, 0));
-        }else{
-            this.tiles.add(new Tile<>(this, 0, input.get(0).get()));
-            this.collapsed++;
-        }
+        this.tiles.add(new Tile<>(this, 0, options.get(0)));
 
         for (int i = 1; i < n; i++) {
-            Tile<T> tile;
-            if(input.get(i).isEmpty()){
-                tile = new Tile<>(this, i);
-            } else {
-                tile = new Tile<>(this, i, input.get(i).get());
-                this.collapsed++;
-            }
+            Tile<T> tile = new Tile<>(this, i, options.get(i));
             Tile<T> prev = this.tiles.get(i-1);
             tile.setPrev(prev);
             prev.setNext(tile);
@@ -58,8 +46,8 @@ public class TileCanvas<T> {
         for(Tile<T> tile : tiles) tile.updateOptions();
     }
 
-    public TileCanvas(Set<T> allOptions, ConstraintSet<T> constraints, int n, Random random){
-        this(allOptions, constraints, Collections.nCopies(n, Optional.empty()), random);
+    public TileCanvas(int n, Set<T> allOptions, ConstraintSet<T> constraints, Random random){
+        this(n, new OptionsPerCell<>(allOptions), constraints, random);
     }
 
     public Tile<T> collapseNext(){
