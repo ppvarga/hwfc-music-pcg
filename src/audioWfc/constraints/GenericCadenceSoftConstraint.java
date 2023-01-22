@@ -8,15 +8,14 @@ import audioWfc.musicTheory.chords.Chord;
 import audioWfc.musicTheory.chords.ChordQuality;
 
 
-public class GenericCadenceSoftConstraint implements SoftConstraint<Chord>{
-    private double factor;
+public class GenericCadenceSoftConstraint extends SoftConstraint<Chord>{
     private Chord firstChord;
     private Chord secondChord;
 
     public GenericCadenceSoftConstraint(double factor, Key key,
                                          int firstOffset, ChordQuality firstQuality,
                                          int secondOffset, ChordQuality secondQuality){
-        this.factor = factor;
+        super(factor);
 
         Note root = key.getRoot();
 

@@ -2,6 +2,12 @@ package audioWfc.constraints;
 
 import audioWfc.Tile;
 
-public interface SoftConstraint<T> extends Constraint<T>{
-    double weight(Tile<T> item);
+public abstract class SoftConstraint<T> implements Constraint<T>{
+    protected double factor;
+
+    public SoftConstraint(double factor){
+        this.factor = factor;
+    }
+
+    public abstract double weight(Tile<T> item);
 }

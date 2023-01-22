@@ -1,5 +1,6 @@
 package audioWfc;
 
+import audioWfc.constraints.AscendingMelodySoftConstraint;
 import audioWfc.constraints.ChordStepSizeHardConstraint;
 import audioWfc.constraints.ChordsInKeyConstraint;
 import audioWfc.constraints.Constraint;
@@ -28,7 +29,7 @@ import static audioWfc.musicTheory.Note.*;
 
 public class Main {
     public static void main(String[] args) {
-        cadenceSoftConstraintsDemo();
+        ascendingMelodyDemo();
     }
 
     private static void chordsAndNotesDemo() {
@@ -75,5 +76,18 @@ public class Main {
 
         List<Chord> chords = chordWFC.generate();
         System.out.println(chords);
+    }
+
+    private static void ascendingMelodyDemo() {
+        Key key = new MajorKey(C);
+
+        Set<Note> noteOptions = key.getNotes();
+        ConstraintSet<Note> constraintSetNotes = new ConstraintSet<>(Set.of(
+                new MelodyStepSizeHardConstraint(Set.of(1,2,3,4)),
+                new AscendingMelodySoftConstraint(10)
+        ));
+        TileCanvas<Note> noteWFC = new TileCanvas<>(16, noteOptions, constraintSetNotes, new Random());
+        List<Note> melodySegment = noteWFC.generate();
+        System.out.println(melodySegment);
     }
 }

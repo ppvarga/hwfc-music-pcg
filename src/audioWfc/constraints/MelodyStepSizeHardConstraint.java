@@ -25,7 +25,7 @@ public class MelodyStepSizeHardConstraint implements HardConstraint<Note>{
     }
 
     private boolean checkWithNext(Tile<Note> tile) {
-        Tile<Note> next = tile.getPrev();
+        Tile<Note> next = tile.getNext();
         if(!next.isCollapsed()) return true;
         Note note1 = tile.getValue();
         Note note2 = next.getValue();
