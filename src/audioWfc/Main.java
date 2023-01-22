@@ -6,6 +6,8 @@ import audioWfc.constraints.ChordsInKeyConstraint;
 import audioWfc.constraints.Constraint;
 import audioWfc.constraints.ConstraintSet;
 import audioWfc.constraints.ConstraintUtils;
+import audioWfc.constraints.MelodyShape;
+import audioWfc.constraints.MelodyShapeHardConstraint;
 import audioWfc.constraints.MelodyStartsOnNoteHardConstraint;
 import audioWfc.constraints.MelodyStepSizeHardConstraint;
 import audioWfc.constraints.NotesInKeyConstraint;
@@ -29,7 +31,7 @@ import static audioWfc.musicTheory.Note.*;
 
 public class Main {
     public static void main(String[] args) {
-        ascendingMelodyDemo();
+        melodyShapeDemo();
     }
 
     private static void chordsAndNotesDemo() {
@@ -87,6 +89,23 @@ public class Main {
                 new AscendingMelodySoftConstraint(10)
         ));
         TileCanvas<Note> noteWFC = new TileCanvas<>(16, noteOptions, constraintSetNotes, new Random());
+        List<Note> melodySegment = noteWFC.generate();
+        System.out.println(melodySegment);
+    }
+
+    private static void melodyShapeDemo() {
+        Key key = new MajorKey(C);
+
+        Set<Note> noteOptions = key.getNotes();
+
+        String melodyShapeString = "aasdaaswww";
+        MelodyShape melodyShape = MelodyShape.parse(melodyShapeString);
+
+        ConstraintSet<Note> constraintSetNotes = new ConstraintSet<>(Set.of(
+                new MelodyStepSizeHardConstraint(Set.of(0,1,2,3)),
+                new MelodyShapeHardConstraint(melodyShape)
+        ));
+        TileCanvas<Note> noteWFC = new TileCanvas<>(melodyShapeString.length()+1, noteOptions, constraintSetNotes, new Random());
         List<Note> melodySegment = noteWFC.generate();
         System.out.println(melodySegment);
     }
