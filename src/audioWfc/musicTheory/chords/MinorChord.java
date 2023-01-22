@@ -13,6 +13,11 @@ public class MinorChord extends Chord {
     }
 
     @Override
+    ChordQuality quality() {
+        return ChordQuality.MINOR;
+    }
+
+    @Override
     public Set<Integer> noteValues() {
         return Set.of(0,3,7);
     }

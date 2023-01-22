@@ -13,6 +13,11 @@ public class DiminishedChord extends Chord {
     }
 
     @Override
+    ChordQuality quality() {
+        return ChordQuality.DIMINISHED;
+    }
+
+    @Override
     public Set<Integer> noteValues() {
         return Set.of(0,3,6);
     }

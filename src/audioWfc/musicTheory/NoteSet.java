@@ -9,4 +9,14 @@ public abstract class NoteSet {
     public Note getRoot() {
         return this.root;
     }
+
+    @Override
+    public boolean equals(Object o){
+        if(o == null) return false;
+        if(this == o) return true;
+        if(! (o instanceof NoteSet)) return false;
+        NoteSet that = (NoteSet) o;
+        return this.root.equals(that.root) &&
+                this.noteValues().equals(that.noteValues());
+    }
 }

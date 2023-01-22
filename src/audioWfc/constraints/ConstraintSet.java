@@ -28,8 +28,7 @@ public class ConstraintSet<T> {
         for(HardConstraint<T> hardConstraint : hardConstraints){
             if(!hardConstraint.check(item)) return 0d;
         }
-        if(softConstraints.isEmpty()) return 1d;
-        double out = 0d;
+        double out = 1d;
         for(SoftConstraint<T> softConstraint : softConstraints){
             out += softConstraint.weight(item);
         }

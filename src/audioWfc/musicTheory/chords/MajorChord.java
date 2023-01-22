@@ -13,6 +13,11 @@ public class MajorChord extends Chord {
     }
 
     @Override
+    ChordQuality quality() {
+        return ChordQuality.MAJOR;
+    }
+
+    @Override
     public Set<Integer> noteValues() {
         return Set.of(0,4,7);
     }

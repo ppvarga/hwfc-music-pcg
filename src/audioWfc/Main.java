@@ -8,6 +8,8 @@ import audioWfc.constraints.ConstraintUtils;
 import audioWfc.constraints.MelodyStartsOnNoteHardConstraint;
 import audioWfc.constraints.MelodyStepSizeHardConstraint;
 import audioWfc.constraints.NotesInKeyConstraint;
+import audioWfc.constraints.PerfectCadenceSoftConstraint;
+import audioWfc.constraints.PlagalCadenceSoftConstraint;
 import audioWfc.musicTheory.Key;
 import audioWfc.musicTheory.MajorKey;
 import audioWfc.musicTheory.Note;
@@ -26,7 +28,7 @@ import static audioWfc.musicTheory.Note.*;
 
 public class Main {
     public static void main(String[] args) {
-        chordsAndNotesDemo();
+        cadenceSoftConstraintsDemo();
     }
 
     private static void chordsAndNotesDemo() {
@@ -52,5 +54,26 @@ public class Main {
             List<Note> melodySegment = noteWFC.generate();
             System.out.println(chord + " - " + melodySegment);
         }
+    }
+
+    private static void cadenceSoftConstraintsDemo(){
+        Key key = new MajorKey(C);
+
+        Set<Chord> chordOptions = key.getBasicChords();
+
+        ConstraintSet<Chord> constraintSetChords = new ConstraintSet<>(Set.of(
+                new PerfectCadenceSoftConstraint(100d, key),
+                new PlagalCadenceSoftConstraint(50d, key)
+        ));
+
+        OptionsPerCell<Chord> optionsPerCell = new OptionsPerCell<>(chordOptions);
+        for(int i = 0; i<8; i++){
+            optionsPerCell.setValue(4*i, new MajorChord(C));
+        }
+
+        TileCanvas<Chord> chordWFC = new TileCanvas<>(32, optionsPerCell, constraintSetChords, new Random());
+
+        List<Chord> chords = chordWFC.generate();
+        System.out.println(chords);
     }
 }

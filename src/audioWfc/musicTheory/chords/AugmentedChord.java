@@ -13,6 +13,11 @@ public class AugmentedChord extends Chord {
     }
 
     @Override
+    ChordQuality quality() {
+        return ChordQuality.AUGMENTED;
+    }
+
+    @Override
     public Set<Integer> noteValues() {
         return Set.of(0,4,8);
     }
