@@ -1,20 +1,21 @@
 package audioWfc.constraints;
 
+import audioWfc.OctavedNote;
 import audioWfc.Tile;
 import audioWfc.musicTheory.Note;
 import audioWfc.musicTheory.NoteUtils;
 
-public class DescendingMelodySoftConstraint extends SoftConstraint<Note>{
+public class DescendingMelodySoftConstraint extends SoftConstraint<OctavedNote>{
     public DescendingMelodySoftConstraint(double factor){
         super(factor);
     }
 
     @Override
-    public double weight(Tile<Note> item) {
-        Note note = item.getValue();
+    public double weight(Tile<OctavedNote> item) {
+        OctavedNote note = item.getValue();
 
-        Tile<Note> prev = item.getPrev();
-        Tile<Note> next = item.getNext();
+        Tile<OctavedNote> prev = item.getPrev();
+        Tile<OctavedNote> next = item.getNext();
 
         double out = 0d;
 
@@ -29,7 +30,7 @@ public class DescendingMelodySoftConstraint extends SoftConstraint<Note>{
         return out;
     }
 
-    private boolean checkDescending(Note first, Note second){
-        return NoteUtils.distance(first, second) < 0;
+    private boolean checkDescending(OctavedNote first, OctavedNote second){
+        return first.MIDIValue() > second.MIDIValue();
     }
 }

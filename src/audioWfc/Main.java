@@ -2,15 +2,13 @@ package audioWfc;
 
 import audioWfc.constraints.AscendingMelodySoftConstraint;
 import audioWfc.constraints.ChordStepSizeHardConstraint;
-import audioWfc.constraints.ChordsInKeyConstraint;
-import audioWfc.constraints.Constraint;
 import audioWfc.constraints.ConstraintSet;
-import audioWfc.constraints.ConstraintUtils;
 import audioWfc.constraints.MelodyShape;
 import audioWfc.constraints.MelodyShapeHardConstraint;
 import audioWfc.constraints.MelodyStartsOnNoteHardConstraint;
-import audioWfc.constraints.MelodyStepSizeHardConstraint;
-import audioWfc.constraints.NotesInKeyConstraint;
+import audioWfc.constraints.MelodyAbsoluteStepSizeHardConstraint;
+import audioWfc.constraints.NoteInKeyHardConstraint;
+import audioWfc.constraints.NoteInOctavesConstraint;
 import audioWfc.constraints.PerfectCadenceSoftConstraint;
 import audioWfc.constraints.PlagalCadenceSoftConstraint;
 import audioWfc.musicTheory.Key;
@@ -18,12 +16,17 @@ import audioWfc.musicTheory.MajorKey;
 import audioWfc.musicTheory.Note;
 import audioWfc.musicTheory.OptionsPerCell;
 import audioWfc.musicTheory.chords.Chord;
-import audioWfc.musicTheory.chords.ChordQuality;
 import audioWfc.musicTheory.chords.MajorChord;
 import audioWfc.musicTheory.chords.MinorChord;
 
+import javax.sound.midi.Instrument;
+import javax.sound.midi.MidiChannel;
+import javax.sound.midi.MidiSystem;
+import javax.sound.midi.MidiUnavailableException;
+import javax.sound.midi.Sequencer;
+import javax.sound.midi.Synthesizer;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 
@@ -31,7 +34,7 @@ import static audioWfc.musicTheory.Note.*;
 
 public class Main {
     public static void main(String[] args) {
-        melodyShapeDemo();
+        chordsAndNotesDemo();
     }
 
     private static void chordsAndNotesDemo() {
@@ -47,16 +50,37 @@ public class Main {
         List<Chord> chords = chordWFC.generate();
         System.out.println(chords);
 
+        int chordTicks = 1;
+        int noteTicks = 1;
+        final int noteLength = 4;
+        final int notesPerChord = 4;
+
+        Set<PlayableNote> playableNotes = new HashSet<>();
+
         for(Chord chord : chords){
-            Set<Note> noteOptions = key.getNotes();
-            ConstraintSet<Note> constraintSetNotes = new ConstraintSet<>(Set.of(
-                    new MelodyStepSizeHardConstraint(Set.of(1,2,3)),
+            ConstraintSet<OctavedNote> constraintSetNotes = new ConstraintSet<>(Set.of(
+                    new NoteInKeyHardConstraint(key),
+                    new NoteInOctavesConstraint(Set.of(5)),
+                    new MelodyAbsoluteStepSizeHardConstraint(Set.of(1,2,3)),
                     new MelodyStartsOnNoteHardConstraint(chord.getThird())
             ));
-            TileCanvas<Note> noteWFC = new TileCanvas<>(4, noteOptions, constraintSetNotes, new Random());
-            List<Note> melodySegment = noteWFC.generate();
+            TileCanvas<OctavedNote> noteWFC = new TileCanvas<>(notesPerChord, OctavedNote.all(), constraintSetNotes, new Random());
+            List<OctavedNote> melodySegment = noteWFC.generate();
             System.out.println(chord + " - " + melodySegment);
+
+            playableNotes.addAll(BasicChordRealizer.realize(chord, chordTicks, chordTicks+ notesPerChord*noteLength));
+            chordTicks += notesPerChord*noteLength;
+
+            for(OctavedNote octavedNote : melodySegment){
+                PlayableNote playableNote = new PlayableNote(octavedNote, noteTicks, noteTicks+noteLength, 100);
+                playableNotes.add(playableNote);
+                noteTicks += noteLength;
+            }
         }
+
+        Sequencer sequencer = SequencerBuilder.buildSequencer(playableNotes);
+
+        sequencer.start();
     }
 
     private static void cadenceSoftConstraintsDemo(){
@@ -83,30 +107,59 @@ public class Main {
     private static void ascendingMelodyDemo() {
         Key key = new MajorKey(C);
 
-        Set<Note> noteOptions = key.getNotes();
-        ConstraintSet<Note> constraintSetNotes = new ConstraintSet<>(Set.of(
-                new MelodyStepSizeHardConstraint(Set.of(1,2,3,4)),
+        ConstraintSet<OctavedNote> constraintSetNotes = new ConstraintSet<>(Set.of(
+                new NoteInKeyHardConstraint(key),
+                new MelodyAbsoluteStepSizeHardConstraint(Set.of(1,2,3,4)),
                 new AscendingMelodySoftConstraint(10)
         ));
-        TileCanvas<Note> noteWFC = new TileCanvas<>(16, noteOptions, constraintSetNotes, new Random());
-        List<Note> melodySegment = noteWFC.generate();
+        TileCanvas<OctavedNote> noteWFC = new TileCanvas<>(16, OctavedNote.all(), constraintSetNotes, new Random());
+        List<OctavedNote> melodySegment = noteWFC.generate();
         System.out.println(melodySegment);
     }
 
     private static void melodyShapeDemo() {
         Key key = new MajorKey(C);
 
-        Set<Note> noteOptions = key.getNotes();
-
-        String melodyShapeString = "aasdaaswww";
+        String melodyShapeString = "adadadadda";
         MelodyShape melodyShape = MelodyShape.parse(melodyShapeString);
 
-        ConstraintSet<Note> constraintSetNotes = new ConstraintSet<>(Set.of(
-                new MelodyStepSizeHardConstraint(Set.of(0,1,2,3)),
+        ConstraintSet<OctavedNote> constraintSetNotes = new ConstraintSet<>(Set.of(
+                new NoteInKeyHardConstraint(key),
+                new MelodyAbsoluteStepSizeHardConstraint(Set.of(0,1,2,3)),
                 new MelodyShapeHardConstraint(melodyShape)
         ));
-        TileCanvas<Note> noteWFC = new TileCanvas<>(melodyShapeString.length()+1, noteOptions, constraintSetNotes, new Random());
-        List<Note> melodySegment = noteWFC.generate();
+        TileCanvas<OctavedNote> noteWFC = new TileCanvas<>(melodyShapeString.length()+1, OctavedNote.all(), constraintSetNotes, new Random());
+        List<OctavedNote> melodySegment = noteWFC.generate();
         System.out.println(melodySegment);
+    }
+
+    private static void playOneNote() { // https://stackoverflow.com/a/36466737
+        try{
+            /* Create a new Sythesizer and open it. Most of
+             * the methods you will want to use to expand on this
+             * example can be found in the Java documentation here:
+             * https://docs.oracle.com/javase/7/docs/api/javax/sound/midi/Synthesizer.html
+             */
+            Synthesizer midiSynth = MidiSystem.getSynthesizer();
+            midiSynth.open();
+
+            //get and load default instrument and channel lists
+            Instrument[] instr = midiSynth.getDefaultSoundbank().getInstruments();
+            MidiChannel[] mChannels = midiSynth.getChannels();
+
+            midiSynth.loadInstrument(instr[0]);//load an instrument
+
+
+            mChannels[0].noteOn(60, 100);//On channel 0, play note number 60 with velocity 100
+            try { Thread.sleep(1000); // wait time in milliseconds to control duration
+            } catch( InterruptedException e ) {
+                e.printStackTrace();
+            }
+            mChannels[0].noteOff(60);//turn of the note
+
+
+        } catch (MidiUnavailableException e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -23,9 +23,9 @@ public class SequencerBuilder {
             Track track = sequence.createTrack();
             
             for(PlayableNote note : notes){
-                track.add(makeEvent(START_NOTE, CHANNEL, note.pitch.pitch(), note.velocity, note.start));
+                track.add(makeEvent(START_NOTE, CHANNEL, note.pitch.MIDIValue(), note.velocity, note.start));
 
-                track.add(makeEvent(END_NOTE, CHANNEL, note.pitch.pitch(), note.velocity, note.end));
+                track.add(makeEvent(END_NOTE, CHANNEL, note.pitch.MIDIValue(), note.velocity, note.end));
             }
 
             sequencer.setSequence(sequence);

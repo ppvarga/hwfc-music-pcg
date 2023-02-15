@@ -1,9 +1,10 @@
 package audioWfc.constraints;
 
+import audioWfc.OctavedNote;
 import audioWfc.Tile;
 import audioWfc.musicTheory.Note;
 
-public class MelodyStartsOnNoteHardConstraint implements HardConstraint<Note>{
+public class MelodyStartsOnNoteHardConstraint implements HardConstraint<OctavedNote>{
     private Note note;
 
     public MelodyStartsOnNoteHardConstraint(Note note){
@@ -11,8 +12,8 @@ public class MelodyStartsOnNoteHardConstraint implements HardConstraint<Note>{
     }
 
     @Override
-    public boolean check(Tile<Note> tile) {
+    public boolean check(Tile<OctavedNote> tile) {
         if(tile.getPosition() != 0) return true;
-        return tile.getValue().equals(note);
+        return tile.getValue().getNote().equals(note);
     }
 }

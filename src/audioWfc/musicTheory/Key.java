@@ -31,6 +31,9 @@ public abstract class Key extends NoteSet {
         return basicChords;
     }
 
+    public boolean contains(Note note){
+        return notes.contains(note);
+    }
 
     private Set<Note> generateNotes(){
         Set<Note> out = new HashSet<>();
