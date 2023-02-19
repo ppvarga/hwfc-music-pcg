@@ -1,6 +1,7 @@
 package audioWfc;
 
 import audioWfc.constraints.AscendingMelodySoftConstraint;
+import audioWfc.constraints.ChordInKeyConstraint;
 import audioWfc.constraints.ChordStepSizeHardConstraint;
 import audioWfc.constraints.ConstraintSet;
 import audioWfc.constraints.MelodyShape;
@@ -25,6 +26,7 @@ import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Sequencer;
 import javax.sound.midi.Synthesizer;
+import java.io.File;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -40,20 +42,22 @@ public class Main {
     private static void chordsAndNotesDemo() {
         Key key = new MajorKey(C);
 
-        Set<Chord> chordOptions = key.getBasicChords();
-        ConstraintSet<Chord> constraintSetChords = new ConstraintSet<>(Set.of(new ChordStepSizeHardConstraint(Set.of(3,4,5))));
-        OptionsPerCell<Chord> optionsPerCell = new OptionsPerCell<>(chordOptions);
+        int chordTicks = 1;
+        int noteTicks = 1;
+        final int noteLength = 2;
+        final int notesPerChord = 4;
+        
+        ConstraintSet<Chord> constraintSetChords = new ConstraintSet<>(Set.of(
+                new ChordInKeyConstraint(key),
+                new ChordStepSizeHardConstraint(Set.of(3,4,5))
+        ));
+        OptionsPerCell<Chord> optionsPerCell = new OptionsPerCell<>(Chord.getAllBasicChords());
         optionsPerCell.setValue(2, new MajorChord(F));
         optionsPerCell.setOptions(5, Set.of(new MajorChord(C), new MinorChord(E)));
 
-        TileCanvas<Chord> chordWFC = new TileCanvas<>(8, optionsPerCell, constraintSetChords, new Random());
+        TileCanvas<Chord> chordWFC = new TileCanvas<>(8, optionsPerCell, constraintSetChords);
         List<Chord> chords = chordWFC.generate();
         System.out.println(chords);
-
-        int chordTicks = 1;
-        int noteTicks = 1;
-        final int noteLength = 4;
-        final int notesPerChord = 4;
 
         Set<PlayableNote> playableNotes = new HashSet<>();
 
@@ -64,7 +68,7 @@ public class Main {
                     new MelodyAbsoluteStepSizeHardConstraint(Set.of(1,2,3)),
                     new MelodyStartsOnNoteHardConstraint(chord.getThird())
             ));
-            TileCanvas<OctavedNote> noteWFC = new TileCanvas<>(notesPerChord, OctavedNote.all(), constraintSetNotes, new Random());
+            TileCanvas<OctavedNote> noteWFC = new TileCanvas<>(notesPerChord, OctavedNote.all(), constraintSetNotes);
             List<OctavedNote> melodySegment = noteWFC.generate();
             System.out.println(chord + " - " + melodySegment);
 
@@ -79,8 +83,9 @@ public class Main {
         }
 
         Sequencer sequencer = SequencerBuilder.buildSequencer(playableNotes);
+        MidiPlayer player = new MidiPlayer(sequencer);
+        player.start();
 
-        sequencer.start();
     }
 
     private static void cadenceSoftConstraintsDemo(){

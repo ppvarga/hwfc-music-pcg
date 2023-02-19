@@ -21,6 +21,14 @@ public class TileCanvas<T> {
     private TileSelector pq;
     private Random random;
 
+    public TileCanvas(int n, Set<T> allOptions, ConstraintSet<T> constraints){
+        this(n, allOptions, constraints, new Random());
+    }
+
+    public TileCanvas(int n, OptionsPerCell<T> options, ConstraintSet<T> constraints){
+        this(n, options, constraints, new Random());
+    }
+
     public TileCanvas(int n, OptionsPerCell<T> options, ConstraintSet<T> constraints, Random random){
         this.allOptions = options.getAllOptions();
         this.constraints = constraints;
