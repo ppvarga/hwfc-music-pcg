@@ -1,5 +1,6 @@
 package audioWfc.musicTheory;
 
+import java.util.Objects;
 import java.util.Set;
 
 public abstract class NoteSet {
@@ -18,5 +19,10 @@ public abstract class NoteSet {
         NoteSet that = (NoteSet) o;
         return this.root.equals(that.root) &&
                 this.noteValues().equals(that.noteValues());
+    }
+
+    @Override
+    public int hashCode(){
+        return Objects.hash(root, noteValues());
     }
 }
