@@ -6,9 +6,10 @@ import audioWfc.constraints.grabbers.Grabber;
 
 public class MelodyShapeHardConstraint implements HardConstraint<OctavedNote>{
     private MelodyShape melodyShape;
+    private Grabber<MelodyShape> grabber;
 
-    public MelodyShapeHardConstraint(Grabber<MelodyShape> melodyShape){
-        this.melodyShape = melodyShape.grab();
+    public MelodyShapeHardConstraint(Grabber<MelodyShape> grabber){
+        this.grabber = grabber;
     }
 
     @Override
@@ -49,5 +50,10 @@ public class MelodyShapeHardConstraint implements HardConstraint<OctavedNote>{
             case WILDCARD -> {return true;}
             default -> throw new RuntimeException("Unknown melody step type");
         }
+    }
+
+    @Override
+    public void init() {
+        this.melodyShape = grabber.grab();
     }
 }

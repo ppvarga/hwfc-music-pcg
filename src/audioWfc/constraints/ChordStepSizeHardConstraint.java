@@ -8,6 +8,7 @@ import audioWfc.musicTheory.chords.Chord;
 import java.util.Set;
 
 public class ChordStepSizeHardConstraint implements HardConstraint<Chord> {
+    private Grabber<Set<Integer>> grabber;
     private Set<Integer> allowedStepSizes;
 
     @Override
@@ -37,7 +38,12 @@ public class ChordStepSizeHardConstraint implements HardConstraint<Chord> {
         return allowedStepSizes.contains(distance);
     }
 
-    public ChordStepSizeHardConstraint(Grabber<Set<Integer>> allowedStepSizes){
-        this.allowedStepSizes = allowedStepSizes.grab();
+    public ChordStepSizeHardConstraint(Grabber<Set<Integer>> grabber){
+        this.grabber = grabber;
+    }
+
+    @Override
+    public void init() {
+        this.allowedStepSizes = grabber.grab();
     }
 }

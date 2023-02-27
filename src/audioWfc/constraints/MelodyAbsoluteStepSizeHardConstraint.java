@@ -8,6 +8,7 @@ import java.util.Set;
 
 public class MelodyAbsoluteStepSizeHardConstraint implements HardConstraint<OctavedNote>{
     private Set<Integer> allowedStepSizes;
+    private Grabber<Set<Integer>> grabber;
 
     @Override
     public boolean check(Tile<OctavedNote> tile) {
@@ -36,7 +37,12 @@ public class MelodyAbsoluteStepSizeHardConstraint implements HardConstraint<Octa
         return allowedStepSizes.contains(distance);
     }
 
-    public MelodyAbsoluteStepSizeHardConstraint(Grabber<Set<Integer>> allowedStepSizes){
-        this.allowedStepSizes = allowedStepSizes.grab();
+    public MelodyAbsoluteStepSizeHardConstraint(Grabber<Set<Integer>> grabber){
+        this.grabber = grabber;
+    }
+
+    @Override
+    public void init() {
+        this.allowedStepSizes = grabber.grab();
     }
 }

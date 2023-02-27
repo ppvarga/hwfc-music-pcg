@@ -9,28 +9,40 @@ import audioWfc.musicTheory.chords.Chord;
 import audioWfc.musicTheory.chords.ChordQuality;
 
 
-public class GenericCadenceSoftConstraint extends SoftConstraint<Chord>{
+public abstract class GenericCadenceSoftConstraint extends SoftConstraint<Chord>{
     private Chord firstChord;
     private Chord secondChord;
 
-    public GenericCadenceSoftConstraint(double factor, Key key,
-                                         int firstOffset, ChordQuality firstQuality,
-                                        int secondOffset, ChordQuality secondQuality){
-        super(factor);
+    private int firstOffset;
+    private int secondOffset;
+    private ChordQuality firstQuality;
+    private ChordQuality secondQuality;
 
-        Note root = key.getRoot();
+    private Grabber<Integer> firstOffsetGrabber;
+    private Grabber<Integer> secondOffsetGrabber;
+    private Grabber<ChordQuality> firstQualityGrabber;
+    private Grabber<ChordQuality> secondQualityGrabber;
+    private Grabber<Key> keyGrabber;
 
-        Note firstRoot = NoteUtils.relativeNote(root, firstOffset);
-        this.firstChord = Chord.create(firstRoot, firstQuality);
+    public void init(){
+        Note root = keyGrabber.grab().getRoot();
 
-        Note secondRoot = NoteUtils.relativeNote(root, secondOffset);
-        this.secondChord = Chord.create(secondRoot, secondQuality);
+        Note firstRoot = NoteUtils.relativeNote(root, firstOffsetGrabber.grab());
+        this.firstChord = Chord.create(firstRoot, firstQualityGrabber.grab());
+
+        Note secondRoot = NoteUtils.relativeNote(root, secondOffsetGrabber.grab());
+        this.secondChord = Chord.create(secondRoot, secondQualityGrabber.grab());
     }
 
-    public GenericCadenceSoftConstraint(double factor, Grabber<Key> key,
-                                        Grabber<Integer> firstOffset, Grabber<ChordQuality> firstQuality,
-                                        Grabber<Integer> secondOffset, Grabber<ChordQuality> secondQuality){
-        this(factor, key.grab(), firstOffset.grab(), firstQuality.grab(), secondOffset.grab(), secondQuality.grab());
+    public GenericCadenceSoftConstraint(double factor, Grabber<Key> keyGrabber,
+                                        Grabber<Integer> firstOffsetGrabber, Grabber<ChordQuality> firstQualityGrabber,
+                                        Grabber<Integer> secondOffsetGrabber, Grabber<ChordQuality> secondQualityGrabber){
+        super(factor);
+        this.keyGrabber = keyGrabber;
+        this.firstOffsetGrabber = firstOffsetGrabber;
+        this.secondOffsetGrabber = secondOffsetGrabber;
+        this.firstQualityGrabber = firstQualityGrabber;
+        this.secondQualityGrabber = secondQualityGrabber;
     }
 
     @Override

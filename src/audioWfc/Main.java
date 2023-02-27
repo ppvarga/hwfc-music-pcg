@@ -12,6 +12,7 @@ import audioWfc.constraints.NoteInKeyHardConstraint;
 import audioWfc.constraints.NoteInOctavesConstraint;
 import audioWfc.constraints.PerfectCadenceSoftConstraint;
 import audioWfc.constraints.PlagalCadenceSoftConstraint;
+import audioWfc.constraints.grabbers.BasicKeyGrabber;
 import audioWfc.constraints.grabbers.IntegerSetConstantGrabber;
 import audioWfc.musicTheory.Key;
 import audioWfc.musicTheory.MajorKey;
@@ -49,7 +50,7 @@ public class Main {
         final int notesPerChord = 4;
         
         ConstraintSet<Chord> constraintSetChords = new ConstraintSet<>(Set.of(
-                new ChordInKeyConstraint(key),
+                new ChordInKeyConstraint(new BasicKeyGrabber()),
                 new ChordStepSizeHardConstraint(new IntegerSetConstantGrabber(Set.of(3, 4, 5)))
         ));
         OptionsPerCell<Chord> optionsPerCell = new OptionsPerCell<>(Chord.getAllBasicChords());
@@ -64,7 +65,7 @@ public class Main {
 
         for(Chord chord : chords){
             ConstraintSet<OctavedNote> constraintSetNotes = new ConstraintSet<>(Set.of(
-                    new NoteInKeyHardConstraint(key),
+                    new NoteInKeyHardConstraint(new BasicKeyGrabber()),
                     new NoteInOctavesConstraint(new IntegerSetConstantGrabber(Set.of(5))),
                     new MelodyAbsoluteStepSizeHardConstraint(new IntegerSetConstantGrabber(Set.of(1,2,3))),
                     new MelodyStartsOnNoteHardConstraint(chord.getThird())
@@ -95,8 +96,8 @@ public class Main {
         Set<Chord> chordOptions = key.getBasicChords();
 
         ConstraintSet<Chord> constraintSetChords = new ConstraintSet<>(Set.of(
-                new PerfectCadenceSoftConstraint(100d, key),
-                new PlagalCadenceSoftConstraint(50d, key)
+                new PerfectCadenceSoftConstraint(100d, new BasicKeyGrabber()),
+                new PlagalCadenceSoftConstraint(50d, new BasicKeyGrabber())
         ));
 
         OptionsPerCell<Chord> optionsPerCell = new OptionsPerCell<>(chordOptions);
@@ -114,7 +115,7 @@ public class Main {
         Key key = new MajorKey(C);
 
         ConstraintSet<OctavedNote> constraintSetNotes = new ConstraintSet<>(Set.of(
-                new NoteInKeyHardConstraint(key),
+                new NoteInKeyHardConstraint(new BasicKeyGrabber()),
                 new MelodyAbsoluteStepSizeHardConstraint(new IntegerSetConstantGrabber(Set.of(1,2,3,4))),
                 new AscendingMelodySoftConstraint(10)
         ));
@@ -130,7 +131,7 @@ public class Main {
         MelodyShape melodyShape = MelodyShape.parse(melodyShapeString);
 
         ConstraintSet<OctavedNote> constraintSetNotes = new ConstraintSet<>(Set.of(
-                new NoteInKeyHardConstraint(key),
+                new NoteInKeyHardConstraint(new BasicKeyGrabber()),
                 new MelodyAbsoluteStepSizeHardConstraint(new IntegerSetConstantGrabber(Set.of(0,1,2,3))),
                 new MelodyShapeHardConstraint(melodyShape)
         ));

@@ -8,13 +8,19 @@ import java.util.Set;
 
 public class NoteInOctavesConstraint implements HardConstraint<OctavedNote> {
     private Set<Integer> octaves;
+    private Grabber<Set<Integer>> grabber;
 
-    public NoteInOctavesConstraint(Grabber<Set<Integer>> octaves){
-        this.octaves = octaves.grab();
+    public NoteInOctavesConstraint(Grabber<Set<Integer>> grabber){
+        this.grabber = grabber;
     }
 
     @Override
     public boolean check(Tile<OctavedNote> item) {
         return octaves.contains(item.getValue().getOctave());
+    }
+
+    @Override
+    public void init() {
+        this.octaves = grabber.grab();
     }
 }

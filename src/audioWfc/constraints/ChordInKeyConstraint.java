@@ -6,10 +6,15 @@ import audioWfc.musicTheory.Key;
 import audioWfc.musicTheory.chords.Chord;
 
 public class ChordInKeyConstraint implements HardConstraint<Chord>{
+    private Grabber<Key> grabber;
     private Key key;
 
-    public ChordInKeyConstraint(Grabber<Key> key) {
-        this.key = key.grab();
+    public ChordInKeyConstraint(Grabber<Key> grabber) {
+        this.grabber = grabber;
+    }
+
+    public void init(){
+        this.key = grabber.grab();
     }
 
     @Override
