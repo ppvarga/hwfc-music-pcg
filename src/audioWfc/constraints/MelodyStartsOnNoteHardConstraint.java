@@ -2,13 +2,14 @@ package audioWfc.constraints;
 
 import audioWfc.OctavedNote;
 import audioWfc.Tile;
+import audioWfc.constraints.grabbers.Grabber;
 import audioWfc.musicTheory.Note;
 
 public class MelodyStartsOnNoteHardConstraint implements HardConstraint<OctavedNote>{
     private Note note;
 
-    public MelodyStartsOnNoteHardConstraint(Note note){
-        this.note = note;
+    public MelodyStartsOnNoteHardConstraint(Grabber<Note> note){
+        this.note = note.grab();
     }
 
     @Override

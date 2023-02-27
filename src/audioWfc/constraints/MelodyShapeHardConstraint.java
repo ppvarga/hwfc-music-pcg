@@ -2,16 +2,13 @@ package audioWfc.constraints;
 
 import audioWfc.OctavedNote;
 import audioWfc.Tile;
-import audioWfc.musicTheory.Note;
-import audioWfc.musicTheory.NoteUtils;
-
-import java.util.Set;
+import audioWfc.constraints.grabbers.Grabber;
 
 public class MelodyShapeHardConstraint implements HardConstraint<OctavedNote>{
     private MelodyShape melodyShape;
 
-    public MelodyShapeHardConstraint(MelodyShape melodyShape){
-        this.melodyShape = melodyShape;
+    public MelodyShapeHardConstraint(Grabber<MelodyShape> melodyShape){
+        this.melodyShape = melodyShape.grab();
     }
 
     @Override

@@ -12,6 +12,7 @@ import audioWfc.constraints.NoteInKeyHardConstraint;
 import audioWfc.constraints.NoteInOctavesConstraint;
 import audioWfc.constraints.PerfectCadenceSoftConstraint;
 import audioWfc.constraints.PlagalCadenceSoftConstraint;
+import audioWfc.constraints.grabbers.IntegerSetConstantGrabber;
 import audioWfc.musicTheory.Key;
 import audioWfc.musicTheory.MajorKey;
 import audioWfc.musicTheory.Note;
@@ -49,7 +50,7 @@ public class Main {
         
         ConstraintSet<Chord> constraintSetChords = new ConstraintSet<>(Set.of(
                 new ChordInKeyConstraint(key),
-                new ChordStepSizeHardConstraint(Set.of(3,4,5))
+                new ChordStepSizeHardConstraint(new IntegerSetConstantGrabber(Set.of(3, 4, 5)))
         ));
         OptionsPerCell<Chord> optionsPerCell = new OptionsPerCell<>(Chord.getAllBasicChords());
         optionsPerCell.setValue(2, new MajorChord(F));
@@ -64,8 +65,8 @@ public class Main {
         for(Chord chord : chords){
             ConstraintSet<OctavedNote> constraintSetNotes = new ConstraintSet<>(Set.of(
                     new NoteInKeyHardConstraint(key),
-                    new NoteInOctavesConstraint(Set.of(5)),
-                    new MelodyAbsoluteStepSizeHardConstraint(Set.of(1,2,3)),
+                    new NoteInOctavesConstraint(new IntegerSetConstantGrabber(Set.of(5))),
+                    new MelodyAbsoluteStepSizeHardConstraint(new IntegerSetConstantGrabber(Set.of(1,2,3))),
                     new MelodyStartsOnNoteHardConstraint(chord.getThird())
             ));
             TileCanvas<OctavedNote> noteWFC = new TileCanvas<>(notesPerChord, OctavedNote.all(), constraintSetNotes);
@@ -114,7 +115,7 @@ public class Main {
 
         ConstraintSet<OctavedNote> constraintSetNotes = new ConstraintSet<>(Set.of(
                 new NoteInKeyHardConstraint(key),
-                new MelodyAbsoluteStepSizeHardConstraint(Set.of(1,2,3,4)),
+                new MelodyAbsoluteStepSizeHardConstraint(new IntegerSetConstantGrabber(Set.of(1,2,3,4))),
                 new AscendingMelodySoftConstraint(10)
         ));
         TileCanvas<OctavedNote> noteWFC = new TileCanvas<>(16, OctavedNote.all(), constraintSetNotes, new Random());
@@ -130,7 +131,7 @@ public class Main {
 
         ConstraintSet<OctavedNote> constraintSetNotes = new ConstraintSet<>(Set.of(
                 new NoteInKeyHardConstraint(key),
-                new MelodyAbsoluteStepSizeHardConstraint(Set.of(0,1,2,3)),
+                new MelodyAbsoluteStepSizeHardConstraint(new IntegerSetConstantGrabber(Set.of(0,1,2,3))),
                 new MelodyShapeHardConstraint(melodyShape)
         ));
         TileCanvas<OctavedNote> noteWFC = new TileCanvas<>(melodyShapeString.length()+1, OctavedNote.all(), constraintSetNotes, new Random());

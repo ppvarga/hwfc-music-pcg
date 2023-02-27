@@ -1,8 +1,7 @@
 package audioWfc.constraints;
 
-import audioWfc.NeighborPair;
 import audioWfc.Tile;
-import audioWfc.musicTheory.Note;
+import audioWfc.constraints.grabbers.Grabber;
 import audioWfc.musicTheory.NoteUtils;
 import audioWfc.musicTheory.chords.Chord;
 
@@ -38,7 +37,7 @@ public class ChordStepSizeHardConstraint implements HardConstraint<Chord> {
         return allowedStepSizes.contains(distance);
     }
 
-    public ChordStepSizeHardConstraint(Set<Integer> allowedStepSizes){
-        this.allowedStepSizes = allowedStepSizes;
+    public ChordStepSizeHardConstraint(Grabber<Set<Integer>> allowedStepSizes){
+        this.allowedStepSizes = allowedStepSizes.grab();
     }
 }

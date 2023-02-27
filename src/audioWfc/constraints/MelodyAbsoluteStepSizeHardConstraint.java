@@ -1,11 +1,8 @@
 package audioWfc.constraints;
 
-import audioWfc.NeighborPair;
 import audioWfc.OctavedNote;
 import audioWfc.Tile;
-import audioWfc.musicTheory.Note;
-import audioWfc.musicTheory.NoteUtils;
-import audioWfc.musicTheory.chords.Chord;
+import audioWfc.constraints.grabbers.Grabber;
 
 import java.util.Set;
 
@@ -39,7 +36,7 @@ public class MelodyAbsoluteStepSizeHardConstraint implements HardConstraint<Octa
         return allowedStepSizes.contains(distance);
     }
 
-    public MelodyAbsoluteStepSizeHardConstraint(Set<Integer> allowedStepSizes){
-        this.allowedStepSizes = allowedStepSizes;
+    public MelodyAbsoluteStepSizeHardConstraint(Grabber<Set<Integer>> allowedStepSizes){
+        this.allowedStepSizes = allowedStepSizes.grab();
     }
 }

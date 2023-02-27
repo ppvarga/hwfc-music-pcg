@@ -2,15 +2,15 @@ package audioWfc.constraints;
 
 import audioWfc.OctavedNote;
 import audioWfc.Tile;
-import audioWfc.musicTheory.Key;
+import audioWfc.constraints.grabbers.Grabber;
 
 import java.util.Set;
 
 public class NoteInOctavesConstraint implements HardConstraint<OctavedNote> {
     private Set<Integer> octaves;
 
-    public NoteInOctavesConstraint(Set<Integer> octaves){
-        this.octaves = octaves;
+    public NoteInOctavesConstraint(Grabber<Set<Integer>> octaves){
+        this.octaves = octaves.grab();
     }
 
     @Override

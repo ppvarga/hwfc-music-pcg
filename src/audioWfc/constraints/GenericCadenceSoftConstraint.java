@@ -1,6 +1,7 @@
 package audioWfc.constraints;
 
 import audioWfc.Tile;
+import audioWfc.constraints.grabbers.Grabber;
 import audioWfc.musicTheory.Key;
 import audioWfc.musicTheory.Note;
 import audioWfc.musicTheory.NoteUtils;
@@ -14,7 +15,7 @@ public class GenericCadenceSoftConstraint extends SoftConstraint<Chord>{
 
     public GenericCadenceSoftConstraint(double factor, Key key,
                                          int firstOffset, ChordQuality firstQuality,
-                                         int secondOffset, ChordQuality secondQuality){
+                                        int secondOffset, ChordQuality secondQuality){
         super(factor);
 
         Note root = key.getRoot();
@@ -24,6 +25,12 @@ public class GenericCadenceSoftConstraint extends SoftConstraint<Chord>{
 
         Note secondRoot = NoteUtils.relativeNote(root, secondOffset);
         this.secondChord = Chord.create(secondRoot, secondQuality);
+    }
+
+    public GenericCadenceSoftConstraint(double factor, Grabber<Key> key,
+                                        Grabber<Integer> firstOffset, Grabber<ChordQuality> firstQuality,
+                                        Grabber<Integer> secondOffset, Grabber<ChordQuality> secondQuality){
+        this(factor, key.grab(), firstOffset.grab(), firstQuality.grab(), secondOffset.grab(), secondQuality.grab());
     }
 
     @Override
