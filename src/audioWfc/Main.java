@@ -68,7 +68,7 @@ public class Main {
                     new NoteInKeyHardConstraint(new BasicKeyGrabber()),
                     new NoteInOctavesConstraint(new IntegerSetConstantGrabber(Set.of(5))),
                     new MelodyAbsoluteStepSizeHardConstraint(new IntegerSetConstantGrabber(Set.of(1,2,3))),
-                    new MelodyStartsOnNoteHardConstraint(chord.getThird())
+                    new MelodyStartsOnNoteHardConstraint(null) //TODO
             ));
             TileCanvas<OctavedNote> noteWFC = new TileCanvas<>(notesPerChord, OctavedNote.all(), constraintSetNotes);
             List<OctavedNote> melodySegment = noteWFC.generate();
@@ -133,7 +133,7 @@ public class Main {
         ConstraintSet<OctavedNote> constraintSetNotes = new ConstraintSet<>(Set.of(
                 new NoteInKeyHardConstraint(new BasicKeyGrabber()),
                 new MelodyAbsoluteStepSizeHardConstraint(new IntegerSetConstantGrabber(Set.of(0,1,2,3))),
-                new MelodyShapeHardConstraint(melodyShape)
+                new MelodyShapeHardConstraint(null) //TODO
         ));
         TileCanvas<OctavedNote> noteWFC = new TileCanvas<>(melodyShapeString.length()+1, OctavedNote.all(), constraintSetNotes, new Random());
         List<OctavedNote> melodySegment = noteWFC.generate();
