@@ -1,4 +1,4 @@
-package audioWfc.constraints.concepts;
+package audioWfc.wfc.constraints.concepts;
 
 import java.util.ArrayList;
 import java.util.Collections;

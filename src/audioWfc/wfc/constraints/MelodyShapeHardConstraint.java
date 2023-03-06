@@ -1,11 +1,11 @@
-package audioWfc.constraints;
+package audioWfc.wfc.constraints;
 
 import audioWfc.wfc.HigherValues;
 import audioWfc.musicTheory.OctavedNote;
 import audioWfc.wfc.Tile;
-import audioWfc.constraints.concepts.HardConstraint;
-import audioWfc.constraints.concepts.MelodyShape;
-import audioWfc.constraints.concepts.MelodyStep;
+import audioWfc.wfc.constraints.concepts.HardConstraint;
+import audioWfc.wfc.constraints.concepts.MelodyShape;
+import audioWfc.wfc.constraints.concepts.MelodyStep;
 import audioWfc.wfc.grabbers.Grabber;
 
 public class MelodyShapeHardConstraint implements HardConstraint<OctavedNote> {

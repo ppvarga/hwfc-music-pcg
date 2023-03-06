@@ -1,4 +1,4 @@
-package audioWfc.constraints.concepts;
+package audioWfc.wfc.constraints.concepts;
 
 public enum MelodyStep {
     ASCEND,

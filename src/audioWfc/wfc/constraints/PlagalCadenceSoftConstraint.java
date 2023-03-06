@@ -1,6 +1,6 @@
-package audioWfc.constraints;
+package audioWfc.wfc.constraints;
 
-import audioWfc.constraints.concepts.GenericCadenceSoftConstraint;
+import audioWfc.wfc.constraints.concepts.GenericCadenceSoftConstraint;
 import audioWfc.wfc.grabbers.ChordQualityConstantGrabber;
 import audioWfc.wfc.grabbers.Grabber;
 import audioWfc.wfc.grabbers.IntegerConstantGrabber;

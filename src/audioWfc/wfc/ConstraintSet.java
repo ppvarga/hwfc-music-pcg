@@ -1,8 +1,8 @@
 package audioWfc.wfc;
 
-import audioWfc.constraints.concepts.Constraint;
-import audioWfc.constraints.concepts.HardConstraint;
-import audioWfc.constraints.concepts.SoftConstraint;
+import audioWfc.wfc.constraints.concepts.Constraint;
+import audioWfc.wfc.constraints.concepts.HardConstraint;
+import audioWfc.wfc.constraints.concepts.SoftConstraint;
 
 import java.util.HashSet;
 import java.util.Set;

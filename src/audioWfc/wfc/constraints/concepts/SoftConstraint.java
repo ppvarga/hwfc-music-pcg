@@ -1,4 +1,4 @@
-package audioWfc.constraints.concepts;
+package audioWfc.wfc.constraints.concepts;
 
 import audioWfc.wfc.HigherValues;
 import audioWfc.wfc.Tile;
