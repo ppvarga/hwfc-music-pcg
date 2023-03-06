@@ -1,6 +1,7 @@
 package audioWfc;
 
 import audioWfc.audio.BasicChordRealizer;
+import audioWfc.audio.BasicSoundGenerator;
 import audioWfc.audio.MidiPlayer;
 import audioWfc.audio.PlayableNote;
 import audioWfc.audio.SequencerBuilder;
@@ -30,6 +31,7 @@ import audioWfc.musicTheory.chords.MajorChord;
 import audioWfc.musicTheory.chords.MinorChord;
 import audioWfc.wfc.OptionsPerCell;
 import audioWfc.wfc.TileCanvas;
+import audioWfc.wfc.hierarchy.ChordResult;
 
 import javax.sound.midi.Instrument;
 import javax.sound.midi.MidiChannel;
@@ -80,7 +82,11 @@ public class Main {
         ChordLevelNode chordLevelNode =
                 new ChordLevelNode(null, higherValues, chordCanvasAttributes, noteCanvasAttributes, new Random());
 
-        System.out.println(chordLevelNode.generate());
+        List<ChordResult> result = chordLevelNode.generate();
+
+        System.out.println(result);
+
+        BasicSoundGenerator.play(result);
     }
 
     private static void chordsAndNotesDemo() {
@@ -129,7 +135,6 @@ public class Main {
         Sequencer sequencer = SequencerBuilder.buildSequencer(playableNotes);
         MidiPlayer player = new MidiPlayer(sequencer);
         player.start();
-
     }
 
     private static void cadenceSoftConstraintsDemo(){
