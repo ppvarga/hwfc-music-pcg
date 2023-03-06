@@ -1,12 +1,13 @@
 package audioWfc.constraints;
 
-import audioWfc.constraints.grabbers.ChordQualityConstantGrabber;
-import audioWfc.constraints.grabbers.Grabber;
-import audioWfc.constraints.grabbers.IntegerConstantGrabber;
+import audioWfc.constraints.concepts.GenericCadenceSoftConstraint;
+import audioWfc.wfc.grabbers.ChordQualityConstantGrabber;
+import audioWfc.wfc.grabbers.Grabber;
+import audioWfc.wfc.grabbers.IntegerConstantGrabber;
 import audioWfc.musicTheory.Key;
 import audioWfc.musicTheory.chords.ChordQuality;
 
-public class PlagalCadenceSoftConstraint extends GenericCadenceSoftConstraint{
+public class PlagalCadenceSoftConstraint extends GenericCadenceSoftConstraint {
 
     public PlagalCadenceSoftConstraint(double factor, Grabber<Key> grabber){
         super(factor, grabber, new IntegerConstantGrabber(5), new ChordQualityConstantGrabber(ChordQuality.MAJOR),

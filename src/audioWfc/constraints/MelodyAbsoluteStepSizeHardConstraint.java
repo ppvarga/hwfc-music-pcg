@@ -1,13 +1,14 @@
 package audioWfc.constraints;
 
-import audioWfc.HigherValues;
-import audioWfc.OctavedNote;
-import audioWfc.Tile;
-import audioWfc.constraints.grabbers.Grabber;
+import audioWfc.wfc.HigherValues;
+import audioWfc.musicTheory.OctavedNote;
+import audioWfc.wfc.Tile;
+import audioWfc.constraints.concepts.HardConstraint;
+import audioWfc.wfc.grabbers.Grabber;
 
 import java.util.Set;
 
-public class MelodyAbsoluteStepSizeHardConstraint implements HardConstraint<OctavedNote>{
+public class MelodyAbsoluteStepSizeHardConstraint implements HardConstraint<OctavedNote> {
     private Grabber<Set<Integer>> grabber;
 
     @Override

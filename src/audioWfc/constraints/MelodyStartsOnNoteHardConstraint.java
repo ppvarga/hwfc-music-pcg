@@ -1,12 +1,13 @@
 package audioWfc.constraints;
 
-import audioWfc.HigherValues;
-import audioWfc.OctavedNote;
-import audioWfc.Tile;
-import audioWfc.constraints.grabbers.Grabber;
+import audioWfc.wfc.HigherValues;
+import audioWfc.musicTheory.OctavedNote;
+import audioWfc.wfc.Tile;
+import audioWfc.constraints.concepts.HardConstraint;
+import audioWfc.wfc.grabbers.Grabber;
 import audioWfc.musicTheory.Note;
 
-public class MelodyStartsOnNoteHardConstraint implements HardConstraint<OctavedNote>{
+public class MelodyStartsOnNoteHardConstraint implements HardConstraint<OctavedNote> {
     private Grabber<Note> grabber;
 
     public MelodyStartsOnNoteHardConstraint(Grabber<Note> grabber){

@@ -1,12 +1,11 @@
 package audioWfc.constraints;
 
-import audioWfc.HigherValues;
-import audioWfc.OctavedNote;
-import audioWfc.Tile;
-import audioWfc.musicTheory.Note;
-import audioWfc.musicTheory.NoteUtils;
+import audioWfc.wfc.HigherValues;
+import audioWfc.musicTheory.OctavedNote;
+import audioWfc.wfc.Tile;
+import audioWfc.constraints.concepts.SoftConstraint;
 
-public class AscendingMelodySoftConstraint extends SoftConstraint<OctavedNote>{
+public class AscendingMelodySoftConstraint extends SoftConstraint<OctavedNote> {
     public AscendingMelodySoftConstraint(double factor){
         super(factor);
     }

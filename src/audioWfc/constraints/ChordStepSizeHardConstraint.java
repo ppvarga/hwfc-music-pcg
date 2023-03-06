@@ -1,8 +1,9 @@
 package audioWfc.constraints;
 
-import audioWfc.HigherValues;
-import audioWfc.Tile;
-import audioWfc.constraints.grabbers.Grabber;
+import audioWfc.wfc.HigherValues;
+import audioWfc.wfc.Tile;
+import audioWfc.constraints.concepts.HardConstraint;
+import audioWfc.wfc.grabbers.Grabber;
 import audioWfc.musicTheory.NoteUtils;
 import audioWfc.musicTheory.chords.Chord;
 
