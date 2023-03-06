@@ -1,5 +1,6 @@
 package audioWfc.constraints;
 
+import audioWfc.HigherValues;
 import audioWfc.Tile;
 
 import java.util.HashSet;
@@ -24,13 +25,13 @@ public class ConstraintSet<T> {
         for(Constraint<T> constraint : constraints) addConstraint(constraint);
     }
 
-    public double weight(Tile<T> item){
+    public double weight(Tile<T> item, HigherValues higherValues){
         for(HardConstraint<T> hardConstraint : hardConstraints){
-            if(!hardConstraint.check(item)) return 0d;
+            if(!hardConstraint.check(item, higherValues)) return 0d;
         }
         double out = 1d;
         for(SoftConstraint<T> softConstraint : softConstraints){
-            out += softConstraint.weight(item);
+            out += softConstraint.weight(item, higherValues);
         }
         return out;
     }

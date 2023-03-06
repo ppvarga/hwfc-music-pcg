@@ -1,5 +1,6 @@
 package audioWfc.constraints;
 
+import audioWfc.HigherValues;
 import audioWfc.Tile;
 import audioWfc.constraints.grabbers.Grabber;
 import audioWfc.musicTheory.Key;
@@ -10,29 +11,11 @@ import audioWfc.musicTheory.chords.ChordQuality;
 
 
 public abstract class GenericCadenceSoftConstraint extends SoftConstraint<Chord>{
-    private Chord firstChord;
-    private Chord secondChord;
-
-    private int firstOffset;
-    private int secondOffset;
-    private ChordQuality firstQuality;
-    private ChordQuality secondQuality;
-
     private Grabber<Integer> firstOffsetGrabber;
     private Grabber<Integer> secondOffsetGrabber;
     private Grabber<ChordQuality> firstQualityGrabber;
     private Grabber<ChordQuality> secondQualityGrabber;
     private Grabber<Key> keyGrabber;
-
-    public void init(){
-        Note root = keyGrabber.grab().getRoot();
-
-        Note firstRoot = NoteUtils.relativeNote(root, firstOffsetGrabber.grab());
-        this.firstChord = Chord.create(firstRoot, firstQualityGrabber.grab());
-
-        Note secondRoot = NoteUtils.relativeNote(root, secondOffsetGrabber.grab());
-        this.secondChord = Chord.create(secondRoot, secondQualityGrabber.grab());
-    }
 
     public GenericCadenceSoftConstraint(double factor, Grabber<Key> keyGrabber,
                                         Grabber<Integer> firstOffsetGrabber, Grabber<ChordQuality> firstQualityGrabber,
@@ -46,8 +29,16 @@ public abstract class GenericCadenceSoftConstraint extends SoftConstraint<Chord>
     }
 
     @Override
-    public double weight(Tile<Chord> tile) {
+    public double weight(Tile<Chord> tile, HigherValues higherValues) {
         Chord chord = tile.getValue();
+
+        Note root = keyGrabber.grab(higherValues).getRoot();
+
+        Note firstRoot = NoteUtils.relativeNote(root, firstOffsetGrabber.grab(higherValues));
+        Chord firstChord = Chord.create(firstRoot, firstQualityGrabber.grab(higherValues));
+
+        Note secondRoot = NoteUtils.relativeNote(root, secondOffsetGrabber.grab(higherValues));
+        Chord secondChord = Chord.create(secondRoot, secondQualityGrabber.grab(higherValues));
 
         if(chord.equals(secondChord)){
             Tile<Chord> prev = tile.getPrev();

@@ -1,5 +1,7 @@
 package audioWfc.constraints.grabbers;
 
+import audioWfc.HigherValues;
+
 import java.util.Set;
 
 public class IntegerSetConstantGrabber implements Grabber<Set<Integer>>{
@@ -9,7 +11,7 @@ public class IntegerSetConstantGrabber implements Grabber<Set<Integer>>{
         this.ints = ints;
     }
 
-    public Set<Integer> grab(){
+    public Set<Integer> grab(HigherValues higherValues){
         return ints;
     }
 }

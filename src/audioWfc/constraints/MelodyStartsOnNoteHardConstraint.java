@@ -1,12 +1,12 @@
 package audioWfc.constraints;
 
+import audioWfc.HigherValues;
 import audioWfc.OctavedNote;
 import audioWfc.Tile;
 import audioWfc.constraints.grabbers.Grabber;
 import audioWfc.musicTheory.Note;
 
 public class MelodyStartsOnNoteHardConstraint implements HardConstraint<OctavedNote>{
-    private Note note;
     private Grabber<Note> grabber;
 
     public MelodyStartsOnNoteHardConstraint(Grabber<Note> grabber){
@@ -14,13 +14,9 @@ public class MelodyStartsOnNoteHardConstraint implements HardConstraint<OctavedN
     }
 
     @Override
-    public boolean check(Tile<OctavedNote> tile) {
+    public boolean check(Tile<OctavedNote> tile, HigherValues higherValues) {
         if(tile.getPosition() != 0) return true;
-        return tile.getValue().getNote().equals(note);
+        return tile.getValue().getNote().equals(grabber.grab(higherValues));
     }
 
-    @Override
-    public void init() {
-        this.note = grabber.grab();
-    }
 }

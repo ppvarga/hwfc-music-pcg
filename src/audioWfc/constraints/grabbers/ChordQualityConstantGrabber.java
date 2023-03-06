@@ -1,5 +1,6 @@
 package audioWfc.constraints.grabbers;
 
+import audioWfc.HigherValues;
 import audioWfc.musicTheory.chords.ChordQuality;
 
 public class ChordQualityConstantGrabber implements Grabber<ChordQuality>{
@@ -10,7 +11,7 @@ public class ChordQualityConstantGrabber implements Grabber<ChordQuality>{
     }
 
     @Override
-    public ChordQuality grab() {
+    public ChordQuality grab(HigherValues higherValues) {
         return q;
     }
 }

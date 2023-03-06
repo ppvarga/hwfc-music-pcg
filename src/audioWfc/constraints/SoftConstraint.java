@@ -1,5 +1,6 @@
 package audioWfc.constraints;
 
+import audioWfc.HigherValues;
 import audioWfc.Tile;
 
 public abstract class SoftConstraint<T> implements Constraint<T>{
@@ -9,5 +10,5 @@ public abstract class SoftConstraint<T> implements Constraint<T>{
         this.factor = factor;
     }
 
-    public abstract double weight(Tile<T> item);
+    public abstract double weight(Tile<T> item, HigherValues higherValues);
 }

@@ -1,12 +1,11 @@
 package audioWfc;
 
 import audioWfc.constraints.ConstraintSet;
-import audioWfc.musicTheory.OptionsPerCell;
+import audioWfc.musicTheory.Key;
+import audioWfc.musicTheory.chords.Chord;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -20,6 +19,7 @@ public class TileCanvas<T> {
     private ConstraintSet<T> constraints;
     private TileSelector pq;
     private Random random;
+    private HigherValues higherValues;
 
     public TileCanvas(int n, Set<T> allOptions, ConstraintSet<T> constraints){
         this(n, allOptions, constraints, new Random());
@@ -30,6 +30,9 @@ public class TileCanvas<T> {
     }
 
     public TileCanvas(int n, OptionsPerCell<T> options, ConstraintSet<T> constraints, Random random){
+        this(n, options, constraints, null, random);
+    }
+    public TileCanvas(int n, OptionsPerCell<T> options, ConstraintSet<T> constraints, HigherValues higherValues, Random random){
         this.allOptions = options.getAllOptions();
         this.constraints = constraints;
         this.size = n;
@@ -49,6 +52,7 @@ public class TileCanvas<T> {
         this.tiles.get(n-1).setNext(Tile.trailer());
 
         this.pq = new TileSelector<>(random);
+        this.higherValues = higherValues;
         this.random = random;
 
         for(Tile<T> tile : tiles) tile.updateOptions();
@@ -84,5 +88,21 @@ public class TileCanvas<T> {
 
     public Set<T> getAllOptions() {
         return allOptions;
+    }
+
+    public void setKey(Key key){
+        this.higherValues.setKey(key);
+    }
+
+    public void setSection(Section section){
+        this.higherValues.setSection(section);
+    }
+
+    public void setChord(Chord chord){
+        this.higherValues.setChord(chord);
+    }
+
+    public HigherValues getHigherValues() {
+        return higherValues;
     }
 }

@@ -1,4 +1,4 @@
-package audioWfc.musicTheory;
+package audioWfc;
 
 import java.util.HashMap;
 import java.util.Map;

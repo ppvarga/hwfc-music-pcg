@@ -69,7 +69,7 @@ public class Tile<T> {
         List<Pair<T, Double>> newOptionWeights = new ArrayList<>();
         int out = 0;
         for(T option : options){
-            double weight = canvas.getConstraints().weight(hypotheticalTile(option));
+            double weight = canvas.getConstraints().weight(hypotheticalTile(option), canvas.getHigherValues());
             if(weight <= 0d) continue;
             Pair<T, Double> optionWeightPair = new Pair<>(option, weight);
             newOptionWeights.add(optionWeightPair);

@@ -1,5 +1,7 @@
 package audioWfc.constraints.grabbers;
 
+import audioWfc.HigherValues;
+
 public class IntegerConstantGrabber implements Grabber<Integer>{
     private int n;
 
@@ -8,7 +10,7 @@ public class IntegerConstantGrabber implements Grabber<Integer>{
     }
 
     @Override
-    public Integer grab() {
+    public Integer grab(HigherValues higherValues) {
         return n;
     }
 }

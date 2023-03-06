@@ -1,6 +1,7 @@
 package audioWfc;
 
 import audioWfc.constraints.AscendingMelodySoftConstraint;
+import audioWfc.constraints.CanvasAttributes;
 import audioWfc.constraints.ChordInKeyConstraint;
 import audioWfc.constraints.ChordStepSizeHardConstraint;
 import audioWfc.constraints.ConstraintSet;
@@ -14,10 +15,11 @@ import audioWfc.constraints.PerfectCadenceSoftConstraint;
 import audioWfc.constraints.PlagalCadenceSoftConstraint;
 import audioWfc.constraints.grabbers.BasicKeyGrabber;
 import audioWfc.constraints.grabbers.IntegerSetConstantGrabber;
+import audioWfc.constraints.grabbers.ThirdOfChordGrabber;
+import audioWfc.constraints.hierarchy.ChordLevelNode;
 import audioWfc.musicTheory.Key;
 import audioWfc.musicTheory.MajorKey;
 import audioWfc.musicTheory.Note;
-import audioWfc.musicTheory.OptionsPerCell;
 import audioWfc.musicTheory.chords.Chord;
 import audioWfc.musicTheory.chords.MajorChord;
 import audioWfc.musicTheory.chords.MinorChord;
@@ -28,7 +30,7 @@ import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Sequencer;
 import javax.sound.midi.Synthesizer;
-import java.io.File;
+import java.awt.*;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -38,7 +40,41 @@ import static audioWfc.musicTheory.Note.*;
 
 public class Main {
     public static void main(String[] args) {
-        chordsAndNotesDemo();
+        chordsAndNotesCompactDemo();
+    }
+
+    private static void chordsAndNotesCompactDemo() {
+        ConstraintSet<Chord> chordConstraints = new ConstraintSet<>(Set.of(
+                new ChordInKeyConstraint(new BasicKeyGrabber()),
+                new ChordStepSizeHardConstraint(new IntegerSetConstantGrabber(Set.of(3, 4, 5)))
+        ));
+
+        OptionsPerCell<Chord> chordOptionsPerCell = new OptionsPerCell<>(Chord.getAllBasicChords());
+        chordOptionsPerCell.setValue(2, new MajorChord(F));
+        chordOptionsPerCell.setOptions(5, Set.of(new MajorChord(C), new MinorChord(E)));
+
+        ConstraintSet<OctavedNote> noteConstraints = new ConstraintSet<>(Set.of(
+                new NoteInKeyHardConstraint(new BasicKeyGrabber()),
+                new NoteInOctavesConstraint(new IntegerSetConstantGrabber(Set.of(5))),
+                new MelodyAbsoluteStepSizeHardConstraint(new IntegerSetConstantGrabber(Set.of(1,2,3))),
+                new MelodyStartsOnNoteHardConstraint(new ThirdOfChordGrabber())
+        ));
+
+        OptionsPerCell<OctavedNote> noteOptionsPerCell = new OptionsPerCell<>(OctavedNote.all());
+
+        HigherValues higherValues = new HigherValues();
+        higherValues.setKey(new MajorKey(C));
+
+        CanvasAttributes<Chord> chordCanvasAttributes =
+                new CanvasAttributes<>(chordConstraints, chordOptionsPerCell, 8);
+
+        CanvasAttributes<OctavedNote> noteCanvasAttributes =
+                new CanvasAttributes<>(noteConstraints, noteOptionsPerCell, 4);
+
+        ChordLevelNode chordLevelNode =
+                new ChordLevelNode(null, higherValues, chordCanvasAttributes, noteCanvasAttributes, new Random());
+
+        System.out.println(chordLevelNode.generate());
     }
 
     private static void chordsAndNotesDemo() {
@@ -68,7 +104,7 @@ public class Main {
                     new NoteInKeyHardConstraint(new BasicKeyGrabber()),
                     new NoteInOctavesConstraint(new IntegerSetConstantGrabber(Set.of(5))),
                     new MelodyAbsoluteStepSizeHardConstraint(new IntegerSetConstantGrabber(Set.of(1,2,3))),
-                    new MelodyStartsOnNoteHardConstraint(null) //TODO
+                    new MelodyStartsOnNoteHardConstraint(null)
             ));
             TileCanvas<OctavedNote> noteWFC = new TileCanvas<>(notesPerChord, OctavedNote.all(), constraintSetNotes);
             List<OctavedNote> melodySegment = noteWFC.generate();
