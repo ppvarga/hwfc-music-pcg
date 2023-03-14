@@ -22,9 +22,9 @@ public class ChordLevelNode {
         this.higherValues = higherValues;
         this.noteAttributes = noteAttributes;
         this.canvas = new TileCanvas<>(
-                chordAttributes.size(),
-                chordAttributes.options(),
-                chordAttributes.constraints(),
+                chordAttributes.getSize(),
+                chordAttributes.getOptions(),
+                chordAttributes.getConstraints(),
                 higherValues,
                 random);
         this.random = random;

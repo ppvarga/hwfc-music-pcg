@@ -23,6 +23,10 @@ public class ConstraintSet<T> {
 
     public ConstraintSet(Set<Constraint<T>> constraints){
         this();
+        addAll(constraints);
+    }
+
+    private void addAll(Set<Constraint<T>> constraints) {
         for(Constraint<T> constraint : constraints) addConstraint(constraint);
     }
 
@@ -49,5 +53,15 @@ public class ConstraintSet<T> {
         if(constraint instanceof HardConstraint<T>) addHardConstraint((HardConstraint<T>) constraint);
         else if(constraint instanceof SoftConstraint<T>) addSoftConstraint((SoftConstraint<T>) constraint);
         else throw new RuntimeException("Unknown constraint type");
+    }
+
+    public void reset(){
+        this.hardConstraints = new HashSet<>();
+        this.softConstraints = new HashSet<>();
+    }
+
+    public void reset(Set<Constraint<T>> constraints){
+        reset();
+        addAll(constraints);
     }
 }

@@ -18,9 +18,9 @@ public class NoteLevelNode {
         this.parent = parent;
         this.noteAttributes = noteAttributes;
         this.canvas = new TileCanvas<>(
-                noteAttributes.size(),
-                noteAttributes.options(),
-                noteAttributes.constraints(),
+                noteAttributes.getSize(),
+                noteAttributes.getOptions(),
+                noteAttributes.getConstraints(),
                 higherValues,
                 random);
     }
