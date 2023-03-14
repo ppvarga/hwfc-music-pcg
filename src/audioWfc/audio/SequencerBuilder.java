@@ -6,6 +6,7 @@ import javax.sound.midi.Sequence;
 import javax.sound.midi.Sequencer;
 import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Track;
+import java.io.File;
 import java.util.Set;
 
 public class SequencerBuilder {
@@ -29,6 +30,9 @@ public class SequencerBuilder {
             }
 
             sequencer.setSequence(sequence);
+            File outputFile = new File("output.mid");
+            MidiSystem.write(sequence, 1, outputFile);
+
             sequencer.setTempoInBPM(DEFAULT_BPM);
 
             return sequencer;
