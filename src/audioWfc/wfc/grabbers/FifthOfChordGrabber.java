@@ -8,4 +8,9 @@ public class FifthOfChordGrabber implements Grabber<Note> {
     public Note grab(HigherValues higherValues) {
         return higherValues.getChord().getFifth();
     }
+
+    @Override
+    public String configText() {
+        return "Fifth of current chord";
+    }
 }

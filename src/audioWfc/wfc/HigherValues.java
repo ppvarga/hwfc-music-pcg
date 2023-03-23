@@ -28,6 +28,22 @@ public class HigherValues {
         return out;
     }
 
+    public HigherValues copyWithKey(Key otherKey) {
+        HigherValues out = new HigherValues();
+        out.setKey(otherKey);
+        out.setSection(section);
+        out.setChord(chord);
+        return out;
+    }
+
+    public HigherValues copyWithChord(Section otherSection) {
+        HigherValues out = new HigherValues();
+        out.setKey(key);
+        out.setSection(otherSection);
+        out.setChord(chord);
+        return out;
+    }
+
     public Key getKey() {
         return key;
     }

@@ -3,6 +3,7 @@ package audioWfc.audio;
 import audioWfc.musicTheory.OctavedNote;
 import audioWfc.wfc.hierarchy.ChordResult;
 
+import javax.sound.midi.MetaMessage;
 import javax.sound.midi.Sequencer;
 import java.util.HashSet;
 import java.util.List;

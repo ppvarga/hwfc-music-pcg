@@ -8,4 +8,9 @@ public class RootOfChordGrabber implements Grabber<Note> {
     public Note grab(HigherValues higherValues) {
         return higherValues.getChord().getRoot();
     }
+
+    @Override
+    public String configText() {
+        return "Root of current chord";
+    }
 }

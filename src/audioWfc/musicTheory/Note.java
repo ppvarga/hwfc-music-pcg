@@ -2,15 +2,40 @@ package audioWfc.musicTheory;
 
 public enum Note{
     C,
-    CS,
+    CS{
+        @Override
+        public String toString(){
+            return "C#";
+        }
+    },
     D,
-    DS,
+    DS{
+        @Override
+        public String toString(){
+            return "D#";
+        }
+    },
     E,
     F,
-    FS,
+    FS{
+        @Override
+        public String toString(){
+            return "F#";
+        }
+    },
     G,
-    GS,
+    GS{
+        @Override
+        public String toString(){
+            return "G#";
+        }
+    },
     A,
-    AS,
+    AS{
+        @Override
+        public String toString(){
+            return "A#";
+        }
+    },
     B
 }

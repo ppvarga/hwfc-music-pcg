@@ -41,4 +41,14 @@ public class MelodyAbsoluteStepSizeHardConstraint implements HardConstraint<Octa
     public MelodyAbsoluteStepSizeHardConstraint(Grabber<Set<Integer>> grabber){
         this.grabber = grabber;
     }
+
+    @Override
+    public String name() {
+        return "Melody step sizes";
+    }
+
+    @Override
+    public String configText() {
+        return grabber.configText();
+    }
 }

@@ -18,4 +18,14 @@ public class NoteInKeyHardConstraint implements HardConstraint<OctavedNote> {
     public boolean check(Tile<OctavedNote> item, HigherValues higherValues) {
         return grabber.grab(higherValues).contains(item.getValue().getNote());
     }
+
+    @Override
+    public String name() {
+        return "Melody in key";
+    }
+
+    @Override
+    public String configText() {
+        return grabber.configText();
+    }
 }

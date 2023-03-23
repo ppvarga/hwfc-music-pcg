@@ -13,4 +13,9 @@ public class IntegerConstantGrabber implements Grabber<Integer>{
     public Integer grab(HigherValues higherValues) {
         return n;
     }
+
+    @Override
+    public String configText() {
+        return String.valueOf(n);
+    }
 }

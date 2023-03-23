@@ -14,4 +14,9 @@ public class BasicMelodyShapeGrabber implements Grabber<MelodyShape>{
     public MelodyShape grab(HigherValues higherValues) {
         return melodyShape;
     }
+
+    @Override
+    public String configText() {
+        return melodyShape.toString();
+    }
 }

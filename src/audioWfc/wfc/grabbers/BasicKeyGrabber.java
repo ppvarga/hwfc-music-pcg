@@ -8,4 +8,9 @@ public class BasicKeyGrabber implements Grabber<Key>{
     public Key grab(HigherValues higherValues) {
         return higherValues.getKey();
     }
+
+    @Override
+    public String configText() {
+        return "Globally defined key";
+    }
 }

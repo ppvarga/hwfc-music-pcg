@@ -8,4 +8,9 @@ public class ThirdOfChordGrabber implements Grabber<Note> {
     public Note grab(HigherValues higherValues) {
         return higherValues.getChord().getThird();
     }
+
+    @Override
+    public String configText() {
+        return "Third of current chord";
+    }
 }

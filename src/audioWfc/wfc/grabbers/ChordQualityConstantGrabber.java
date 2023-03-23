@@ -14,4 +14,9 @@ public class ChordQualityConstantGrabber implements Grabber<ChordQuality>{
     public ChordQuality grab(HigherValues higherValues) {
         return q;
     }
+
+    @Override
+    public String configText() {
+        return q.toString();
+    }
 }

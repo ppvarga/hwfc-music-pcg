@@ -55,4 +55,13 @@ public class MelodyShapeHardConstraint implements HardConstraint<OctavedNote> {
         }
     }
 
+    @Override
+    public String name() {
+        return "Melody shape";
+    }
+
+    @Override
+    public String configText() {
+        return grabber.configText();
+    }
 }

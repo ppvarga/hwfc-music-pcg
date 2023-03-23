@@ -14,4 +14,9 @@ public class IntegerSetConstantGrabber implements Grabber<Set<Integer>>{
     public Set<Integer> grab(HigherValues higherValues){
         return ints;
     }
+
+    @Override
+    public String configText() {
+        return ints.toString();
+    }
 }

@@ -42,4 +42,18 @@ public class MelodyShape {
         }
         return new MelodyShape(steps);
     }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        for(MelodyStep step : steps){
+            switch (step){
+                case ASCEND -> builder.append('a');
+                case DESCEND -> builder.append('d');
+                case STAGNATE -> builder.append('s');
+                case WILDCARD -> builder.append('w');
+            }
+        }
+        return builder.toString();
+    }
 }

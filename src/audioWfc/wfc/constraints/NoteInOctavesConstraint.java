@@ -19,4 +19,14 @@ public class NoteInOctavesConstraint implements HardConstraint<OctavedNote> {
     public boolean check(Tile<OctavedNote> item, HigherValues higherValues) {
         return grabber.grab(higherValues).contains(item.getValue().getOctave());
     }
+
+    @Override
+    public String name() {
+        return "Melody in octaves";
+    }
+
+    @Override
+    public String configText() {
+        return grabber.configText();
+    }
 }

@@ -15,7 +15,7 @@ public abstract class GenericCadenceSoftConstraint extends SoftConstraint<Chord>
     private Grabber<Integer> secondOffsetGrabber;
     private Grabber<ChordQuality> firstQualityGrabber;
     private Grabber<ChordQuality> secondQualityGrabber;
-    private Grabber<Key> keyGrabber;
+    protected Grabber<Key> keyGrabber;
 
     public GenericCadenceSoftConstraint(double factor, Grabber<Key> keyGrabber,
                                         Grabber<Integer> firstOffsetGrabber, Grabber<ChordQuality> firstQualityGrabber,

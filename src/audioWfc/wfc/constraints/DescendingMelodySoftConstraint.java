@@ -33,4 +33,14 @@ public class DescendingMelodySoftConstraint extends SoftConstraint<OctavedNote> 
     private boolean checkDescending(OctavedNote first, OctavedNote second){
         return first.MIDIValue() > second.MIDIValue();
     }
+
+    @Override
+    public String name() {
+        return "Descending melody";
+    }
+
+    @Override
+    public String configText() {
+        return "Bonus: " + factor;
+    }
 }

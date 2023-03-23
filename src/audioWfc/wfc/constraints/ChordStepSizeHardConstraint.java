@@ -43,4 +43,13 @@ public class ChordStepSizeHardConstraint implements HardConstraint<Chord> {
         this.grabber = grabber;
     }
 
+    @Override
+    public String name() {
+        return "Distances between adjacent chords";
+    }
+
+    @Override
+    public String configText() {
+        return grabber.configText();
+    }
 }

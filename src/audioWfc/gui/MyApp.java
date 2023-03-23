@@ -1,5 +1,7 @@
 package audioWfc.gui;
 
+import audioWfc.audio.BasicSoundGenerator;
+import audioWfc.musicTheory.Key;
 import audioWfc.musicTheory.MajorKey;
 import audioWfc.musicTheory.Note;
 import audioWfc.musicTheory.OctavedNote;
@@ -32,15 +34,17 @@ import audioWfc.wfc.hierarchy.ChordLevelNode;
 import audioWfc.wfc.hierarchy.ChordResult;
 import audioWfc.wfc.hierarchy.NoteLevelNode;
 
-import java.awt.FlowLayout;
+import java.awt.*;
 import java.awt.event.*;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.swing.*;
+import javax.swing.border.LineBorder;
 
 import static audioWfc.musicTheory.Note.C;
 
@@ -67,9 +71,20 @@ public class MyApp extends JFrame {
     private JButton addChordConstraintButton;
     private JButton configureNoteConstraintButton;
     private JButton configureChordConstraintButton;
+    private JPanel mainContainer;
+    private JPanel globalParametersPanel;
+    private JPanel addConstraintsPanel;
+    private JPanel addNoteConstraintPanel;
+    private JPanel addChordConstraintPanel;
+    private JPanel initializedConstraintsPanel;
+    private JPanel operationsPanel;
     private JButton generateButton;
+    private JButton playButton;
     private JButton resetButton;
     private JLabel constraintsLabel;
+    private TextFieldWithTitle keyTextField;
+    private TextFieldWithTitle numChordsTextField;
+    private TextFieldWithTitle notesPerChordTextField;
     private TextFieldWithTitle weightTextField;
     private TextFieldWithTitle integerSetTextField;
     private TextFieldWithTitle melodyShapeTextField;
@@ -81,8 +96,8 @@ public class MyApp extends JFrame {
     private HigherValues higherValues;
     private CanvasAttributes<OctavedNote> noteCanvasAttributes;
     private CanvasAttributes<Chord> chordCanvasAttributes;
-    private NoteLevelNode noteLevelNode;
     private ChordLevelNode chordLevelNode;
+    private List<ChordResult> lastResult;
 
     public MyApp() {
         noteConstraints = new ConstraintSet<>();
@@ -90,12 +105,8 @@ public class MyApp extends JFrame {
         chordConstraints = new ConstraintSet<>();
         chordOptionsPerCell = new OptionsPerCell<>(Chord.getAllBasicChords());
         higherValues = new HigherValues();
-        higherValues.setKey(new MajorKey(C));
-        noteCanvasAttributes =
-                new CanvasAttributes<>(noteConstraints, noteOptionsPerCell, 4);
-        chordCanvasAttributes = new CanvasAttributes<>(chordConstraints, chordOptionsPerCell, 8);
-        noteLevelNode = new NoteLevelNode(null, higherValues, noteCanvasAttributes, new Random());
-        chordLevelNode = new ChordLevelNode(null,higherValues, chordCanvasAttributes, noteCanvasAttributes, new Random());
+        chordCanvasAttributes = new CanvasAttributes<>(chordConstraints, chordOptionsPerCell, 0);
+        noteCanvasAttributes = new CanvasAttributes<>(noteConstraints, noteOptionsPerCell, 0);
         setupGUI();
     }
 
@@ -104,6 +115,45 @@ public class MyApp extends JFrame {
         setTitle("My GUI");
         setSize(800, 600);
         setLayout(new FlowLayout());
+
+        mainContainer = new JPanel();
+        mainContainer.setLayout(new BoxLayout(mainContainer, BoxLayout.Y_AXIS));
+        add(mainContainer);
+
+        globalParametersPanel = new JPanel();
+        GridBagConstraints globalParametersPanelGbc = new GridBagConstraints();
+        globalParametersPanelGbc.anchor = GridBagConstraints.WEST;
+        globalParametersPanelGbc.gridx = 0;
+        globalParametersPanelGbc.gridy = 0;
+        globalParametersPanel.setLayout(new GridBagLayout());
+        mainContainer.add(globalParametersPanel);
+
+        addConstraintsPanel = new JPanel();
+        addConstraintsPanel.setLayout(new BoxLayout(addConstraintsPanel, BoxLayout.Y_AXIS));
+        mainContainer.add(addConstraintsPanel);
+
+        operationsPanel = new JPanel();
+        mainContainer.add(operationsPanel);
+
+        initializedConstraintsPanel = new JPanel();
+        initializedConstraintsPanel.setLayout(new BoxLayout(initializedConstraintsPanel, BoxLayout.Y_AXIS));
+        mainContainer.add(initializedConstraintsPanel);
+
+
+        keyTextField = new TextFieldWithTitle("Global key");
+        globalParametersPanel.add(keyTextField, globalParametersPanelGbc);
+        globalParametersPanelGbc.gridy++;
+
+        numChordsTextField = new TextFieldWithTitle("Number of chords to generate");
+        globalParametersPanel.add(numChordsTextField, globalParametersPanelGbc);
+        globalParametersPanelGbc.gridy++;
+
+        notesPerChordTextField = new TextFieldWithTitle("Number of notes per chord");
+        globalParametersPanel.add(notesPerChordTextField, globalParametersPanelGbc);
+        globalParametersPanelGbc.gridy++;
+
+        addNoteConstraintPanel = new JPanel();
+        addConstraintsPanel.add(addNoteConstraintPanel);
 
         noteConstraintComboBox = new JComboBox<>(new String[]{
                 MELODY_IN_KEY,
@@ -114,12 +164,14 @@ public class MyApp extends JFrame {
                 MELODY_IN_OCTAVES,
                 MELODY_SHAPE
         });
-        add(noteConstraintComboBox);
+        addNoteConstraintPanel.add(noteConstraintComboBox);
 
         configureNoteConstraintButton = new JButton("Configure note constraint");
         configureNoteConstraintButton.addActionListener(this::configureNoteConstraint);
-        add(configureNoteConstraintButton);
+        addNoteConstraintPanel.add(configureNoteConstraintButton);
 
+        addChordConstraintPanel = new JPanel();
+        addConstraintsPanel.add(addChordConstraintPanel);
 
         chordConstraintComboBox = new JComboBox<>(new String[]{
                 CHORDS_IN_KEY,
@@ -127,11 +179,11 @@ public class MyApp extends JFrame {
                 PERFECT_CADENCES,
                 PLAGAL_CADENCES
         });
-        add(chordConstraintComboBox);
+        addChordConstraintPanel.add(chordConstraintComboBox);
 
         configureChordConstraintButton = new JButton("Configure chord constraint");
         configureChordConstraintButton.addActionListener(this::configureChordConstraint);
-        add(configureChordConstraintButton);
+        addChordConstraintPanel.add(configureChordConstraintButton);
 
         weightTextField = new TextFieldWithTitle("Soft constraint weights");
         add(weightTextField);
@@ -159,11 +211,15 @@ public class MyApp extends JFrame {
 
         generateButton = new JButton("Generate");
         generateButton.addActionListener(this::generate);
-        add(generateButton);
+        operationsPanel.add(generateButton);
+
+        playButton = new JButton("Play last result");
+        playButton.addActionListener(this::play);
+        operationsPanel.add(playButton);
 
         resetButton = new JButton("Reset");
         resetButton.addActionListener(this::reset);
-        add(resetButton);
+        operationsPanel.add(resetButton);
 
         constraintsLabel = new JLabel("\n");
         add(constraintsLabel);
@@ -242,12 +298,7 @@ public class MyApp extends JFrame {
 
     private void enterConfigMode(){
         Set<JComponent> componentsToHide = Set.of(
-                noteConstraintComboBox,
-                configureNoteConstraintButton,
-                chordConstraintComboBox,
-                configureChordConstraintButton,
-                resetButton,
-                generateButton
+                mainContainer
         );
         for(JComponent component : componentsToHide){
             component.setVisible(false);
@@ -267,13 +318,7 @@ public class MyApp extends JFrame {
             component.setVisible(false);
         }
         Set<JComponent> componentsToShow = Set.of(
-                noteConstraintComboBox,
-                chordConstraintComboBox,
-                configureNoteConstraintButton,
-                configureChordConstraintButton,
-                generateButton,
-                resetButton,
-                constraintsLabel
+                mainContainer
         );
         for(JComponent component : componentsToShow){
             component.setVisible(true);
@@ -323,8 +368,13 @@ public class MyApp extends JFrame {
             default -> throw new RuntimeException("Unknown option");
         }
         noteConstraints.addConstraint(newConstraint);
-        constraintsLabel.setText(multiline(constraintsLabel.getText()+ selectedOption + "\n" ));
+        addConstraintToVisualList(newConstraint);
         enterMainMode();
+    }
+
+    private void addConstraintToVisualList(Constraint constraint) {
+        //constraintsLabel.setText(multiline(constraintsLabel.getText() + selectedOption + "\n"));
+        initializedConstraintsPanel.add(panelFromConstraint(constraint));
     }
 
     public void configureChordConstraint(ActionEvent e) {
@@ -364,15 +414,39 @@ public class MyApp extends JFrame {
             default -> throw new RuntimeException("Unknown option");
         }
         chordConstraints.addConstraint(newConstraint);
-        constraintsLabel.setText(multiline(constraintsLabel.getText()+ selectedOption + "\n" ));
+        addConstraintToVisualList(newConstraint);
         enterMainMode();
     }
 
     public void generate(ActionEvent e) {
-        noteLevelNode = new NoteLevelNode(null, higherValues, noteCanvasAttributes, new Random());
+        updateHigherValues();
+        updateCanvasAttributes();
         chordLevelNode = new ChordLevelNode(null, higherValues, chordCanvasAttributes, noteCanvasAttributes, new Random());
         List<ChordResult> result = chordLevelNode.generate();
         System.out.println(result);
+        lastResult = result;
+    }
+
+    private void updateCanvasAttributes() {
+        chordCanvasAttributes.setSize(Integer.parseInt(numChordsTextField.getText()));
+        noteCanvasAttributes.setSize(Integer.parseInt(notesPerChordTextField.getText()));
+    }
+
+    private void updateHigherValues() {
+        higherValues = higherValues.copyWithKey(parseKey());
+    }
+
+    private Key parseKey() {
+        String input = keyTextField.getText();
+        return new MajorKey(Note.valueOf(input.replace('#', 'S').toUpperCase(Locale.ROOT)));
+    }
+
+    private void play(ActionEvent actionEvent) {
+        if(lastResult == null){
+            alert("Nothing has been generated yet");
+            return;
+        }
+        BasicSoundGenerator.play(lastResult);
     }
 
     public void reset(ActionEvent e) {
@@ -381,6 +455,9 @@ public class MyApp extends JFrame {
         chordConstraints.reset();
 
         constraintsLabel.setText("\n");
+        initializedConstraintsPanel.removeAll();
+        initializedConstraintsPanel.revalidate();
+        initializedConstraintsPanel.repaint();
     }
 
     public static void main(String[] args) {
@@ -390,5 +467,37 @@ public class MyApp extends JFrame {
     public static String multiline(String s)
     {
         return "<html>" + s.replaceAll("\n", "<br>");
+    }
+
+    public static JPanel panelFromConstraint(Constraint constraint){
+        JPanel out = new JPanel();
+        out.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
+        out.setLayout(new BoxLayout(out, BoxLayout.X_AXIS));
+        out.setBorder(new LineBorder(Color.black));
+
+        JPanel infoPanel = new JPanel();
+        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
+        out.add(infoPanel);
+
+        JLabel nameLabel = new JLabel(constraint.name());
+        Font nameFont = new Font("Courier", Font.BOLD, 12);
+        nameLabel.setFont(nameFont);
+        infoPanel.add(nameLabel);
+
+        JLabel configLabel = new JLabel(constraint.configText());
+        infoPanel.add(configLabel);
+
+        JPanel buttonPanel = new JPanel();
+        out.add(buttonPanel);
+
+        JButton reconfigureButton = new JButton("Reconfigure");
+        //TODO: action listener
+        buttonPanel.add(reconfigureButton);
+
+        JButton deleteButton = new JButton("Delete");
+        //TODO: action listener
+        buttonPanel.add(deleteButton);
+
+        return out;
     }
 }

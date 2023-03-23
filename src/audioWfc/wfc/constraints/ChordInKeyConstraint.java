@@ -18,4 +18,14 @@ public class ChordInKeyConstraint implements HardConstraint<Chord> {
     public boolean check(Tile<Chord> tile, HigherValues higherValues) {
         return grabber.grab(higherValues).getBasicChords().contains(tile.getValue());
     }
+
+    @Override
+    public String name() {
+        return "Chords in key";
+    }
+
+    @Override
+    public String configText() {
+        return grabber.configText();
+    }
 }

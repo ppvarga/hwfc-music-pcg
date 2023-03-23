@@ -20,4 +20,13 @@ public class MelodyStartsOnNoteHardConstraint implements HardConstraint<OctavedN
         return tile.getValue().getNote().equals(grabber.grab(higherValues));
     }
 
+    @Override
+    public String name() {
+        return "Start melody on note";
+    }
+
+    @Override
+    public String configText() {
+        return grabber.configText();
+    }
 }
