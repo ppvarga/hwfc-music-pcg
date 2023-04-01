@@ -32,7 +32,6 @@ import audioWfc.wfc.grabbers.RootOfChordGrabber;
 import audioWfc.wfc.grabbers.ThirdOfChordGrabber;
 import audioWfc.wfc.hierarchy.ChordLevelNode;
 import audioWfc.wfc.hierarchy.ChordResult;
-import audioWfc.wfc.hierarchy.NoteLevelNode;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -45,8 +44,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
-
-import static audioWfc.musicTheory.Note.C;
 
 public class MyApp extends JFrame {
     public static final String MELODY_STEP_SIZES = "Melody step sizes";
@@ -98,6 +95,7 @@ public class MyApp extends JFrame {
     private CanvasAttributes<Chord> chordCanvasAttributes;
     private ChordLevelNode chordLevelNode;
     private List<ChordResult> lastResult;
+    private Set<String> usedConstraintTypes;
 
     public MyApp() {
         noteConstraints = new ConstraintSet<>();
@@ -107,13 +105,14 @@ public class MyApp extends JFrame {
         higherValues = new HigherValues();
         chordCanvasAttributes = new CanvasAttributes<>(chordConstraints, chordOptionsPerCell, 0);
         noteCanvasAttributes = new CanvasAttributes<>(noteConstraints, noteOptionsPerCell, 0);
+        usedConstraintTypes = new HashSet<>();
         setupGUI();
     }
 
     private void setupGUI() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setTitle("My GUI");
-        setSize(800, 600);
+        setSize(500, 800);
         setLayout(new FlowLayout());
 
         mainContainer = new JPanel();
@@ -128,27 +127,37 @@ public class MyApp extends JFrame {
         globalParametersPanel.setLayout(new GridBagLayout());
         mainContainer.add(globalParametersPanel);
 
+        mainContainer.add(separator());
+
         addConstraintsPanel = new JPanel();
         addConstraintsPanel.setLayout(new BoxLayout(addConstraintsPanel, BoxLayout.Y_AXIS));
         mainContainer.add(addConstraintsPanel);
 
+        mainContainer.add(separator());
+
         operationsPanel = new JPanel();
         mainContainer.add(operationsPanel);
+
+        mainContainer.add(separator());
 
         initializedConstraintsPanel = new JPanel();
         initializedConstraintsPanel.setLayout(new BoxLayout(initializedConstraintsPanel, BoxLayout.Y_AXIS));
         mainContainer.add(initializedConstraintsPanel);
 
+        initializedConstraintsPanel.add(new Label("Initialized constraints:"));
 
         keyTextField = new TextFieldWithTitle("Global key");
+        keyTextField.setText("C");
         globalParametersPanel.add(keyTextField, globalParametersPanelGbc);
         globalParametersPanelGbc.gridy++;
 
         numChordsTextField = new TextFieldWithTitle("Number of chords to generate");
+        numChordsTextField.setText(String.valueOf(8));
         globalParametersPanel.add(numChordsTextField, globalParametersPanelGbc);
         globalParametersPanelGbc.gridy++;
 
         notesPerChordTextField = new TextFieldWithTitle("Number of notes per chord");
+        notesPerChordTextField.setText(String.valueOf(4));
         globalParametersPanel.add(notesPerChordTextField, globalParametersPanelGbc);
         globalParametersPanelGbc.gridy++;
 
@@ -164,9 +173,10 @@ public class MyApp extends JFrame {
                 MELODY_IN_OCTAVES,
                 MELODY_SHAPE
         });
+        noteConstraintComboBox.setPreferredSize(new Dimension(300, 25));
         addNoteConstraintPanel.add(noteConstraintComboBox);
 
-        configureNoteConstraintButton = new JButton("Configure note constraint");
+        configureNoteConstraintButton = new JButton("+");
         configureNoteConstraintButton.addActionListener(this::configureNoteConstraint);
         addNoteConstraintPanel.add(configureNoteConstraintButton);
 
@@ -179,13 +189,14 @@ public class MyApp extends JFrame {
                 PERFECT_CADENCES,
                 PLAGAL_CADENCES
         });
+        chordConstraintComboBox.setPreferredSize(new Dimension(300, 25));
         addChordConstraintPanel.add(chordConstraintComboBox);
 
-        configureChordConstraintButton = new JButton("Configure chord constraint");
+        configureChordConstraintButton = new JButton("+");
         configureChordConstraintButton.addActionListener(this::configureChordConstraint);
         addChordConstraintPanel.add(configureChordConstraintButton);
 
-        weightTextField = new TextFieldWithTitle("Soft constraint weights");
+        weightTextField = new TextFieldWithTitle("Soft constraint weight");
         add(weightTextField);
 
         integerSetTextField = new TextFieldWithTitle("Integer set");
@@ -226,6 +237,21 @@ public class MyApp extends JFrame {
 
         enterMainMode();
         setVisible(true);
+    }
+
+    public static Component separator(){
+        return separator(20);
+    }
+
+    private static Component separator(int space) {
+        // Create an empty JPanel with a fixed height
+        JPanel emptyPanel = new JPanel();
+        emptyPanel.setOpaque(false);
+        emptyPanel.setPreferredSize(new Dimension(0, space));
+        emptyPanel.setMinimumSize(new Dimension(0, space));
+        emptyPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, space));
+
+        return emptyPanel;
     }
 
     public AscendingMelodySoftConstraint createAscendingMelodySoftConstraint(){
@@ -327,7 +353,7 @@ public class MyApp extends JFrame {
 
     public void configureNoteConstraint(ActionEvent e) {
         String selectedOption = (String) noteConstraintComboBox.getSelectedItem();
-        if(constraintsLabel.getText().contains(selectedOption)){
+        if(usedConstraintTypes.contains(selectedOption)){
             alert("Constraint already exists");
         } else {
             enterConfigMode();
@@ -368,6 +394,7 @@ public class MyApp extends JFrame {
             default -> throw new RuntimeException("Unknown option");
         }
         noteConstraints.addConstraint(newConstraint);
+        usedConstraintTypes.add(selectedOption);
         addConstraintToVisualList(newConstraint);
         enterMainMode();
     }
@@ -379,7 +406,7 @@ public class MyApp extends JFrame {
 
     public void configureChordConstraint(ActionEvent e) {
         String selectedOption = (String) chordConstraintComboBox.getSelectedItem();
-        if(constraintsLabel.getText().contains(selectedOption)){
+        if(usedConstraintTypes.contains(selectedOption)){
             alert("Constraint already exists");
         } else {
             enterConfigMode();
@@ -414,6 +441,7 @@ public class MyApp extends JFrame {
             default -> throw new RuntimeException("Unknown option");
         }
         chordConstraints.addConstraint(newConstraint);
+        usedConstraintTypes.add(selectedOption);
         addConstraintToVisualList(newConstraint);
         enterMainMode();
     }
@@ -456,8 +484,11 @@ public class MyApp extends JFrame {
 
         constraintsLabel.setText("\n");
         initializedConstraintsPanel.removeAll();
+        initializedConstraintsPanel.add(new Label("Initialized constraints:"));
         initializedConstraintsPanel.revalidate();
         initializedConstraintsPanel.repaint();
+
+        usedConstraintTypes = new HashSet<>();
     }
 
     public static void main(String[] args) {
@@ -472,12 +503,12 @@ public class MyApp extends JFrame {
     public static JPanel panelFromConstraint(Constraint constraint){
         JPanel out = new JPanel();
         out.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
-        out.setLayout(new BoxLayout(out, BoxLayout.X_AXIS));
+        out.setLayout(new BorderLayout());
         out.setBorder(new LineBorder(Color.black));
 
         JPanel infoPanel = new JPanel();
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
-        out.add(infoPanel);
+        out.add(infoPanel, BorderLayout.WEST);
 
         JLabel nameLabel = new JLabel(constraint.name());
         Font nameFont = new Font("Courier", Font.BOLD, 12);
@@ -488,7 +519,7 @@ public class MyApp extends JFrame {
         infoPanel.add(configLabel);
 
         JPanel buttonPanel = new JPanel();
-        out.add(buttonPanel);
+        out.add(buttonPanel, BorderLayout.EAST);
 
         JButton reconfigureButton = new JButton("Reconfigure");
         //TODO: action listener

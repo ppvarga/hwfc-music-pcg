@@ -15,9 +15,14 @@ public class TextFieldWithTitle  extends JPanel {
 
         add(label);
         add(textField);
+
     }
 
     public String getText(){
         return textField.getText();
+    }
+
+    public void setText(String s){
+        textField.setText(s);
     }
 }
