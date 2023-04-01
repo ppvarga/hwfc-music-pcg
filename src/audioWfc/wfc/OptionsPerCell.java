@@ -14,6 +14,10 @@ public class OptionsPerCell<T> {
         this.allOptions = allOptions;
     }
 
+    public void reset(){
+        this.cells = new HashMap<>();
+    }
+
     public void setOptions(int pos, Set<T> options){
         cells.put(pos, options);
     }
