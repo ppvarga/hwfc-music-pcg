@@ -1,6 +1,7 @@
 package audioWfc.gui;
 
 import audioWfc.audio.BasicSoundGenerator;
+import audioWfc.audio.MidiPlayer;
 import audioWfc.musicTheory.Key;
 import audioWfc.musicTheory.MajorKey;
 import audioWfc.musicTheory.Note;
@@ -35,6 +36,7 @@ import audioWfc.wfc.hierarchy.ChordResult;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -42,8 +44,16 @@ import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.sound.midi.InvalidMidiDataException;
+import javax.sound.midi.MidiSystem;
+import javax.sound.midi.MidiUnavailableException;
+import javax.sound.midi.Sequence;
+import javax.sound.midi.Sequencer;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
+
+import static audioWfc.audio.SequencerBuilder.DEFAULT_BPM;
+import static audioWfc.audio.SequencerBuilder.getSequence;
 
 public class MyApp extends JFrame {
     public static final String MELODY_STEP_SIZES = "Melody step sizes";
@@ -122,6 +132,9 @@ public class MyApp extends JFrame {
     private Set<String> usedConstraintTypes;
     private Set<Integer> usedChordOptionPositions;
 
+    private Sequencer sequencer;
+    private MidiPlayer midiPlayer;
+
     public MyApp() {
         noteConstraints = new ConstraintSet<>();
         noteOptionsPerCell = new OptionsPerCell<>(OctavedNote.all());
@@ -132,6 +145,16 @@ public class MyApp extends JFrame {
         noteCanvasAttributes = new CanvasAttributes<>(noteConstraints, noteOptionsPerCell, 0);
         usedConstraintTypes = new HashSet<>();
         usedChordOptionPositions = new HashSet<>();
+
+        try {
+            sequencer = MidiSystem.getSequencer();
+            sequencer.open();
+        } catch (MidiUnavailableException e) {
+            e.printStackTrace();
+        }
+        sequencer.setTempoInBPM(DEFAULT_BPM);
+        midiPlayer = new MidiPlayer(sequencer);
+
         setupGUI();
     }
 
@@ -600,7 +623,14 @@ public class MyApp extends JFrame {
             alert("Nothing has been generated yet");
             return;
         }
-        BasicSoundGenerator.play(lastResult);
+        try {
+            sequencer.setSequence(getSequence(lastResult));
+            midiPlayer.start();
+        } catch (InvalidMidiDataException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void resetConstraints(ActionEvent e) {

@@ -21,7 +21,6 @@ public class MidiPlayer implements MetaEventListener {
     public void meta(MetaMessage message) {
         if (message.getType() == 47){
             sequencer.stop();
-            sequencer.close();
         }
     }
 }
