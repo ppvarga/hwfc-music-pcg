@@ -8,6 +8,7 @@ import javax.sound.midi.Sequencer;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 public class BasicSoundGenerator {
     public static void play(List<ChordResult> input){
@@ -28,6 +29,11 @@ public class BasicSoundGenerator {
 
         Sequencer sequencer = SequencerBuilder.buildSequencer(playableNotes);
         MidiPlayer player = new MidiPlayer(sequencer);
+        try {
+            TimeUnit.SECONDS.sleep(4);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         player.start();
     }
 }
