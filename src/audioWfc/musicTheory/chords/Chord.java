@@ -2,6 +2,7 @@ package audioWfc.musicTheory.chords;
 
 import audioWfc.musicTheory.Note;
 import audioWfc.musicTheory.NoteSet;
+import audioWfc.wfc.hierarchy.prototypes.Chordesque;
 
 import java.text.ParseException;
 import java.util.Arrays;
@@ -13,7 +14,7 @@ import java.util.stream.Collectors;
 import static audioWfc.musicTheory.chords.ChordQuality.MAJOR;
 import static audioWfc.musicTheory.chords.ChordQuality.MINOR;
 
-public abstract class Chord extends NoteSet {
+public abstract class Chord extends NoteSet implements Chordesque {
     protected Note third;
     protected Note fifth;
 
@@ -24,6 +25,11 @@ public abstract class Chord extends NoteSet {
     @Override
     public String toString() {
         return "Chord: " + root + notation();
+    }
+
+    @Override
+    public Chord getValue() {
+        return this;
     }
 
     public Note getThird() {
@@ -44,8 +50,8 @@ public abstract class Chord extends NoteSet {
         }
     }
 
-    public static Set<Chord> getAllBasicChords(){
-        Set<Chord> out = new HashSet<>();
+    public static Set<Chordesque> getAllBasicChords(){
+        Set<Chordesque> out = new HashSet<>();
         for (Note root : Note.values()){
             for (ChordQuality quality : Set.of(MAJOR, MINOR)){
                 out.add(create(root, quality));

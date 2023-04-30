@@ -33,6 +33,7 @@ import audioWfc.wfc.grabbers.RootOfChordGrabber;
 import audioWfc.wfc.grabbers.ThirdOfChordGrabber;
 import audioWfc.wfc.hierarchy.ChordLevelNode;
 import audioWfc.wfc.hierarchy.ChordResult;
+import audioWfc.wfc.hierarchy.prototypes.Chordesque;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -122,11 +123,11 @@ public class MyApp extends JFrame {
 
     private ConstraintSet<OctavedNote> noteConstraints;
     private OptionsPerCell<OctavedNote> noteOptionsPerCell;
-    private ConstraintSet<Chord> chordConstraints;
-    private OptionsPerCell<Chord> chordOptionsPerCell;
+    private ConstraintSet<Chordesque> chordConstraints;
+    private OptionsPerCell<Chordesque> chordOptionsPerCell;
     private HigherValues higherValues;
     private CanvasAttributes<OctavedNote> noteCanvasAttributes;
-    private CanvasAttributes<Chord> chordCanvasAttributes;
+    private CanvasAttributes<Chordesque> chordCanvasAttributes;
     private ChordLevelNode chordLevelNode;
     private List<ChordResult> lastResult;
     private Set<String> usedConstraintTypes;
@@ -308,7 +309,10 @@ public class MyApp extends JFrame {
             throw new RuntimeException("There are already options defined for this position");
         }
         usedChordOptionPositions.add(position);
-        Set<Chord> options = Chord.parseSet(optionsPerCellValueField.getText());
+        Set<Chordesque> options = Chord.parseSet(optionsPerCellValueField.getText())
+                .stream()
+                .map(x -> (Chordesque) x)
+                .collect(Collectors.toSet());
 
         chordOptionsPerCell.setOptions(position, options);
         initializedChordOptionsPerCellPanel.add(panelFromOptions(position, options));
@@ -581,7 +585,7 @@ public class MyApp extends JFrame {
     }
 
     private void addChordConstraint(String selectedOption) {
-        Constraint<Chord> newConstraint;
+        Constraint<Chordesque> newConstraint;
         switch (selectedOption) {
             case CHORDS_IN_KEY -> {newConstraint = new ChordInKeyConstraint(new BasicKeyGrabber());}
             case DISTANCES_BETWEEN_ADJACENT_CHORDS -> {newConstraint = createChordStepSizeConstraint();}

@@ -1,8 +1,8 @@
 package audioWfc.wfc;
 
-import audioWfc.musicTheory.Section;
 import audioWfc.musicTheory.Key;
 import audioWfc.musicTheory.chords.Chord;
+import audioWfc.wfc.hierarchy.prototypes.Section;
 
 public class HigherValues {
     private Key key;

@@ -6,30 +6,31 @@ import audioWfc.wfc.constraints.concepts.HardConstraint;
 import audioWfc.wfc.grabbers.Grabber;
 import audioWfc.musicTheory.NoteUtils;
 import audioWfc.musicTheory.chords.Chord;
+import audioWfc.wfc.hierarchy.prototypes.Chordesque;
 
 import java.util.Set;
 
-public class ChordStepSizeHardConstraint implements HardConstraint<Chord> {
+public class ChordStepSizeHardConstraint implements HardConstraint<Chordesque> {
     private Grabber<Set<Integer>> grabber;
 
     @Override
-    public boolean check(Tile<Chord> tile, HigherValues higherValues) {
+    public boolean check(Tile<Chordesque> tile, HigherValues higherValues) {
         return checkWithPrev(tile, higherValues) && checkWithNext(tile, higherValues);
     }
 
-    private boolean checkWithPrev(Tile<Chord> tile, HigherValues higherValues) {
-        Tile<Chord> prev = tile.getPrev();
+    private boolean checkWithPrev(Tile<Chordesque> tile, HigherValues higherValues) {
+        Tile<Chordesque> prev = tile.getPrev();
         if(!prev.isCollapsed()) return true;
-        Chord chord1 = prev.getValue();
-        Chord chord2 = tile.getValue();
+        Chord chord1 = prev.getValue().getValue();
+        Chord chord2 = tile.getValue().getValue();
         return checkConcrete(chord1, chord2, higherValues);
     }
 
-    private boolean checkWithNext(Tile<Chord> tile, HigherValues higherValues) {
-        Tile<Chord> next = tile.getNext();
+    private boolean checkWithNext(Tile<Chordesque> tile, HigherValues higherValues) {
+        Tile<Chordesque> next = tile.getNext();
         if(!next.isCollapsed()) return true;
-        Chord chord1 = tile.getValue();
-        Chord chord2 = next.getValue();
+        Chord chord1 = tile.getValue().getValue();
+        Chord chord2 = next.getValue().getValue();
         return checkConcrete(chord1, chord2, higherValues);
     }
 

@@ -6,8 +6,9 @@ import audioWfc.wfc.constraints.concepts.HardConstraint;
 import audioWfc.wfc.grabbers.Grabber;
 import audioWfc.musicTheory.Key;
 import audioWfc.musicTheory.chords.Chord;
+import audioWfc.wfc.hierarchy.prototypes.Chordesque;
 
-public class ChordInKeyConstraint implements HardConstraint<Chord> {
+public class ChordInKeyConstraint implements HardConstraint<Chordesque> {
     private Grabber<Key> grabber;
 
     public ChordInKeyConstraint(Grabber<Key> grabber) {
@@ -15,8 +16,8 @@ public class ChordInKeyConstraint implements HardConstraint<Chord> {
     }
 
     @Override
-    public boolean check(Tile<Chord> tile, HigherValues higherValues) {
-        return grabber.grab(higherValues).getBasicChords().contains(tile.getValue());
+    public boolean check(Tile<Chordesque> tile, HigherValues higherValues) {
+        return grabber.grab(higherValues).getBasicChords().contains(tile.getValue().getValue());
     }
 
     @Override

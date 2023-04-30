@@ -34,4 +34,11 @@ public class CanvasAttributes<T> {
     public void setSize(int size) {
         this.size = size;
     }
+
+    public CanvasAttributes<T> union(CanvasAttributes<T> other){
+        ConstraintSet<T> newConstraints = this.constraints.union(other.constraints);
+        OptionsPerCell<T> newOptions = this.options.union(other.options);
+        int newSize = other.size;
+        return new CanvasAttributes<>(newConstraints, newOptions, newSize);
+    }
 }

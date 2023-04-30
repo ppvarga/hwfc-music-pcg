@@ -21,6 +21,7 @@ import audioWfc.wfc.constraints.PerfectCadenceSoftConstraint;
 import audioWfc.wfc.constraints.PlagalCadenceSoftConstraint;
 import audioWfc.wfc.grabbers.BasicKeyGrabber;
 import audioWfc.wfc.grabbers.IntegerSetConstantGrabber;
+import audioWfc.wfc.grabbers.RootOfChordGrabber;
 import audioWfc.wfc.grabbers.ThirdOfChordGrabber;
 import audioWfc.wfc.hierarchy.ChordLevelNode;
 import audioWfc.musicTheory.Key;
@@ -32,6 +33,8 @@ import audioWfc.musicTheory.chords.MinorChord;
 import audioWfc.wfc.OptionsPerCell;
 import audioWfc.wfc.TileCanvas;
 import audioWfc.wfc.hierarchy.ChordResult;
+import audioWfc.wfc.hierarchy.prototypes.ChordPrototype;
+import audioWfc.wfc.hierarchy.prototypes.Chordesque;
 
 import javax.sound.midi.Instrument;
 import javax.sound.midi.MidiChannel;
@@ -43,21 +46,81 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static audioWfc.musicTheory.Note.*;
 
 public class Main {
     public static void main(String[] args) {
-        chordsAndNotesCompactDemo();
+        chordPrototypeDemo();
+    }
+
+    private static void chordPrototypeDemo() {
+        ConstraintSet<Chordesque> chordConstraints = new ConstraintSet<>(Set.of(
+                new ChordInKeyConstraint(new BasicKeyGrabber())
+        ));
+
+        Set<Chordesque> allChordOptions = new HashSet<>();
+        allChordOptions.add(new MajorChord(C));
+        allChordOptions.add(new MinorChord(E));
+
+        ConstraintSet<OctavedNote> chordProtoFConstraints = new ConstraintSet<>(Set.of(
+                new MelodyStartsOnNoteHardConstraint(new RootOfChordGrabber()),
+                new MelodyAbsoluteStepSizeHardConstraint(new IntegerSetConstantGrabber(Set.of(1, 2)))
+                ));
+        CanvasAttributes<OctavedNote> chordProtoFAttributes = new CanvasAttributes<>(
+                chordProtoFConstraints,
+                new OptionsPerCell<>(OctavedNote.all()), 3);
+        ChordPrototype chordProtoF = new ChordPrototype("F", new MajorChord(F), chordProtoFAttributes);
+
+        ConstraintSet<OctavedNote> chordProtoGConstraints = new ConstraintSet<>(Set.of(
+                new MelodyStartsOnNoteHardConstraint(new ThirdOfChordGrabber()),
+                new AscendingMelodySoftConstraint(10)
+        ));
+        CanvasAttributes<OctavedNote> chordProtoGAttributes = new CanvasAttributes<>(
+                chordProtoGConstraints,
+                new OptionsPerCell<>(OctavedNote.all()), 5);
+        ChordPrototype chordProtoG = new ChordPrototype("G", new MajorChord(G), chordProtoGAttributes);
+
+        allChordOptions.add(chordProtoF);
+        allChordOptions.add(chordProtoG);
+
+        OptionsPerCell<Chordesque> chordOptionsPerCell = new OptionsPerCell<>(allChordOptions);
+
+        ConstraintSet<OctavedNote> noteConstraints = new ConstraintSet<>(Set.of(
+                new NoteInKeyHardConstraint(new BasicKeyGrabber()),
+                new NoteInOctavesConstraint(new IntegerSetConstantGrabber(Set.of(5))),
+                new MelodyAbsoluteStepSizeHardConstraint(new IntegerSetConstantGrabber(Set.of(1,2,3,4)))
+        ));
+
+        OptionsPerCell<OctavedNote> noteOptionsPerCell = new OptionsPerCell<>(OctavedNote.all());
+
+        HigherValues higherValues = new HigherValues();
+        higherValues.setKey(new MajorKey(C));
+
+        CanvasAttributes<Chordesque> chordCanvasAttributes =
+                new CanvasAttributes<>(chordConstraints, chordOptionsPerCell, 8);
+
+        CanvasAttributes<OctavedNote> noteCanvasAttributes =
+                new CanvasAttributes<>(noteConstraints, noteOptionsPerCell, 4);
+
+        ChordLevelNode chordLevelNode =
+                new ChordLevelNode(null, higherValues, chordCanvasAttributes, noteCanvasAttributes, new Random());
+
+        List<ChordResult> result = chordLevelNode.generate();
+
+        System.out.println(result);
+
+        BasicSoundGenerator.play(result);
     }
 
     private static void chordsAndNotesCompactDemo() {
-        ConstraintSet<Chord> chordConstraints = new ConstraintSet<>(Set.of(
+        ConstraintSet<Chordesque> chordConstraints = new ConstraintSet<>(Set.of(
                 new ChordInKeyConstraint(new BasicKeyGrabber()),
                 new ChordStepSizeHardConstraint(new IntegerSetConstantGrabber(Set.of(3, 4, 5)))
         ));
 
-        OptionsPerCell<Chord> chordOptionsPerCell = new OptionsPerCell<>(Chord.getAllBasicChords());
+        OptionsPerCell<Chordesque> chordOptionsPerCell = new OptionsPerCell<>(Chord.getAllBasicChords());
         chordOptionsPerCell.setValue(2, new MajorChord(F));
         chordOptionsPerCell.setOptions(5, Set.of(new MajorChord(C), new MinorChord(E)));
 
@@ -73,7 +136,7 @@ public class Main {
         HigherValues higherValues = new HigherValues();
         higherValues.setKey(new MajorKey(C));
 
-        CanvasAttributes<Chord> chordCanvasAttributes =
+        CanvasAttributes<Chordesque> chordCanvasAttributes =
                 new CanvasAttributes<>(chordConstraints, chordOptionsPerCell, 8);
 
         CanvasAttributes<OctavedNote> noteCanvasAttributes =
@@ -97,21 +160,21 @@ public class Main {
         final int noteLength = 2;
         final int notesPerChord = 4;
         
-        ConstraintSet<Chord> constraintSetChords = new ConstraintSet<>(Set.of(
+        ConstraintSet<Chordesque> constraintSetChords = new ConstraintSet<>(Set.of(
                 new ChordInKeyConstraint(new BasicKeyGrabber()),
                 new ChordStepSizeHardConstraint(new IntegerSetConstantGrabber(Set.of(3, 4, 5)))
         ));
-        OptionsPerCell<Chord> optionsPerCell = new OptionsPerCell<>(Chord.getAllBasicChords());
+        OptionsPerCell<Chordesque> optionsPerCell = new OptionsPerCell<>(Chord.getAllBasicChords());
         optionsPerCell.setValue(2, new MajorChord(F));
         optionsPerCell.setOptions(5, Set.of(new MajorChord(C), new MinorChord(E)));
 
-        TileCanvas<Chord> chordWFC = new TileCanvas<>(8, optionsPerCell, constraintSetChords);
-        List<Chord> chords = chordWFC.generate();
+        TileCanvas<Chordesque> chordWFC = new TileCanvas<>(8, optionsPerCell, constraintSetChords);
+        List<Chordesque> chords = chordWFC.generate();
         System.out.println(chords);
 
         Set<PlayableNote> playableNotes = new HashSet<>();
 
-        for(Chord chord : chords){
+        for(Chordesque chord : chords){
             ConstraintSet<OctavedNote> constraintSetNotes = new ConstraintSet<>(Set.of(
                     new NoteInKeyHardConstraint(new BasicKeyGrabber()),
                     new NoteInOctavesConstraint(new IntegerSetConstantGrabber(Set.of(5))),
@@ -122,7 +185,7 @@ public class Main {
             List<OctavedNote> melodySegment = noteWFC.generate();
             System.out.println(chord + " - " + melodySegment);
 
-            playableNotes.addAll(BasicChordRealizer.realize(chord, chordTicks, chordTicks+ notesPerChord*noteLength));
+            playableNotes.addAll(BasicChordRealizer.realize(chord.getValue(), chordTicks, chordTicks+ notesPerChord*noteLength));
             chordTicks += notesPerChord*noteLength;
 
             for(OctavedNote octavedNote : melodySegment){
@@ -140,21 +203,21 @@ public class Main {
     private static void cadenceSoftConstraintsDemo(){
         Key key = new MajorKey(C);
 
-        Set<Chord> chordOptions = key.getBasicChords();
+        Set<Chordesque> chordOptions = key.getBasicChords().stream().map(x -> (Chordesque) x).collect(Collectors.toSet());
 
-        ConstraintSet<Chord> constraintSetChords = new ConstraintSet<>(Set.of(
+        ConstraintSet<Chordesque> constraintSetChords = new ConstraintSet<>(Set.of(
                 new PerfectCadenceSoftConstraint(100d, new BasicKeyGrabber()),
                 new PlagalCadenceSoftConstraint(50d, new BasicKeyGrabber())
         ));
 
-        OptionsPerCell<Chord> optionsPerCell = new OptionsPerCell<>(chordOptions);
+        OptionsPerCell<Chordesque> optionsPerCell = new OptionsPerCell<>(chordOptions);
         for(int i = 0; i<8; i++){
             optionsPerCell.setValue(4*i, new MajorChord(C));
         }
 
-        TileCanvas<Chord> chordWFC = new TileCanvas<>(32, optionsPerCell, constraintSetChords, new Random());
+        TileCanvas<Chordesque> chordWFC = new TileCanvas<>(32, optionsPerCell, constraintSetChords, new Random());
 
-        List<Chord> chords = chordWFC.generate();
+        List<Chordesque> chords = chordWFC.generate();
         System.out.println(chords);
     }
 

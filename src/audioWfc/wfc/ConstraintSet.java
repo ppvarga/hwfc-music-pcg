@@ -41,6 +41,13 @@ public class ConstraintSet<T> {
         return out;
     }
 
+    public Set<Constraint<T>> getConstraints(){
+        Set<Constraint<T>> out = new HashSet<>();
+        out.addAll(hardConstraints);
+        out.addAll(softConstraints);
+        return out;
+    }
+
     public void addHardConstraint(HardConstraint<T> hardConstraint){
         hardConstraints.add(hardConstraint);
     }
@@ -77,5 +84,12 @@ public class ConstraintSet<T> {
         }
         out |= hardConstraints.remove(toRemove);
         return out;
+    }
+
+    public ConstraintSet<T> union(ConstraintSet<T> other){
+        Set<Constraint<T>> set = new HashSet<>();
+        set.addAll(this.getConstraints());
+        set.addAll(other.getConstraints());
+        return new ConstraintSet<>(set);
     }
 }

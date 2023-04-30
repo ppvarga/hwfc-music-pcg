@@ -8,9 +8,10 @@ import audioWfc.musicTheory.Note;
 import audioWfc.musicTheory.NoteUtils;
 import audioWfc.musicTheory.chords.Chord;
 import audioWfc.musicTheory.chords.ChordQuality;
+import audioWfc.wfc.hierarchy.prototypes.Chordesque;
 
 
-public abstract class GenericCadenceSoftConstraint extends SoftConstraint<Chord> {
+public abstract class GenericCadenceSoftConstraint extends SoftConstraint<Chordesque> {
     private Grabber<Integer> firstOffsetGrabber;
     private Grabber<Integer> secondOffsetGrabber;
     private Grabber<ChordQuality> firstQualityGrabber;
@@ -29,8 +30,8 @@ public abstract class GenericCadenceSoftConstraint extends SoftConstraint<Chord>
     }
 
     @Override
-    public double weight(Tile<Chord> tile, HigherValues higherValues) {
-        Chord chord = tile.getValue();
+    public double weight(Tile<Chordesque> tile, HigherValues higherValues) {
+        Chord chord = tile.getValue().getValue();
 
         Note root = keyGrabber.grab(higherValues).getRoot();
 
@@ -41,13 +42,13 @@ public abstract class GenericCadenceSoftConstraint extends SoftConstraint<Chord>
         Chord secondChord = Chord.create(secondRoot, secondQualityGrabber.grab(higherValues));
 
         if(chord.equals(secondChord)){
-            Tile<Chord> prev = tile.getPrev();
-            if(prev.isCollapsed() && prev.getValue().equals(firstChord)){
+            Tile<Chordesque> prev = tile.getPrev();
+            if(prev.isCollapsed() && prev.getValue().getValue().equals(firstChord)){
                 return factor;
             }
         } else if(chord.equals(firstChord)){
-            Tile<Chord> next = tile.getNext();
-            if(next.isCollapsed() && next.getValue().equals(secondChord)){
+            Tile<Chordesque> next = tile.getNext();
+            if(next.isCollapsed() && next.getValue().getValue().equals(secondChord)){
                 return factor;
             }
         }
