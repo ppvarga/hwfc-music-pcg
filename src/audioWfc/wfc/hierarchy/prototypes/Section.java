@@ -24,4 +24,8 @@ public class Section {
     public CanvasAttributes<OctavedNote> getNoteAttributes() {
         return noteAttributes;
     }
+
+    public String getName() {
+        return name;
+    }
 }
