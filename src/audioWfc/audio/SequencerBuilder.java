@@ -2,6 +2,7 @@ package audioWfc.audio;
 
 import audioWfc.musicTheory.OctavedNote;
 import audioWfc.wfc.hierarchy.ChordResult;
+import audioWfc.wfc.hierarchy.SectionResult;
 
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiEvent;
@@ -55,7 +56,7 @@ public class SequencerBuilder {
     }
 
     public static Sequence getSequence(List<ChordResult> result) throws InvalidMidiDataException, IOException {
-        return getSequence(getPlayableNotes(result));
+        return getSequence(SequencerBuilder.getPlayableNotesFromChords(result));
     }
 
     private static MidiEvent makeEvent(int command, int channel, int note, int velocity, int tick){
@@ -73,21 +74,38 @@ public class SequencerBuilder {
         return event;
     }
 
-    public static Set<PlayableNote> getPlayableNotes(List<ChordResult> input) {
+    public static Set<PlayableNote> getPlayableNotesFromChords(List<ChordResult> input) {
         int ticks = 1;
         final int noteLength = 4;
 
         Set<PlayableNote> playableNotes = new HashSet<>();
 
+        addChordResult(input, ticks, noteLength, playableNotes);
+        return playableNotes;
+    }
+
+    public static Set<PlayableNote> getPlayableNotesFromSections(List<SectionResult> input) {
+        int ticks = 1;
+        final int noteLength = 4;
+
+        Set<PlayableNote> playableNotes = new HashSet<>();
+
+        for(SectionResult sectionResult : input){
+            ticks = addChordResult(sectionResult.chords(), ticks, noteLength, playableNotes);
+        }
+        return playableNotes;
+    }
+
+    private static int addChordResult(List<ChordResult> input, int ticks, int noteLength, Set<PlayableNote> playableNotes) {
         for(ChordResult chordResult : input){
             int chordStart = ticks;
             for(OctavedNote octavedNote : chordResult.notes()){
-                PlayableNote playableNote = new PlayableNote(octavedNote, ticks, ticks+noteLength, 100);
+                PlayableNote playableNote = new PlayableNote(octavedNote, ticks, ticks + noteLength, 100);
                 playableNotes.add(playableNote);
                 ticks += noteLength;
             }
             playableNotes.addAll(BasicChordRealizer.realize(chordResult.chord(), chordStart, ticks));
         }
-        return playableNotes;
+        return ticks;
     }
 }

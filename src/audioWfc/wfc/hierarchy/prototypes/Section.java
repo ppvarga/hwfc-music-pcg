@@ -2,25 +2,26 @@ package audioWfc.wfc.hierarchy.prototypes;
 
 import audioWfc.musicTheory.OctavedNote;
 import audioWfc.musicTheory.chords.Chord;
+import audioWfc.wfc.CanvasAttributes;
 import audioWfc.wfc.ConstraintSet;
 import audioWfc.wfc.OptionsPerCell;
 
 public class Section {
-    private OptionsPerCell<OctavedNote> noteOptionsPerCell;
-    private ConstraintSet<OctavedNote> noteConstraintSet;
-    private OptionsPerCell<Chord> chordOptionsPerCell;
-    private ConstraintSet<Chord> chordConstraintSet;
+    private CanvasAttributes<Chordesque> chordAttributes;
+    private CanvasAttributes<OctavedNote> noteAttributes;
     private String name;
 
-    public Section(String name,
-                   OptionsPerCell<OctavedNote> noteOptionsPerCell,
-                   ConstraintSet<OctavedNote> noteConstraintSet,
-                   OptionsPerCell<Chord> chordOptionsPerCell,
-                   ConstraintSet<Chord> chordConstraintSet) {
+    public Section(CanvasAttributes<Chordesque> chordAttributes, CanvasAttributes<OctavedNote> noteAttributes, String name) {
+        this.chordAttributes = chordAttributes;
+        this.noteAttributes = noteAttributes;
         this.name = name;
-        this.noteOptionsPerCell = noteOptionsPerCell;
-        this.noteConstraintSet = noteConstraintSet;
-        this.chordOptionsPerCell = chordOptionsPerCell;
-        this.chordConstraintSet = chordConstraintSet;
+    }
+
+    public CanvasAttributes<Chordesque> getChordAttributes() {
+        return chordAttributes;
+    }
+
+    public CanvasAttributes<OctavedNote> getNoteAttributes() {
+        return noteAttributes;
     }
 }

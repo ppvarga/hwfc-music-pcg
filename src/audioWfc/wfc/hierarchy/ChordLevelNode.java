@@ -47,7 +47,5 @@ public class ChordLevelNode {
         return out;
     }
 
-
-
 }
 

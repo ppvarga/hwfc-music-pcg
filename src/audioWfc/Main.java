@@ -111,7 +111,7 @@ public class Main {
 
         System.out.println(result);
 
-        BasicSoundGenerator.play(result);
+        BasicSoundGenerator.playChords(result);
     }
 
     private static void chordsAndNotesCompactDemo() {
@@ -149,7 +149,7 @@ public class Main {
 
         System.out.println(result);
 
-        BasicSoundGenerator.play(result);
+        BasicSoundGenerator.playChords(result);
     }
 
     private static void chordsAndNotesDemo() {
