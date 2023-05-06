@@ -29,4 +29,8 @@ public class ChordPrototype implements Chordesque{
     public CanvasAttributes<OctavedNote> getNoteAttributes() {
         return noteCanvasAttributes;
     }
+
+    public String getName() {
+        return name;
+    }
 }
