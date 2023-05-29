@@ -1,6 +1,5 @@
 package audioWfc.gui;
 
-import audioWfc.audio.BasicSoundGenerator;
 import audioWfc.audio.MidiPlayer;
 import audioWfc.musicTheory.Key;
 import audioWfc.musicTheory.MajorKey;
@@ -48,7 +47,6 @@ import java.util.stream.Stream;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
-import javax.sound.midi.Sequence;
 import javax.sound.midi.Sequencer;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
@@ -603,7 +601,7 @@ public class MyApp extends JFrame {
         updateHigherValues();
         updateCanvasAttributes();
         chordLevelNode = new ChordLevelNode(null, higherValues, chordCanvasAttributes, noteCanvasAttributes, new Random());
-        List<ChordResult> result = chordLevelNode.generate();
+        List<ChordResult> result = chordLevelNode.generateWithoutRhythm();
         System.out.println(result);
         lastResult = result;
     }

@@ -1,6 +1,7 @@
 package audioWfc.audio;
 
 import audioWfc.wfc.hierarchy.ChordResult;
+import audioWfc.wfc.hierarchy.ChordResultWithRhythm;
 import audioWfc.wfc.hierarchy.SectionResult;
 
 import javax.sound.midi.Sequencer;
@@ -11,6 +12,12 @@ import java.util.concurrent.TimeUnit;
 public class BasicSoundGenerator {
     public static void playChords(List<ChordResult> input){
         Set<PlayableNote> playableNotes = SequencerBuilder.getPlayableNotesFromChords(input);
+
+        play(playableNotes);
+    }
+
+    public static void playChordsWithRhythm(List<ChordResultWithRhythm> input){
+        Set<PlayableNote> playableNotes = SequencerBuilder.getPlayableNotesFromChordsWithRhythm(input);
 
         play(playableNotes);
     }

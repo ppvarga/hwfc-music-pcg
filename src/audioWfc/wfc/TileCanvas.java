@@ -32,6 +32,11 @@ public class TileCanvas<T> {
     public TileCanvas(int n, OptionsPerCell<T> options, ConstraintSet<T> constraints, Random random){
         this(n, options, constraints, null, random);
     }
+
+    public TileCanvas(CanvasAttributes<T> attributes, HigherValues higherValues, Random random){
+        this(attributes.getSize(), attributes.getOptions(), attributes.getConstraints(), higherValues, random);
+    }
+
     public TileCanvas(int n, OptionsPerCell<T> options, ConstraintSet<T> constraints, HigherValues higherValues, Random random){
         this.allOptions = options.getAllOptions();
         this.constraints = constraints;

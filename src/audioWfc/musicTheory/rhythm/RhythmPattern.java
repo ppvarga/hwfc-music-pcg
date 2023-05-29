@@ -1,7 +1,10 @@
 package audioWfc.musicTheory.rhythm;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class RhythmPattern {
     List<RhythmUnit> pattern;
@@ -28,8 +31,16 @@ public class RhythmPattern {
         System.out.println(getAllForLength(8));
     }
 
+    public List<RhythmUnit> getPattern() {
+        return pattern;
+    }
+
     public int getLength(){
         return pattern.stream().map(x -> x.length).reduce(0, Integer::sum);
+    }
+
+    public int numberOfNotes(){
+        return pattern.stream().map(x -> x.isNote() ? 1 : 0).reduce(0, Integer::sum);
     }
 
     private boolean lastIsNote(){
@@ -60,22 +71,26 @@ public class RhythmPattern {
         return out;
     }
 
-    private static List<RhythmPattern> allCombinations(List<Integer> abstractPattern){
+    public static Set<RhythmPattern> getAllForLength(int length, int minimumNumberOfNotes){
+        return getAllForLength(length).stream().filter(x -> x.numberOfNotes() >= minimumNumberOfNotes).collect(Collectors.toSet());
+    }
+
+    private static Set<RhythmPattern> allCombinations(List<Integer> abstractPattern){
         return allCombinations(new RhythmPattern(new ArrayList<>()), abstractPattern);
     }
 
-    private static List<RhythmPattern> allCombinations(RhythmPattern prefix, List<Integer> abstractPattern){
-        if(abstractPattern.size() == 0) return List.of(prefix);
+    private static Set<RhythmPattern> allCombinations(RhythmPattern prefix, List<Integer> abstractPattern){
+        if(abstractPattern.size() == 0) return Set.of(prefix);
         int nextLength = abstractPattern.remove(0);
-        List<RhythmPattern> out = new ArrayList<>();
+        Set<RhythmPattern> out = new HashSet<>();
 
         RhythmPattern prefixPlusNote = prefix.copy().append(new RhythmNote(nextLength));
-        List<RhythmPattern> allIfNote = allCombinations(prefixPlusNote, new ArrayList<>(abstractPattern));
+        Set<RhythmPattern> allIfNote = allCombinations(prefixPlusNote, new ArrayList<>(abstractPattern));
         out.addAll(allIfNote);
 
         if(prefix.lastIsNote()){
             RhythmPattern prefixPlusRest = prefix.copy().append(new Rest(nextLength));
-            List<RhythmPattern> allIfRest = allCombinations(prefixPlusRest, new ArrayList<>(abstractPattern));
+            Set<RhythmPattern> allIfRest = allCombinations(prefixPlusRest, new ArrayList<>(abstractPattern));
             out.addAll(allIfRest);
         }
 
