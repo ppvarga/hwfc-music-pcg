@@ -4,7 +4,6 @@ import audioWfc.musicTheory.OctavedNote;
 import audioWfc.wfc.CanvasAttributes;
 import audioWfc.wfc.HigherValues;
 import audioWfc.wfc.TileCanvas;
-import audioWfc.wfc.hierarchy.prototypes.ChordPrototype;
 import audioWfc.wfc.hierarchy.prototypes.Chordesque;
 import audioWfc.wfc.hierarchy.prototypes.Section;
 
@@ -24,9 +23,7 @@ public class SectionLevelNode {
         this.chordAttributes = chordAttributes;
         this.noteAttributes = noteAttributes;
         this.canvas = new TileCanvas<>(
-                sectionAttributes.getSize(),
-                sectionAttributes.getOptions(),
-                sectionAttributes.getConstraints(),
+                sectionAttributes,
                 higherValues,
                 random);
         this.random = random;
@@ -37,7 +34,7 @@ public class SectionLevelNode {
         List<SectionResult> out = new ArrayList<>();
         for (Section section : sections) {
             ChordLevelNode chordLevelNode = new ChordLevelNode(this, higherValues.copyWithSection(section), chordAttributes.union(section.getChordAttributes()), noteAttributes.union(section.getNoteAttributes()), random);
-            List<ChordResult> chords = chordLevelNode.generate();
+            List<ChordResult> chords = chordLevelNode.generateWithoutRhythm();
             out.add(new SectionResult(chords));
         }
         return out;

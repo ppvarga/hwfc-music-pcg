@@ -2,12 +2,14 @@ package audioWfc.wfc;
 
 import audioWfc.musicTheory.Key;
 import audioWfc.musicTheory.chords.Chord;
+import audioWfc.musicTheory.rhythm.RhythmPattern;
 import audioWfc.wfc.hierarchy.prototypes.Section;
 
 public class HigherValues {
     private Key key;
     private Section section;
     private Chord chord;
+    private RhythmPattern rhythmPattern;
 
     public HigherValues() {
     }
@@ -17,6 +19,7 @@ public class HigherValues {
         out.setKey(key);
         out.setSection(section);
         out.setChord(chord);
+        out.setRhythmPattern(rhythmPattern);
         return out;
     }
 
@@ -25,6 +28,7 @@ public class HigherValues {
         out.setKey(key);
         out.setSection(section);
         out.setChord(otherChord);
+        out.setRhythmPattern(rhythmPattern);
         return out;
     }
 
@@ -33,6 +37,7 @@ public class HigherValues {
         out.setKey(key);
         out.setSection(otherSection);
         out.setChord(chord);
+        out.setRhythmPattern(rhythmPattern);
         return out;
     }
 
@@ -41,14 +46,16 @@ public class HigherValues {
         out.setKey(otherKey);
         out.setSection(section);
         out.setChord(chord);
+        out.setRhythmPattern(rhythmPattern);
         return out;
     }
 
-    public HigherValues copyWithChord(Section otherSection) {
+    public HigherValues copyWithRhythmPattern(RhythmPattern otherRhythmPattern) {
         HigherValues out = new HigherValues();
         out.setKey(key);
-        out.setSection(otherSection);
+        out.setSection(section);
         out.setChord(chord);
+        out.setRhythmPattern(otherRhythmPattern);
         return out;
     }
 
@@ -74,5 +81,13 @@ public class HigherValues {
 
     public void setChord(Chord chord) {
         this.chord = chord;
+    }
+
+    public RhythmPattern getRhythmPattern() {
+        return rhythmPattern;
+    }
+
+    public void setRhythmPattern(RhythmPattern rhythmPattern) {
+        this.rhythmPattern = rhythmPattern;
     }
 }

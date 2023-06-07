@@ -693,7 +693,7 @@ public class MyApp extends JFrame {
         updateHigherValues();
         updateCanvasAttributes();
         chordLevelNode = new ChordLevelNode(null, higherValues, chordCanvasAttributes, noteCanvasAttributes, new Random());
-        List<ChordResult> result = chordLevelNode.generate();
+        List<ChordResult> result = chordLevelNode.generateWithoutRhythm();
         System.out.println(result);
         lastResult = result;
     }

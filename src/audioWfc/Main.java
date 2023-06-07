@@ -5,6 +5,7 @@ import audioWfc.audio.BasicSoundGenerator;
 import audioWfc.audio.MidiPlayer;
 import audioWfc.audio.PlayableNote;
 import audioWfc.audio.SequencerBuilder;
+import audioWfc.musicTheory.rhythm.RhythmPattern;
 import audioWfc.wfc.constraints.AscendingMelodySoftConstraint;
 import audioWfc.wfc.CanvasAttributes;
 import audioWfc.wfc.constraints.ChordInKeyConstraint;
@@ -33,6 +34,7 @@ import audioWfc.musicTheory.chords.MinorChord;
 import audioWfc.wfc.OptionsPerCell;
 import audioWfc.wfc.TileCanvas;
 import audioWfc.wfc.hierarchy.ChordResult;
+import audioWfc.wfc.hierarchy.ChordResultWithRhythm;
 import audioWfc.wfc.hierarchy.prototypes.ChordPrototype;
 import audioWfc.wfc.hierarchy.prototypes.Chordesque;
 
@@ -52,7 +54,7 @@ import static audioWfc.musicTheory.Note.*;
 
 public class Main {
     public static void main(String[] args) {
-        chordPrototypeDemo();
+        rhythmDemo();
     }
 
     private static void chordPrototypeDemo() {
@@ -107,7 +109,7 @@ public class Main {
         ChordLevelNode chordLevelNode =
                 new ChordLevelNode(null, higherValues, chordCanvasAttributes, noteCanvasAttributes, new Random());
 
-        List<ChordResult> result = chordLevelNode.generate();
+        List<ChordResult> result = chordLevelNode.generateWithoutRhythm();
 
         System.out.println(result);
 
@@ -145,11 +147,57 @@ public class Main {
         ChordLevelNode chordLevelNode =
                 new ChordLevelNode(null, higherValues, chordCanvasAttributes, noteCanvasAttributes, new Random());
 
-        List<ChordResult> result = chordLevelNode.generate();
+        List<ChordResult> result = chordLevelNode.generateWithoutRhythm();
 
         System.out.println(result);
 
         BasicSoundGenerator.playChords(result);
+    }
+
+    private static void rhythmDemo() {
+        ConstraintSet<Chordesque> chordConstraints = new ConstraintSet<>(Set.of(
+                new ChordInKeyConstraint(new BasicKeyGrabber()),
+                new ChordStepSizeHardConstraint(new IntegerSetConstantGrabber(Set.of(3, 4, 5)))
+        ));
+
+        OptionsPerCell<Chordesque> chordOptionsPerCell = new OptionsPerCell<>(Chord.getAllBasicChords());
+        chordOptionsPerCell.setValue(2, new MajorChord(F));
+        chordOptionsPerCell.setOptions(5, Set.of(new MajorChord(C), new MinorChord(E)));
+
+        ConstraintSet<RhythmPattern> rhythmPatternConstraintSet = new ConstraintSet<>();
+        OptionsPerCell<RhythmPattern> rhythmPatternOptionsPerCell = new OptionsPerCell<>(RhythmPattern.getAllForLength(8,3));
+
+        ConstraintSet<OctavedNote> noteConstraints = new ConstraintSet<>(Set.of(
+                new NoteInKeyHardConstraint(new BasicKeyGrabber()),
+                new NoteInOctavesConstraint(new IntegerSetConstantGrabber(Set.of(5))),
+                new MelodyAbsoluteStepSizeHardConstraint(new IntegerSetConstantGrabber(Set.of(1,2,3))),
+                new MelodyStartsOnNoteHardConstraint(new ThirdOfChordGrabber())
+        ));
+
+        OptionsPerCell<OctavedNote> noteOptionsPerCell = new OptionsPerCell<>(OctavedNote.all());
+
+        HigherValues higherValues = new HigherValues();
+        higherValues.setKey(new MajorKey(C));
+
+        int chordLevelSize = 8;
+
+        CanvasAttributes<Chordesque> chordCanvasAttributes =
+                new CanvasAttributes<>(chordConstraints, chordOptionsPerCell, chordLevelSize);
+
+        CanvasAttributes<RhythmPattern> rhythmPatternCanvasAttributes =
+                new CanvasAttributes<>(rhythmPatternConstraintSet, rhythmPatternOptionsPerCell, chordLevelSize);
+
+        CanvasAttributes<OctavedNote> noteCanvasAttributes =
+                new CanvasAttributes<>(noteConstraints, noteOptionsPerCell, 4);
+
+        ChordLevelNode chordLevelNode =
+                new ChordLevelNode(null, higherValues, chordCanvasAttributes, rhythmPatternCanvasAttributes, noteCanvasAttributes, new Random());
+
+        List<ChordResultWithRhythm> result = chordLevelNode.generateWithRhythm();
+
+        System.out.println(result);
+
+        BasicSoundGenerator.playChordsWithRhythm(result);
     }
 
     private static void chordsAndNotesDemo() {
