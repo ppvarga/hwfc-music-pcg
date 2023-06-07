@@ -1,6 +1,5 @@
 package audioWfc.gui;
 
-import audioWfc.audio.BasicSoundGenerator;
 import audioWfc.audio.MidiPlayer;
 import audioWfc.musicTheory.Key;
 import audioWfc.musicTheory.MajorKey;
@@ -23,7 +22,9 @@ import audioWfc.wfc.constraints.NoteInOctavesConstraint;
 import audioWfc.wfc.constraints.PerfectCadenceSoftConstraint;
 import audioWfc.wfc.constraints.PlagalCadenceSoftConstraint;
 import audioWfc.wfc.constraints.concepts.Constraint;
+import audioWfc.wfc.constraints.concepts.IntegerSetConstraint;
 import audioWfc.wfc.constraints.concepts.MelodyShape;
+import audioWfc.wfc.constraints.concepts.SoftConstraint;
 import audioWfc.wfc.grabbers.BasicKeyGrabber;
 import audioWfc.wfc.grabbers.BasicMelodyShapeGrabber;
 import audioWfc.wfc.grabbers.FifthOfChordGrabber;
@@ -48,7 +49,6 @@ import java.util.stream.Stream;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
-import javax.sound.midi.Sequence;
 import javax.sound.midi.Sequencer;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
@@ -89,11 +89,52 @@ public class MyApp extends JFrame {
             DISTANCES_BETWEEN_ADJACENT_CHORDS
     );
 
+    private static Constraint<?> constraintFromName(String name){
+        switch (name){
+            case MELODY_SHAPE -> {
+                return new MelodyShapeHardConstraint(new BasicMelodyShapeGrabber(MelodyShape.parse("")));
+            }
+            case MELODY_IN_OCTAVES -> {
+                return new NoteInOctavesConstraint(new IntegerSetConstantGrabber(new HashSet<>()));
+            }
+            case MELODY_STEP_SIZES -> {
+                return new MelodyAbsoluteStepSizeHardConstraint(new IntegerSetConstantGrabber(new HashSet<>()));
+            }
+            case MELODY_IN_KEY -> {
+                return new NoteInKeyHardConstraint(new BasicKeyGrabber());
+            }
+            case ASCENDING_MELODY -> {
+                return new AscendingMelodySoftConstraint(-1);
+            }
+            case DESCENDING_MELODY -> {
+                return new DescendingMelodySoftConstraint(-1);
+            }
+            case START_MELODY_ON_NOTE -> {
+                return new MelodyStartsOnNoteHardConstraint(new RootOfChordGrabber());
+            }
+            case PERFECT_CADENCES -> {
+                return new PerfectCadenceSoftConstraint(-1, new BasicKeyGrabber());
+            }
+            case PLAGAL_CADENCES -> {
+                return new PlagalCadenceSoftConstraint(-1, new BasicKeyGrabber());
+            }
+            case CHORDS_IN_KEY -> {
+                return new ChordInKeyConstraint(new BasicKeyGrabber());
+            }
+            case DISTANCES_BETWEEN_ADJACENT_CHORDS -> {
+                return new ChordStepSizeHardConstraint(new IntegerSetConstantGrabber(new HashSet<>()));
+            }
+            default -> throw new IllegalArgumentException("No constraint with such name exists");
+        }
+    }
+
     private JComboBox<String> noteConstraintComboBox;
     private JComboBox<String> chordConstraintComboBox;
     private JComboBox<String> noteGrabberComboBox;
     private JButton addNoteConstraintButton;
     private JButton addChordConstraintButton;
+    private JButton submitConfigNoteConstraintButton;
+    private JButton submitConfigChordConstraintButton;
     private JButton configureNoteConstraintButton;
     private JButton configureChordConstraintButton;
     private JPanel configureOptionsPerCellPanel;
@@ -246,7 +287,7 @@ public class MyApp extends JFrame {
         addNoteConstraintPanel.add(noteConstraintComboBox);
 
         configureNoteConstraintButton = new JButton("+");
-        configureNoteConstraintButton.addActionListener(this::configureNoteConstraint);
+        configureNoteConstraintButton.addActionListener(this::configureNewNoteConstraint);
         addNoteConstraintPanel.add(configureNoteConstraintButton);
 
         addChordConstraintPanel = new JPanel();
@@ -257,7 +298,7 @@ public class MyApp extends JFrame {
         addChordConstraintPanel.add(chordConstraintComboBox);
 
         configureChordConstraintButton = new JButton("+");
-        configureChordConstraintButton.addActionListener(this::configureChordConstraint);
+        configureChordConstraintButton.addActionListener(this::configureNewChordConstraint);
         addChordConstraintPanel.add(configureChordConstraintButton);
 
         weightTextField = new TextFieldWithTitle("Soft constraint weight");
@@ -283,6 +324,13 @@ public class MyApp extends JFrame {
         addChordConstraintButton = new JButton("Add chord constraint");
         addChordConstraintButton.addActionListener(this::addChordConstraint);
         add(addChordConstraintButton);
+
+        submitConfigNoteConstraintButton = new JButton("Save configuration");
+        add(submitConfigNoteConstraintButton);
+
+        submitConfigChordConstraintButton = new JButton("Save configuration");
+        add(submitConfigChordConstraintButton);
+
 
         generateButton = new JButton("Generate");
         generateButton.addActionListener(this::generate);
@@ -454,6 +502,8 @@ public class MyApp extends JFrame {
         Set<JComponent> componentsToHide = Set.of(
                 addNoteConstraintButton,
                 addChordConstraintButton,
+                submitConfigNoteConstraintButton,
+                submitConfigChordConstraintButton,
                 integerSetTextField,
                 melodyShapeTextField,
                 weightTextField,
@@ -468,28 +518,52 @@ public class MyApp extends JFrame {
         mainContainer.setVisible(true);
     }
 
-    public void configureNoteConstraint(ActionEvent e) {
+    public void configureNewNoteConstraint(ActionEvent e) {
         String selectedOption = (String) noteConstraintComboBox.getSelectedItem();
-        configureNoteConstraint(selectedOption);
+        configureNoteConstraint((Constraint<OctavedNote>) constraintFromName(selectedOption));
     }
 
-    private void configureNoteConstraint(String selectedOption) {
-        if(usedConstraintTypes.contains(selectedOption)){
+    private void submitConfigNoteConstraint(Constraint<OctavedNote> constraint){
+        remove(submitConfigNoteConstraintButton);
+        submitConfigNoteConstraintButton = new JButton("Save configuration");
+        add(submitConfigNoteConstraintButton);
+        addNoteConstraint(constraint.name());
+    }
+
+    private void configureNoteConstraint(Constraint<OctavedNote> constraint) {
+        submitConfigNoteConstraintButton.addActionListener((e) -> submitConfigNoteConstraint(constraint));
+        if(usedConstraintTypes.contains(constraint.name())){
             alert("Constraint already exists");
         } else {
             enterConfigMode();
             Set<JComponent> componentsToShow = new HashSet<>();
-            switch (selectedOption) {
-                case MELODY_STEP_SIZES, MELODY_IN_OCTAVES -> componentsToShow.add(integerSetTextField);
-                case ASCENDING_MELODY, DESCENDING_MELODY -> componentsToShow.add(weightTextField);
-                case START_MELODY_ON_NOTE -> componentsToShow.add(noteGrabberComboBox);
-                case MELODY_SHAPE -> componentsToShow.add(melodyShapeTextField);
+            switch (constraint.name()) {
+                case MELODY_STEP_SIZES, MELODY_IN_OCTAVES -> {
+                    String integerSetString = ((IntegerSetConstraint) constraint).integerSetString(higherValues);
+                    integerSetTextField.setText(integerSetString);
+                    componentsToShow.add(integerSetTextField);
+                }
+                case ASCENDING_MELODY, DESCENDING_MELODY -> {
+                    String weightString = ((SoftConstraint<?>) constraint).weightString();
+                    weightTextField.setText(weightString);
+                    componentsToShow.add(weightTextField);
+                }
+                case START_MELODY_ON_NOTE -> {
+                    String selectedNoteString = ((MelodyStartsOnNoteHardConstraint) constraint).configText();
+                    noteGrabberComboBox.setSelectedItem(selectedNoteString);
+                    componentsToShow.add(noteGrabberComboBox);
+                }
+                case MELODY_SHAPE -> {
+                    String melodyShapeString = ((MelodyShapeHardConstraint) constraint).melodyShapeString(higherValues);
+                    melodyShapeTextField.setText(melodyShapeString);
+                    componentsToShow.add(melodyShapeTextField);
+                }
             }
             if(componentsToShow.isEmpty()){
                 addNoteConstraint();
                 return;
             }
-            componentsToShow.add(addNoteConstraintButton);
+            componentsToShow.add(submitConfigNoteConstraintButton);
             for(JComponent component : componentsToShow){
                 component.setVisible(true);
             }
@@ -500,11 +574,11 @@ public class MyApp extends JFrame {
         addNoteConstraint();
     }
 
-    private void removeConstraint(String name){
-        noteConstraints.removeConstraint(name);
-        chordConstraints.removeConstraint(name);
-        usedConstraintTypes.remove(name);
-        removeConstraintFromVisualList(name);
+    private void removeConstraint(Constraint constraint){
+        noteConstraints.removeConstraint(constraint);
+        chordConstraints.removeConstraint(constraint);
+        usedConstraintTypes.remove(constraint.name());
+        removeConstraintFromVisualList(constraint.name());
     }
 
     private void removeConstraintFromVisualList(String name) {
@@ -549,26 +623,42 @@ public class MyApp extends JFrame {
         initializedConstraintsPanel.add(panelFromConstraint(constraint));
     }
 
-    public void configureChordConstraint(ActionEvent e) {
+    public void configureNewChordConstraint(ActionEvent e) {
         String selectedOption = (String) chordConstraintComboBox.getSelectedItem();
-        configureChordConstraint(selectedOption);
+        configureChordConstraint((Constraint<Chord>) constraintFromName(selectedOption));
     }
 
-    private void configureChordConstraint(String selectedOption) {
-        if(usedConstraintTypes.contains(selectedOption)){
+    private void submitConfigChordConstraint(Constraint<Chord> constraint){
+        remove(submitConfigChordConstraintButton);
+        submitConfigChordConstraintButton = new JButton("Save configuration");
+        add(submitConfigChordConstraintButton);
+        addChordConstraint(constraint.name());
+    }
+
+    private void configureChordConstraint(Constraint<Chord> constraint) {
+        submitConfigChordConstraintButton.addActionListener((e) -> submitConfigChordConstraint(constraint));
+        if(usedConstraintTypes.contains(constraint.name())){
             alert("Constraint already exists");
         } else {
             enterConfigMode();
             Set<JComponent> componentsToShow = new HashSet<>();
-            switch (selectedOption) {
-                case DISTANCES_BETWEEN_ADJACENT_CHORDS -> {componentsToShow.add(integerSetTextField);}
-                case PERFECT_CADENCES, PLAGAL_CADENCES -> {componentsToShow.add(weightTextField);}
+            switch (constraint.name()) {
+                case DISTANCES_BETWEEN_ADJACENT_CHORDS -> {
+                    String integerSetString = ((IntegerSetConstraint) constraint).integerSetString(higherValues);
+                    integerSetTextField.setText(integerSetString);
+                    componentsToShow.add(integerSetTextField);
+                }
+                case PERFECT_CADENCES, PLAGAL_CADENCES -> {
+                    String weightString = ((SoftConstraint<Chord>) constraint).weightString();
+                    weightTextField.setText(weightString);
+                    componentsToShow.add(weightTextField);
+                }
             }
             if(componentsToShow.isEmpty()){
                 addChordConstraint();
                 return;
             }
-            componentsToShow.add(addChordConstraintButton);
+            componentsToShow.add(submitConfigChordConstraintButton);
             for(JComponent component : componentsToShow){
                 component.setVisible(true);
             }
@@ -684,14 +774,14 @@ public class MyApp extends JFrame {
 
         JButton reconfigureButton = new JButton("Reconfigure");
         reconfigureButton.addActionListener((e) -> {
-            removeConstraint(name);
-            if(allNoteConstraints.contains(name)) configureNoteConstraint(name);
-            else if (allChordConstraints.contains(name)) configureChordConstraint(name);
+            removeConstraint(constraint);
+            if(allNoteConstraints.contains(name)) configureNoteConstraint(constraint);
+            else if (allChordConstraints.contains(name)) configureChordConstraint(constraint);
         });
         buttonPanel.add(reconfigureButton);
 
         JButton deleteButton = new JButton("Delete");
-        deleteButton.addActionListener((e) -> removeConstraint(name));
+        deleteButton.addActionListener((e) -> removeConstraint(constraint));
         buttonPanel.add(deleteButton);
 
         return out;

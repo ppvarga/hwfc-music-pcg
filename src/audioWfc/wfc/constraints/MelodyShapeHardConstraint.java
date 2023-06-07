@@ -64,4 +64,6 @@ public class MelodyShapeHardConstraint implements HardConstraint<OctavedNote> {
     public String configText() {
         return grabber.configText();
     }
+
+    public String melodyShapeString(HigherValues higherValues) {return grabber.grab(higherValues).toString();}
 }

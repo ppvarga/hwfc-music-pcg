@@ -72,15 +72,15 @@ public class ConstraintSet<T> {
         addAll(constraints);
     }
 
-    public boolean removeConstraint(String name){
+    public boolean removeConstraint(Constraint constraint){
         Constraint<T> toRemove = null;
         boolean out = false;
         for(HardConstraint<T> hardConstraint : hardConstraints){
-            if(hardConstraint.name().equals(name)) toRemove = hardConstraint;
+            if(hardConstraint.name().equals(constraint.name())) toRemove = hardConstraint;
         }
         out |= hardConstraints.remove(toRemove);
         for(SoftConstraint<T> softConstraint : softConstraints){
-            if(softConstraint.name().equals(name)) toRemove = softConstraint;
+            if(softConstraint.name().equals(constraint.name())) toRemove = softConstraint;
         }
         out |= hardConstraints.remove(toRemove);
         return out;

@@ -4,11 +4,12 @@ import audioWfc.wfc.HigherValues;
 import audioWfc.musicTheory.OctavedNote;
 import audioWfc.wfc.Tile;
 import audioWfc.wfc.constraints.concepts.HardConstraint;
+import audioWfc.wfc.constraints.concepts.IntegerSetConstraint;
 import audioWfc.wfc.grabbers.Grabber;
 
 import java.util.Set;
 
-public class NoteInOctavesConstraint implements HardConstraint<OctavedNote> {
+public class NoteInOctavesConstraint implements HardConstraint<OctavedNote>, IntegerSetConstraint {
     private Grabber<Set<Integer>> grabber;
 
     public NoteInOctavesConstraint(Grabber<Set<Integer>> grabber){
@@ -28,5 +29,10 @@ public class NoteInOctavesConstraint implements HardConstraint<OctavedNote> {
     @Override
     public String configText() {
         return grabber.configText();
+    }
+
+    @Override
+    public String integerSetString(HigherValues higherValues) {
+        return grabber.grab(higherValues).stream().sorted().map(x -> x.toString()).reduce((x, y) -> x + " " + y).orElseGet(() -> "");
     }
 }

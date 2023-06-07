@@ -11,4 +11,9 @@ public abstract class SoftConstraint<T> implements Constraint<T> {
     }
 
     public abstract double weight(Tile<T> item, HigherValues higherValues);
+
+    public String weightString(){
+        if (factor < 0) return "";
+        return Double.toString(factor);
+    };
 }

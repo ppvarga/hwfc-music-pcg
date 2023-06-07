@@ -3,14 +3,16 @@ package audioWfc.wfc.constraints;
 import audioWfc.wfc.HigherValues;
 import audioWfc.wfc.Tile;
 import audioWfc.wfc.constraints.concepts.HardConstraint;
+import audioWfc.wfc.constraints.concepts.IntegerSetConstraint;
 import audioWfc.wfc.grabbers.Grabber;
 import audioWfc.musicTheory.NoteUtils;
 import audioWfc.musicTheory.chords.Chord;
+import audioWfc.wfc.grabbers.IntegerSetConstantGrabber;
 import audioWfc.wfc.hierarchy.prototypes.Chordesque;
 
 import java.util.Set;
 
-public class ChordStepSizeHardConstraint implements HardConstraint<Chordesque> {
+public class ChordStepSizeHardConstraint implements HardConstraint<Chordesque>, IntegerSetConstraint {
     private Grabber<Set<Integer>> grabber;
 
     @Override
@@ -52,5 +54,10 @@ public class ChordStepSizeHardConstraint implements HardConstraint<Chordesque> {
     @Override
     public String configText() {
         return grabber.configText();
+    }
+
+    @Override
+    public String integerSetString(HigherValues higherValues) {
+        return grabber.grab(higherValues).stream().sorted().map(x -> x.toString()).reduce((x, y) -> x + " " + y).orElseGet(() -> "");
     }
 }
