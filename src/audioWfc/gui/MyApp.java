@@ -531,7 +531,6 @@ public class MyApp extends JFrame {
     }
 
     private void configureNoteConstraint(Constraint<OctavedNote> constraint) {
-        submitConfigNoteConstraintButton.addActionListener((e) -> submitConfigNoteConstraint(constraint));
         if(usedConstraintTypes.contains(constraint.name())){
             alert("Constraint already exists");
         } else {
@@ -562,6 +561,8 @@ public class MyApp extends JFrame {
             if(componentsToShow.isEmpty()){
                 addNoteConstraint();
                 return;
+            } else {
+                submitConfigNoteConstraintButton.addActionListener((e) -> submitConfigNoteConstraint(constraint));
             }
             componentsToShow.add(submitConfigNoteConstraintButton);
             for(JComponent component : componentsToShow){
@@ -601,21 +602,42 @@ public class MyApp extends JFrame {
     }
 
     private void addNoteConstraint(String selectedOption) {
-        Constraint<OctavedNote> newConstraint;
-        switch (selectedOption) {
-            case MELODY_IN_KEY -> {newConstraint = new NoteInKeyHardConstraint(new BasicKeyGrabber());}
-            case MELODY_STEP_SIZES -> {newConstraint = createMelodyStepSizeHardConstraint();}
-            case ASCENDING_MELODY -> {newConstraint = createAscendingMelodySoftConstraint();}
-            case DESCENDING_MELODY -> {newConstraint = createDescendingMelodySoftConstraint();}
-            case START_MELODY_ON_NOTE -> {newConstraint = new MelodyStartsOnNoteHardConstraint(createNoteGrabber());}
-            case MELODY_IN_OCTAVES -> {newConstraint = createNoteInOctavesConstraint();}
-            case MELODY_SHAPE -> {newConstraint = createMelodyShapeHardConstraint();}
-            default -> throw new RuntimeException("Unknown option");
+        try {
+            Constraint<OctavedNote> newConstraint;
+            switch (selectedOption) {
+                case MELODY_IN_KEY -> {
+                    newConstraint = new NoteInKeyHardConstraint(new BasicKeyGrabber());
+                }
+                case MELODY_STEP_SIZES -> {
+                    newConstraint = createMelodyStepSizeHardConstraint();
+                }
+                case ASCENDING_MELODY -> {
+                    newConstraint = createAscendingMelodySoftConstraint();
+                }
+                case DESCENDING_MELODY -> {
+                    newConstraint = createDescendingMelodySoftConstraint();
+                }
+                case START_MELODY_ON_NOTE -> {
+                    newConstraint = new MelodyStartsOnNoteHardConstraint(createNoteGrabber());
+                }
+                case MELODY_IN_OCTAVES -> {
+                    newConstraint = createNoteInOctavesConstraint();
+                }
+                case MELODY_SHAPE -> {
+                    newConstraint = createMelodyShapeHardConstraint();
+                }
+                default -> throw new RuntimeException("Unknown option");
+            }
+            noteConstraints.addConstraint(newConstraint);
+            for(Constraint<OctavedNote> c : noteConstraints.getConstraints()){
+                System.out.println(c);
+            }
+            usedConstraintTypes.add(selectedOption);
+            addConstraintToVisualList(newConstraint);
+            enterMainMode();
+        } catch (Exception e){
+            e.printStackTrace();
         }
-        noteConstraints.addConstraint(newConstraint);
-        usedConstraintTypes.add(selectedOption);
-        addConstraintToVisualList(newConstraint);
-        enterMainMode();
     }
 
     private void addConstraintToVisualList(Constraint constraint) {
@@ -636,7 +658,6 @@ public class MyApp extends JFrame {
     }
 
     private void configureChordConstraint(Constraint<Chord> constraint) {
-        submitConfigChordConstraintButton.addActionListener((e) -> submitConfigChordConstraint(constraint));
         if(usedConstraintTypes.contains(constraint.name())){
             alert("Constraint already exists");
         } else {
@@ -657,6 +678,8 @@ public class MyApp extends JFrame {
             if(componentsToShow.isEmpty()){
                 addChordConstraint();
                 return;
+            } else {
+                submitConfigChordConstraintButton.addActionListener((e) -> submitConfigChordConstraint(constraint));
             }
             componentsToShow.add(submitConfigChordConstraintButton);
             for(JComponent component : componentsToShow){
@@ -675,18 +698,30 @@ public class MyApp extends JFrame {
     }
 
     private void addChordConstraint(String selectedOption) {
-        Constraint<Chordesque> newConstraint;
-        switch (selectedOption) {
-            case CHORDS_IN_KEY -> {newConstraint = new ChordInKeyConstraint(new BasicKeyGrabber());}
-            case DISTANCES_BETWEEN_ADJACENT_CHORDS -> {newConstraint = createChordStepSizeConstraint();}
-            case PERFECT_CADENCES -> {newConstraint = createPerfectCadenceSoftConstraint();}
-            case PLAGAL_CADENCES -> {newConstraint = createPlagalCadenceSoftConstraint();}
-            default -> throw new RuntimeException("Unknown option");
+        try {
+            Constraint<Chordesque> newConstraint;
+            switch (selectedOption) {
+                case CHORDS_IN_KEY -> {
+                    newConstraint = new ChordInKeyConstraint(new BasicKeyGrabber());
+                }
+                case DISTANCES_BETWEEN_ADJACENT_CHORDS -> {
+                    newConstraint = createChordStepSizeConstraint();
+                }
+                case PERFECT_CADENCES -> {
+                    newConstraint = createPerfectCadenceSoftConstraint();
+                }
+                case PLAGAL_CADENCES -> {
+                    newConstraint = createPlagalCadenceSoftConstraint();
+                }
+                default -> throw new RuntimeException("Unknown option");
+            }
+            chordConstraints.addConstraint(newConstraint);
+            usedConstraintTypes.add(selectedOption);
+            addConstraintToVisualList(newConstraint);
+            enterMainMode();
+        } catch (Exception e){
+            e.printStackTrace();
         }
-        chordConstraints.addConstraint(newConstraint);
-        usedConstraintTypes.add(selectedOption);
-        addConstraintToVisualList(newConstraint);
-        enterMainMode();
     }
 
     public void generate(ActionEvent e) {
