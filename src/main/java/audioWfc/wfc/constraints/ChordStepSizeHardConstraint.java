@@ -12,6 +12,8 @@ import audioWfc.wfc.hierarchy.prototypes.Chordesque;
 
 import java.util.Set;
 
+import static audioWfc.wfc.constraints.ConstraintUtils.DISTANCES_BETWEEN_ADJACENT_CHORDS;
+
 public class ChordStepSizeHardConstraint implements HardConstraint<Chordesque>, IntegerSetConstraint {
     private Grabber<Set<Integer>> grabber;
 
@@ -48,7 +50,7 @@ public class ChordStepSizeHardConstraint implements HardConstraint<Chordesque>, 
 
     @Override
     public String name() {
-        return "Distances between adjacent chords";
+        return DISTANCES_BETWEEN_ADJACENT_CHORDS;
     }
 
     @Override

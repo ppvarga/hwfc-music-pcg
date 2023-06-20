@@ -7,6 +7,8 @@ import audioWfc.wfc.constraints.concepts.HardConstraint;
 import audioWfc.wfc.grabbers.Grabber;
 import audioWfc.musicTheory.Note;
 
+import static audioWfc.wfc.constraints.ConstraintUtils.START_MELODY_ON_NOTE;
+
 public class MelodyStartsOnNoteHardConstraint implements HardConstraint<OctavedNote> {
     private Grabber<Note> grabber;
 
@@ -22,7 +24,7 @@ public class MelodyStartsOnNoteHardConstraint implements HardConstraint<OctavedN
 
     @Override
     public String name() {
-        return "Start melody on note";
+        return START_MELODY_ON_NOTE;
     }
 
     @Override

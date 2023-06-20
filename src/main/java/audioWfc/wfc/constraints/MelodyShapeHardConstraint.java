@@ -8,6 +8,8 @@ import audioWfc.wfc.constraints.concepts.MelodyShape;
 import audioWfc.wfc.constraints.concepts.MelodyStep;
 import audioWfc.wfc.grabbers.Grabber;
 
+import static audioWfc.wfc.constraints.ConstraintUtils.MELODY_SHAPE;
+
 public class MelodyShapeHardConstraint implements HardConstraint<OctavedNote> {
     private Grabber<MelodyShape> grabber;
 
@@ -57,7 +59,7 @@ public class MelodyShapeHardConstraint implements HardConstraint<OctavedNote> {
 
     @Override
     public String name() {
-        return "Melody shape";
+        return MELODY_SHAPE;
     }
 
     @Override

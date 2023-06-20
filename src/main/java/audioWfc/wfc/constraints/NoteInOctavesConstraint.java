@@ -9,6 +9,8 @@ import audioWfc.wfc.grabbers.Grabber;
 
 import java.util.Set;
 
+import static audioWfc.wfc.constraints.ConstraintUtils.MELODY_IN_OCTAVES;
+
 public class NoteInOctavesConstraint implements HardConstraint<OctavedNote>, IntegerSetConstraint {
     private Grabber<Set<Integer>> grabber;
 
@@ -23,7 +25,7 @@ public class NoteInOctavesConstraint implements HardConstraint<OctavedNote>, Int
 
     @Override
     public String name() {
-        return "Melody in octaves";
+        return MELODY_IN_OCTAVES;
     }
 
     @Override

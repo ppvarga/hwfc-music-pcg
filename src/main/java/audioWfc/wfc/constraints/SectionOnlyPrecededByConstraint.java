@@ -17,7 +17,7 @@ public class SectionOnlyPrecededByConstraint implements HardConstraint<Section> 
 
     @Override
     public String name() {
-        return "Section is followed by";
+        return "Section is preceded by";
     }
 
     @Override

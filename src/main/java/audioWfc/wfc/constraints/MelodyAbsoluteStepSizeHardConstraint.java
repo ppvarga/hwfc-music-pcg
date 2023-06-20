@@ -9,6 +9,8 @@ import audioWfc.wfc.grabbers.Grabber;
 
 import java.util.Set;
 
+import static audioWfc.wfc.constraints.ConstraintUtils.MELODY_STEP_SIZES;
+
 public class MelodyAbsoluteStepSizeHardConstraint implements HardConstraint<OctavedNote>, IntegerSetConstraint {
     private Grabber<Set<Integer>> grabber;
 
@@ -45,7 +47,7 @@ public class MelodyAbsoluteStepSizeHardConstraint implements HardConstraint<Octa
 
     @Override
     public String name() {
-        return "Melody step sizes";
+        return MELODY_STEP_SIZES;
     }
 
     @Override

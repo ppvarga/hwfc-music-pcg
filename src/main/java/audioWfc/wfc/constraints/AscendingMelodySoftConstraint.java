@@ -5,6 +5,8 @@ import audioWfc.musicTheory.OctavedNote;
 import audioWfc.wfc.Tile;
 import audioWfc.wfc.constraints.concepts.SoftConstraint;
 
+import static audioWfc.wfc.constraints.ConstraintUtils.ASCENDING_MELODY;
+
 public class AscendingMelodySoftConstraint extends SoftConstraint<OctavedNote> {
     public AscendingMelodySoftConstraint(double factor){
         super(factor);
@@ -37,7 +39,7 @@ public class AscendingMelodySoftConstraint extends SoftConstraint<OctavedNote> {
 
     @Override
     public String name() {
-        return "Ascending melody";
+        return ASCENDING_MELODY;
     }
 
     @Override

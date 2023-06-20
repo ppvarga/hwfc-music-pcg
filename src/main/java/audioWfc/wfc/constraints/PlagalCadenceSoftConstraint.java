@@ -7,6 +7,8 @@ import audioWfc.wfc.grabbers.IntegerConstantGrabber;
 import audioWfc.musicTheory.Key;
 import audioWfc.musicTheory.chords.ChordQuality;
 
+import static audioWfc.wfc.constraints.ConstraintUtils.PLAGAL_CADENCES;
+
 public class PlagalCadenceSoftConstraint extends GenericCadenceSoftConstraint {
 
     public PlagalCadenceSoftConstraint(double factor, Grabber<Key> keyGrabber){
@@ -16,7 +18,7 @@ public class PlagalCadenceSoftConstraint extends GenericCadenceSoftConstraint {
 
     @Override
     public String name() {
-        return "Plagal cadences";
+        return PLAGAL_CADENCES;
     }
 
     @Override

@@ -7,6 +7,8 @@ import audioWfc.wfc.constraints.concepts.HardConstraint;
 import audioWfc.wfc.grabbers.Grabber;
 import audioWfc.musicTheory.Key;
 
+import static audioWfc.wfc.constraints.ConstraintUtils.MELODY_IN_KEY;
+
 public class NoteInKeyHardConstraint implements HardConstraint<OctavedNote> {
     private Grabber<Key> grabber;
 
@@ -21,7 +23,7 @@ public class NoteInKeyHardConstraint implements HardConstraint<OctavedNote> {
 
     @Override
     public String name() {
-        return "Melody in key";
+        return MELODY_IN_KEY;
     }
 
     @Override

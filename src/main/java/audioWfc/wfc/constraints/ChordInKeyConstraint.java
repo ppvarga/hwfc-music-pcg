@@ -8,6 +8,8 @@ import audioWfc.musicTheory.Key;
 import audioWfc.musicTheory.chords.Chord;
 import audioWfc.wfc.hierarchy.prototypes.Chordesque;
 
+import static audioWfc.wfc.constraints.ConstraintUtils.CHORDS_IN_KEY;
+
 public class ChordInKeyConstraint implements HardConstraint<Chordesque> {
     private Grabber<Key> grabber;
 
@@ -22,7 +24,7 @@ public class ChordInKeyConstraint implements HardConstraint<Chordesque> {
 
     @Override
     public String name() {
-        return "Chords in key";
+        return CHORDS_IN_KEY;
     }
 
     @Override

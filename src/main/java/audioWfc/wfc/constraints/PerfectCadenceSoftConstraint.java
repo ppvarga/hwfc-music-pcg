@@ -7,6 +7,8 @@ import audioWfc.wfc.grabbers.IntegerConstantGrabber;
 import audioWfc.musicTheory.Key;
 import audioWfc.musicTheory.chords.ChordQuality;
 
+import static audioWfc.wfc.constraints.ConstraintUtils.PERFECT_CADENCES;
+
 public class PerfectCadenceSoftConstraint extends GenericCadenceSoftConstraint {
 
     public PerfectCadenceSoftConstraint(double factor, Grabber<Key> keyGrabber){
@@ -16,7 +18,7 @@ public class PerfectCadenceSoftConstraint extends GenericCadenceSoftConstraint {
 
     @Override
     public String name() {
-        return "Perfect cadences";
+        return PERFECT_CADENCES;
     }
 
     @Override
