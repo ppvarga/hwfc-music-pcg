@@ -1,15 +1,11 @@
 package audioWfc.gui;
 
-import audioWfc.audio.MidiPlayer;
+import audioWfc.AudioWFCApp;
 import audioWfc.musicTheory.Key;
 import audioWfc.musicTheory.MajorKey;
 import audioWfc.musicTheory.Note;
 import audioWfc.musicTheory.OctavedNote;
 import audioWfc.musicTheory.chords.Chord;
-import audioWfc.wfc.CanvasAttributes;
-import audioWfc.wfc.ConstraintSet;
-import audioWfc.wfc.HigherValues;
-import audioWfc.wfc.OptionsPerCell;
 import audioWfc.wfc.constraints.AscendingMelodySoftConstraint;
 import audioWfc.wfc.constraints.ChordInKeyConstraint;
 import audioWfc.wfc.constraints.ChordStepSizeHardConstraint;
@@ -48,13 +44,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.sound.midi.InvalidMidiDataException;
-import javax.sound.midi.MidiSystem;
-import javax.sound.midi.MidiUnavailableException;
-import javax.sound.midi.Sequencer;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 
-import static audioWfc.audio.SequencerBuilder.DEFAULT_BPM;
 import static audioWfc.audio.SequencerBuilder.getSequence;
 
 public class MyApp extends JFrame {
@@ -80,39 +72,10 @@ public class MyApp extends JFrame {
     private TextFieldWithTitle integerSetTextField;
     private TextFieldWithTitle melodyShapeTextField;
 
-    private final ConstraintSet<OctavedNote> noteConstraints;
-    private final ConstraintSet<Chordesque> chordConstraints;
-    private OptionsPerCell<Chordesque> chordOptionsPerCell;
-    private HigherValues higherValues;
-    private final CanvasAttributes<OctavedNote> noteCanvasAttributes;
-    private final CanvasAttributes<Chordesque> chordCanvasAttributes;
-    private List<ChordResult> lastResult;
-    private Set<String> usedConstraintTypes;
-    private Set<Integer> usedChordOptionPositions;
-
-    private Sequencer sequencer;
-    private final MidiPlayer midiPlayer;
+    private AudioWFCApp app;
 
     public MyApp() {
-        noteConstraints = new ConstraintSet<>();
-        OptionsPerCell<OctavedNote> noteOptionsPerCell = new OptionsPerCell<>(OctavedNote.all());
-        chordConstraints = new ConstraintSet<>();
-        chordOptionsPerCell = new OptionsPerCell<>(Chord.getAllBasicChords());
-        higherValues = new HigherValues();
-        chordCanvasAttributes = new CanvasAttributes<>(chordConstraints, chordOptionsPerCell, 0);
-        noteCanvasAttributes = new CanvasAttributes<>(noteConstraints, noteOptionsPerCell, 0);
-        usedConstraintTypes = new HashSet<>();
-        usedChordOptionPositions = new HashSet<>();
-
-        try {
-            sequencer = MidiSystem.getSequencer();
-            sequencer.open();
-        } catch (MidiUnavailableException e) {
-            e.printStackTrace();
-        }
-        sequencer.setTempoInBPM(DEFAULT_BPM);
-        midiPlayer = new MidiPlayer(sequencer);
-
+        app = new AudioWFCApp();
         setupGUI();
     }
 
@@ -297,16 +260,16 @@ public class MyApp extends JFrame {
 
     private void addChordOptionsPerCell(ActionEvent actionEvent) {
         int position = Integer.parseInt(optionsPerCellPositionField.getText());
-        if(usedChordOptionPositions.contains(position)){
+        if(app.chordOptionPositionReserved(position)){
             throw new RuntimeException("There are already options defined for this position");
         }
-        usedChordOptionPositions.add(position);
+        app.reserveChordOptionPosition(position);
         Set<Chordesque> options = Chord.parseSet(optionsPerCellValueField.getText())
                 .stream()
                 .map(x -> (Chordesque) x)
                 .collect(Collectors.toSet());
 
-        chordOptionsPerCell.setOptions(position, options);
+        app.setChordOption(position, options);
         initializedChordOptionsPerCellPanel.add(panelFromOptions(position, options));
 
         enterMainMode();
@@ -327,10 +290,7 @@ public class MyApp extends JFrame {
     }
 
     private void resetOptionsPerCell(ActionEvent actionEvent) {
-        chordOptionsPerCell = new OptionsPerCell<>(Chord.getAllBasicChords());
-        usedChordOptionPositions = new HashSet<>();
-        chordOptionsPerCell.reset();
-        chordCanvasAttributes.setOptions(chordOptionsPerCell);
+        app.resetOptionsPerCell();
 
         initializedChordOptionsPerCellPanel.removeAll();
         initializedChordOptionsPerCellPanel.add(new Label("Chord options per cell:"));
@@ -475,14 +435,14 @@ public class MyApp extends JFrame {
     }
 
     private void configureNoteConstraint(Constraint<OctavedNote> constraint) {
-        if(usedConstraintTypes.contains(constraint.name())){
+        if(app.constraintTypeReserved(constraint.name())){
             alert("Constraint already exists");
         } else {
             enterConfigMode();
             Set<JComponent> componentsToShow = new HashSet<>();
             switch (constraint.name()) {
                 case MELODY_STEP_SIZES, MELODY_IN_OCTAVES -> {
-                    String integerSetString = ((IntegerSetConstraint) constraint).integerSetString(higherValues);
+                    String integerSetString = ((IntegerSetConstraint) constraint).integerSetString(app.getHigherValues());
                     integerSetTextField.setText(integerSetString);
                     componentsToShow.add(integerSetTextField);
                 }
@@ -497,7 +457,7 @@ public class MyApp extends JFrame {
                     componentsToShow.add(noteGrabberComboBox);
                 }
                 case MELODY_SHAPE -> {
-                    String melodyShapeString = ((MelodyShapeHardConstraint) constraint).melodyShapeString(higherValues);
+                    String melodyShapeString = ((MelodyShapeHardConstraint) constraint).melodyShapeString(app.getHigherValues());
                     melodyShapeTextField.setText(melodyShapeString);
                     componentsToShow.add(melodyShapeTextField);
                 }
@@ -520,9 +480,7 @@ public class MyApp extends JFrame {
     }
 
     private void removeConstraint(Constraint constraint){
-        noteConstraints.removeConstraint(constraint);
-        chordConstraints.removeConstraint(constraint);
-        usedConstraintTypes.remove(constraint.name());
+        app.removeConstraint(constraint);
         removeConstraintFromVisualList(constraint.name());
     }
 
@@ -578,8 +536,8 @@ public class MyApp extends JFrame {
                 }
                 default -> throw new RuntimeException("Unknown option");
             }
-            noteConstraints.addConstraint(newConstraint);
-            usedConstraintTypes.add(selectedOption);
+            app.addNoteConstraint(newConstraint);
+            app.reserveConstraintType(selectedOption);
             addConstraintToVisualList(newConstraint);
             enterMainMode();
         } catch (Exception e){
@@ -606,14 +564,14 @@ public class MyApp extends JFrame {
     }
 
     private void configureChordConstraint(Constraint<Chord> constraint) {
-        if(usedConstraintTypes.contains(constraint.name())){
+        if(app.constraintTypeReserved(constraint.name())){
             alert("Constraint already exists");
         } else {
             enterConfigMode();
             Set<JComponent> componentsToShow = new HashSet<>();
             switch (constraint.name()) {
                 case DISTANCES_BETWEEN_ADJACENT_CHORDS -> {
-                    String integerSetString = ((IntegerSetConstraint) constraint).integerSetString(higherValues);
+                    String integerSetString = ((IntegerSetConstraint) constraint).integerSetString(app.getHigherValues());
                     integerSetTextField.setText(integerSetString);
                     componentsToShow.add(integerSetTextField);
                 }
@@ -663,8 +621,8 @@ public class MyApp extends JFrame {
                 }
                 default -> throw new RuntimeException("Unknown option");
             }
-            chordConstraints.addConstraint(newConstraint);
-            usedConstraintTypes.add(selectedOption);
+            app.addChordConstraint(newConstraint);
+            app.reserveConstraintType(selectedOption);
             addConstraintToVisualList(newConstraint);
             enterMainMode();
         } catch (Exception e){
@@ -673,20 +631,11 @@ public class MyApp extends JFrame {
     }
 
     public void generate(ActionEvent e) {
-        updateHigherValues();
-        updateCanvasAttributes();
-        ChordLevelNode chordLevelNode = new ChordLevelNode(null, higherValues, chordCanvasAttributes, noteCanvasAttributes, new Random());
-        List<ChordResult> result = chordLevelNode.generateWithoutRhythm();
-        lastResult = result;
-    }
-
-    private void updateCanvasAttributes() {
-        chordCanvasAttributes.setSize(Integer.parseInt(numChordsTextField.getText()));
-        noteCanvasAttributes.setSize(Integer.parseInt(notesPerChordTextField.getText()));
+        app.generate(parseKey(), Integer.parseInt(numChordsTextField.getText()), Integer.parseInt(notesPerChordTextField.getText()));
     }
 
     private void updateHigherValues() {
-        higherValues = higherValues.copyWithKey(parseKey());
+
     }
 
     private Key parseKey() {
@@ -695,17 +644,10 @@ public class MyApp extends JFrame {
     }
 
     private void play(ActionEvent actionEvent) {
-        if(lastResult == null){
-            alert("Nothing has been generated yet");
-            return;
-        }
         try {
-            sequencer.setSequence(getSequence(lastResult));
-            midiPlayer.start();
-        } catch (InvalidMidiDataException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+            app.play();
+        } catch (Exception e) {
+            alert(e.getMessage());
         }
     }
 
@@ -718,9 +660,7 @@ public class MyApp extends JFrame {
     }
 
     public void resetConstraints(JPanel container, String labelText) {
-        alert("Constraints cleared");
-        noteConstraints.reset();
-        chordConstraints.reset();
+        app.resetConstraints();
 
         constraintsLabel.setText("\n");
         container.removeAll();
@@ -728,7 +668,7 @@ public class MyApp extends JFrame {
         container.revalidate();
         container.repaint();
 
-        usedConstraintTypes = new HashSet<>();
+        alert("Constraints cleared");
     }
 
     public static void main(String[] args) {
