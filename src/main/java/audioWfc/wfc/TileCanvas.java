@@ -17,7 +17,7 @@ public class TileCanvas<T> {
 
     private Set<T> allOptions;
     private ConstraintSet<T> constraints;
-    private TileSelector pq;
+    private TileSelector<T> pq;
     private Random random;
     private HigherValues higherValues;
 

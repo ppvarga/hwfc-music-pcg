@@ -1,0 +1,38 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.modal {
+  background-color: #222;
+  border-radius: 0.5em;
+  border-color: #ddd;
+  border-style: solid;
+  padding: 1.5em;
+}
+
+.popup-overlay {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.tile {
+  display: inline-block;
+}
+
+.chord-constraint-div {
+  border: #ddd solid 1px;
+}
+
+.note-constraint-div {
+  border: #ddd solid 1px;
+}
+
+midi-player {
+  color-scheme: light;
+  color: #222;
+}
+midi-visualizer {
+  background: white;
+}
