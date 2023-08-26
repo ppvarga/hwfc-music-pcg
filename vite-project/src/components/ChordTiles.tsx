@@ -14,27 +14,29 @@ function ChordTile({ index, initialOptions } : ChordTileProps) {
 	const { chordOptionsPerCell, setChordOptionsPerCell } = useAppContext()
 	const optionsString = (!initialOptions || initialOptions.length === 0) ? "*" : initialOptions.join(" | ")
 
+	const popup = <Popup open={popupOpen} closeOnDocumentClick={false}>
+		<div className='modal'>
+			<h3>Set options for chord at position {index}</h3>
+			<input type="text" onChange={e => setInput(e.target.value)} value={input} />
+			<br />
+			<p>Leaving this empty means allowing all chords</p>
+			<button onClick={() => {
+				const newOptionsPerCell = new Map(chordOptionsPerCell)
+				newOptionsPerCell.set(index, Chord.parseChordsString(input))
+				setChordOptionsPerCell(newOptionsPerCell)
+				setPopupOpen(false)
+			}}>Save</button>
+			<button onClick={() => {
+				setInput(initialOptions?.join(" ") || "")
+				setPopupOpen(false)
+			}}>Cancel</button>
+		</div>
+	</Popup>
+
 	return (
 		<div key={index} className='tile'>
 			<button onClick={() => setPopupOpen(true)}>{optionsString}</button>
-			<Popup open={popupOpen} closeOnDocumentClick={false}>
-				<div className='modal'>
-					<h3>Set options for chord at position {index}</h3>
-					<input type="text" onChange={e => setInput(e.target.value)} value={input} />
-					<br />
-					<p>Leaving this empty means allowing all chords</p>
-					<button onClick={() => {
-						const newOptionsPerCell = new Map(chordOptionsPerCell)
-						newOptionsPerCell.set(index, Chord.parseChordsString(input))
-						setChordOptionsPerCell(newOptionsPerCell)
-						setPopupOpen(false)
-					}}>Save</button>
-					<button onClick={() => {
-						setInput(initialOptions?.join(" ") || "")
-						setPopupOpen(false)
-					}}>Cancel</button>
-				</div>
-			</Popup>
+			{popup}
 		</div>
 	)
 }

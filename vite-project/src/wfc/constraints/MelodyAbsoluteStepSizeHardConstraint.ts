@@ -5,10 +5,17 @@ import { Tile } from "../Tile"
 import { HardConstraint } from "./concepts/Constraint"
 import { noteConstraintTypeToName } from "./constraintUtils"
 
+export const MelodyAbsoluteStepSizeHardConstraintInit = {
+	type: "MelodyAbsoluteStepSizeHardConstraint" as const,
+	stepSizes: [] as number[],
+	validByDefault: false as const,
+}
+
+export type MelodyAbsoluteStepSizeHardConstraintIR = typeof MelodyAbsoluteStepSizeHardConstraintInit
+
 export class MelodyAbsoluteStepSizeHardConstraint implements HardConstraint<OctavedNote> {
 	private grabber: Grabber<Set<number>>
-	name = noteConstraintTypeToName.get("MelodyAbsoluteStepSizeHardConstraint") as string
-	configText = () => `Step Size Set: ${this.grabber.configText()}`
+	name = noteConstraintTypeToName.get(MelodyAbsoluteStepSizeHardConstraintInit.type) as string
 	constructor(grabber: Grabber<Set<number>>) {
 		this.grabber = grabber
 	}
@@ -25,7 +32,7 @@ export class MelodyAbsoluteStepSizeHardConstraint implements HardConstraint<Octa
 	}
 
 	private checkPair(first: OctavedNote, second: OctavedNote, higherValues: HigherValues): boolean {
-		const stepSizeSet = this.grabber.grab(higherValues)
+		const stepSizeSet = this.grabber(higherValues)
 		const stepSize = OctavedNote.getStepSizeAbs(first, second)
 		return stepSizeSet.has(stepSize)
 	}

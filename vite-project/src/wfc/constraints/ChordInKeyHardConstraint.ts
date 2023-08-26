@@ -6,17 +6,22 @@ import { Chordesque } from "../hierarchy/prototypes"
 import { HardConstraint } from "./concepts/Constraint"
 import { chordConstraintTypeToName } from "./constraintUtils"
 
-export class ChordInKeyConstraint implements HardConstraint<Chordesque> {
+export const ChordInKeyHardConstraintInit = {
+	type: "ChordInKeyHardConstraint" as const,
+	validByDefault: true as const,
+}
+
+export type ChordInKeyHardConstraintIR = typeof ChordInKeyHardConstraintInit
+export class ChordInKeyHardConstraint implements HardConstraint<Chordesque> {
 	private grabber: Grabber<MusicalKey>
-	name = chordConstraintTypeToName.get("ChordInKeyConstraint") as string
-	configText = () => `Key: ${this.grabber.configText()}`
+	name = chordConstraintTypeToName.get(ChordInKeyHardConstraintInit.type) as string
 	constructor(grabber: Grabber<MusicalKey>) {
 		this.grabber = grabber
 	}
 
 	check(tile: Tile<Chordesque>, higherValues: HigherValues): boolean {
 		const chord = tile.getValue().getChord()
-		const key = this.grabber.grab(higherValues)
+		const key = this.grabber(higherValues)
 		return key.containsChord(chord)
 	}
 }

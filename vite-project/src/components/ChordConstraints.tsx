@@ -1,109 +1,136 @@
-import { useAppContext } from "../AppState"
-import { ChordInKeyConstraint } from "../wfc/constraints/ChordInKeyHardConstraint"
-import { ChordRootAbsoluteStepSizeHardConstraint } from "../wfc/constraints/ChordRootAbsoluteStepSizeHardConstraint"
-import { PerfectCadenceSoftConstraint } from "../wfc/constraints/cadences/PerfectCadenceSoftConstraint"
-import { PlagalCadenceSoftConstraint } from "../wfc/constraints/cadences/PlagalCadenceSoftConstraint"
-import { Constraint } from "../wfc/constraints/concepts/Constraint"
-import { constantGrabber } from "../wfc/grabbers/constantGrabbers"
-import Select from "react-select"
-import { Chordesque } from "../wfc/hierarchy/prototypes"
 import { useState } from "react"
-import { chordConstraintOptions, constraintTextConfig } from "../wfc/constraints/constraintUtils"
+import { ChordConstraintIR, ChordConstraintType, chordConstraintOptions, chordConstraintTypeToName, initializeChordConstraint } from "../wfc/constraints/constraintUtils"
+import { useAppContext } from "../AppState"
+import Select from "react-select"
 import { selectStyles } from "../styles"
+import { SimpleConstraintConfigDiv } from "./SimpleConstraintConfigDiv"
 
+interface ChordConstraintConfigProps {
+	constraintIR: ChordConstraintIR
+	onConstraintChange: (updatedIR: ChordConstraintIR) => void
+	setValid: (valid: boolean) => void
+}
 
-function ChordConstraintDiv({constraint}: {constraint: Constraint<Chordesque>}) {
-	const {removeChordConstraint} = useAppContext()
+export function ChordConstraintConfig({ constraintIR, onConstraintChange, setValid }: ChordConstraintConfigProps) {
+	switch (constraintIR.type) {
+		case "ChordInKeyHardConstraint": return <></>
+		case "ChordRootAbsoluteStepSizeHardConstraint": return <SimpleConstraintConfigDiv>
+			<input
+				type="text"
+				placeholder="Allowed intervals"
+				defaultValue={constraintIR.stepSizes.join(" ")}
+				onChange={(e) => {
+					const stepSizes = e.target.value.split(" ").map(str => parseInt(str)).filter(num => !isNaN(num))
+					if (stepSizes.length > 0) {
+						setValid(true)
+						onConstraintChange({ ...constraintIR, stepSizes })
+					}
+					else setValid(false)
+				}}
+			/>
+		</SimpleConstraintConfigDiv>
+		case "PerfectCadenceSoftConstraint": return <SimpleConstraintConfigDiv>
+			<input
+				type="number"
+				placeholder="Boost value"
+				min={1}
+				defaultValue={constraintIR.bonus}
+				onChange={(e) => {
+					const bonus = parseInt(e.target.value)
+					if (bonus > 0) {
+						setValid(true)
+						onConstraintChange({ ...constraintIR, bonus })
+					}
+					else setValid(false)
+				}}
+			/>
+		</SimpleConstraintConfigDiv>
+		case "PlagalCadenceSoftConstraint": return <SimpleConstraintConfigDiv>
+			<input
+				type="number"
+				placeholder="Boost value"
+				min={1}
+				defaultValue={constraintIR.bonus}
+				onChange={(e) => {
+					const bonus = parseInt(e.target.value)
+					if (bonus > 0) {
+						setValid(true)
+						onConstraintChange({ ...constraintIR, bonus })
+					}
+					else setValid(false)
+				}}
+			/>
+		</SimpleConstraintConfigDiv>
+	}
+}
 
-	return <div className="chord-constraint-div">
-		<h5>{constraint.name}</h5>
-		<p>{constraint.configText()}</p>
-		<button onClick={() => removeChordConstraint(constraint)}>Remove</button>
+interface ChordConstraintDivProps {
+	constraintIR: ChordConstraintIR
+	onConstraintChange: (updatedIR: ChordConstraintIR) => void
+	onRemove: () => void
+}
+
+export function ChordConstraintDiv({ constraintIR, onConstraintChange, onRemove }: ChordConstraintDivProps) {
+	const [valid, setValid] = useState(constraintIR.validByDefault as boolean)
+
+	return <div className="constraint-div">
+		<h4 style={{color: valid ? "white" : "red"}}>{chordConstraintTypeToName.get(constraintIR.type)}</h4>
+		<ChordConstraintConfig constraintIR={constraintIR} onConstraintChange={onConstraintChange} setValid={setValid}/>
+		<button onClick={onRemove}>Remove</button>
 	</div>
 }
 
-export function ChordConstraints() {
-	const {chordConstraintSet} = useAppContext()
-	return <>
-		<h3>Chord constraints</h3>
-		{chordConstraintSet.getAllConstraints().map((constraint, i) => <ChordConstraintDiv key={i} constraint={constraint}/>)}
-	</>
+type ChordConstraintTypeOption = {value: ChordConstraintType, label: string}
+
+interface AddChordConstraintProps {
+	onAddConstraint: (constraintIR: ChordConstraintIR) => void
 }
 
-export function AddChordConstraint() {
-  
-	const {keyGrabber, addChordConstraint, chordConstraintSet} = useAppContext()
-    
-	const [chordConstraintConfigHidden, setChordConstraintConfigHidden] = useState(true)
-	const [chordConstraintButtonHidden, setChordConstraintButtonHidden] = useState(true)
-	const [chordConstraintConfigPlaceholder, setChordConstraintConfigPlaceholder] = useState("")
-	const [chordConstraintConfig, setChordConstraintConfig] = useState("")
-	const [addChordConstraintCallback, setAddChordConstraintCallback] = useState(() => (_config: string) => {})
-	const [chordConstraintSelected, setChordConstraintSelected] = useState(null as {label: string, value: string} | null)
+function AddChordConstraint({ onAddConstraint }: AddChordConstraintProps) {
+	const { chordConstraintSet } = useAppContext()
+	const [selectedType, setSelectedType] = useState<ChordConstraintTypeOption | null>(null)
 
-	const addChordConstraintButtonCallback = () => {
-		addChordConstraintCallback(chordConstraintConfig)
-		setChordConstraintConfig("")
-		setChordConstraintConfigHidden(true)
-		setChordConstraintButtonHidden(true)
-		setChordConstraintSelected(null)
+	const getChordConstraintOptions = () => chordConstraintOptions.filter(option => !chordConstraintSet.map(constraint => constraint.type).includes(option.value))
+
+	const handleAddButtonClick = () => {
+		if (!selectedType) return
+
+		onAddConstraint(initializeChordConstraint(selectedType.value))
+		setSelectedType(null)
 	}
 
-	const getChordConstraintOptions = () => chordConstraintOptions.filter(option => !chordConstraintSet.getAllConstraints().map(constraint => constraint.name).includes(option.label))
+	return (
+		<div className="add-constraint">
+			<div style={{flex:1}}>
+				<Select
+					options={getChordConstraintOptions()}
+					value={selectedType}
+					placeholder="Chord constraints..."
+					onChange={(option) => setSelectedType(option || null)}
+					styles={selectStyles}
+				/>
+			</div>
+			<button onClick={() => {handleAddButtonClick(); setSelectedType(null)}}>Add</button>
+		</div>
+	)
+}
 
-	function updateChordConstraintAdder(value: string | undefined) {
-		if(value === undefined) {
-			setChordConstraintConfigHidden(true)
-			setChordConstraintButtonHidden(true) 
-			setChordConstraintConfigPlaceholder("")
-			setAddChordConstraintCallback(() => () => {})
-			return
-		}
 
-		setChordConstraintButtonHidden(false)
+export function ChordConstraints() {
+	const {chordConstraintSet, addChordConstraint, removeChordConstraint, handleChordConstraintChange} = useAppContext()
 
-		const configPlaceholder = constraintTextConfig(value)
-		if(configPlaceholder === undefined) {
-			setChordConstraintConfigHidden(true)
-			setChordConstraintConfigPlaceholder("")
-		} else {
-			setChordConstraintConfigHidden(false)
-			setChordConstraintConfigPlaceholder(configPlaceholder)
-		}
-
-		switch(value) {
-		case "ChordInKeyConstraint":
-			setAddChordConstraintCallback(() => () => addChordConstraint(new ChordInKeyConstraint(keyGrabber)))
-			break
-		case "ChordRootAbsoluteStepSizeHardConstraint":
-			setAddChordConstraintCallback(() => (config: string) => {
-				const intervals = new Set(config.split(" ").map(str => parseInt(str)))
-				addChordConstraint(new ChordRootAbsoluteStepSizeHardConstraint(constantGrabber(intervals)))
-			})
-			break
-		case "PlagalCadenceSoftConstraint":
-			setAddChordConstraintCallback(() => (config: string) => {
-				const boost = parseInt(config)
-				addChordConstraint(new PlagalCadenceSoftConstraint(boost, keyGrabber))
-			})
-			break
-		case "PerfectCadenceSoftConstraint":
-			setAddChordConstraintCallback(() => (config: string) => {
-				const boost = parseInt(config)
-				addChordConstraint(new PerfectCadenceSoftConstraint(boost, keyGrabber))
-			})
-			break
-		default:
-			throw new Error(`Unknown chord constraint ${value}`)
-		}
-	}
-
-	return <>
-		<Select options={getChordConstraintOptions()} placeholder={"Add a chord constraint..."} 
-			value={chordConstraintSelected} styles={selectStyles}
-			onChange={(option) => {setChordConstraintSelected(option); updateChordConstraintAdder(option?.value)}}/>
-		<input type='text' hidden={chordConstraintConfigHidden} placeholder={chordConstraintConfigPlaceholder} value={chordConstraintConfig} 
-			onChange={(e) => {setChordConstraintConfig(e.target.value)}}/>
-		<button hidden={chordConstraintButtonHidden} onClick={addChordConstraintButtonCallback}>Add</button>
-	</>
+	return (
+		<>
+			<h3>Chord Constraints</h3>
+			{chordConstraintSet.map((constraintIR, index) => {
+				return <ChordConstraintDiv
+					key={index}
+					constraintIR={constraintIR}
+					onConstraintChange={(updatedIR) => handleChordConstraintChange(index, updatedIR)}
+					onRemove={() => removeChordConstraint(index)}
+				/>
+			})}
+			<AddChordConstraint onAddConstraint={addChordConstraint}/>
+		</>
+	)
 }

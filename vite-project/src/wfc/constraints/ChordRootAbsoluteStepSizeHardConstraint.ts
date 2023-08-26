@@ -7,10 +7,17 @@ import { Chordesque } from "../hierarchy/prototypes"
 import { HardConstraint } from "./concepts/Constraint"
 import { chordConstraintTypeToName } from "./constraintUtils"
 
+export const ChordRootAbsoluteStepSizeHardConstraintInit = {
+	type: "ChordRootAbsoluteStepSizeHardConstraint" as const,
+	stepSizes: [1,2,3,4,5,6],
+	validByDefault: true as const,
+}
+
+export type ChordRootAbsoluteStepSizeHardConstraintIR = typeof ChordRootAbsoluteStepSizeHardConstraintInit
+
 export class ChordRootAbsoluteStepSizeHardConstraint implements HardConstraint<Chordesque> {
 	private grabber: Grabber<Set<number>>
-	name = chordConstraintTypeToName.get("ChordRootAbsoluteStepSizeHardConstraint") as string
-	configText = () => `Step Size Set: ${this.grabber.configText()}`
+	name = chordConstraintTypeToName.get(ChordRootAbsoluteStepSizeHardConstraintInit.type) as string
 	constructor(grabber: Grabber<Set<number>>) {
 		this.grabber = grabber
 	}
@@ -27,7 +34,7 @@ export class ChordRootAbsoluteStepSizeHardConstraint implements HardConstraint<C
 	}
 
 	private checkPair(first: Chord, second: Chord, higherValues: HigherValues): boolean {
-		const stepSizeSet = this.grabber.grab(higherValues)
+		const stepSizeSet = this.grabber(higherValues)
 		const firstRoot = first.getRoot()
 		const secondRoot = second.getRoot()
 		const stepSize = noteDistanceAbs(firstRoot, secondRoot)

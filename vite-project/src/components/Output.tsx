@@ -12,6 +12,7 @@ import { TileCanvasProps } from "../wfc/TileCanvas"
 import { RestMaximumLengthHardConstraint } from "../wfc/constraints/RestMaximumLengthHardConstraint"
 import { ChordLevelNode } from "../wfc/hierarchy/ChordLevelNode"
 import { HigherValues } from "../wfc/HigherValues"
+import { convertIRToChordConstraint, convertIRToNoteConstraint } from "../wfc/constraints/constraintUtils"
 
 export function Output(){
 	const [src, setSrc] = useState("")
@@ -19,18 +20,18 @@ export function Output(){
 
 	const switchUseRhythm = () => setUseRhythm(!useRhythm)
 
-	const {inferKey, numChords, chordOptionsPerCell, chordConstraintSet, numNotesPerChord, noteOptionsPerCell, noteConstraintSet} = useAppContext()
+	const {inferKey, numChords, chordOptionsPerCell, chordConstraintSet, numNotesPerChord, noteOptionsPerCell, noteConstraintSet, keyGrabber} = useAppContext()
 
 	const chordesqueCanvasProps = new TileCanvasProps(
 		numChords,
 		new OptionsPerCell(Chord.allBasicChords(), chordOptionsPerCell),
-		chordConstraintSet,
+		new ConstraintSet(chordConstraintSet.map(chordConstraint => convertIRToChordConstraint({ir: chordConstraint, keyGrabber}))),
 	)
 
 	const noteCanvasProps = new TileCanvasProps(
 		numNotesPerChord,
 		new OptionsPerCell(OctavedNote.all(), noteOptionsPerCell),
-		noteConstraintSet
+		new ConstraintSet(noteConstraintSet.map(noteConstraint => convertIRToNoteConstraint({ir: noteConstraint, keyGrabber}))),
 	)
 
 	function updatePlayer() {
@@ -55,7 +56,7 @@ export function Output(){
 
 
 
-	return <>
+	return <div className="main-column">
 		<h2>Output</h2>
 		<label>
         Use rhythm
@@ -69,5 +70,5 @@ export function Output(){
 		{src && <><MidiPlayer
 			id="myPlayer" visualizer="#myVisualizer" src={src} />
 		<MidiVisualizer type="piano-roll" id="myVisualizer" /></>}
-	</>
+	</div>
 }

@@ -73,20 +73,10 @@ export class TileCanvas<T>{
 		this.higherValues = higherValues
 		this.constraints = props.getConstraints()
 
-		this.tiles = [new Tile<T>({
-			status: optionsToWeighedOptions(new Set(optionsPerCell.getOptions(0))),
-			canvas: this,
-			position: 0,
-			prev: Tile.header(this),
-		})]
+		this.tiles = [this.createTile(optionsPerCell, 0)]
 
 		for(let i = 1; i < this.size; i++) {
-			const tile = new Tile<T>({
-				status: optionsToWeighedOptions(new Set(optionsPerCell.getOptions(i))),
-				canvas: this,
-				position: i,
-				prev: this.tiles[i - 1],
-			})
+			const tile = this.createTile(optionsPerCell, i)
 
 			this.tiles[i - 1].setNext(tile)
 
@@ -98,6 +88,23 @@ export class TileCanvas<T>{
 		this.tiles.forEach((tile) => {
 			tile.updateOptions()
 			this.pq.add(tile)
+		})
+	}
+
+	private createTile(optionsPerCell: OptionsPerCell<T>, i: number) {
+		const options = optionsPerCell.getOptions(i)
+		let status
+		if(options.length === 1) {
+			this.collapsed++
+			status = options[0]
+		} else {
+			status = optionsToWeighedOptions(new Set(options))
+		}
+		return new Tile<T>({
+			status,
+			canvas: this,
+			position: i,
+			prev: i===0 ? Tile.header(this) : this.tiles[i - 1],
 		})
 	}
 

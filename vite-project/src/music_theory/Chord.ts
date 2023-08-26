@@ -20,16 +20,16 @@ export class Chord extends NoteSet implements Chordesque{
 
 	static fromRootAndQuality(root: Note, quality: ChordQuality): Chord {
 		switch(quality){
-		case "major":
-			return new MajorChord(root)
-		case "minor":
-			return new MinorChord(root)
-		case "diminished":
-			return new DiminishedChord(root)
-		case "augmented":
-			return new AugmentedChord(root)
-		default:
-			throw new Error("Invalid chord quality")
+			case "major":
+				return new MajorChord(root)
+			case "minor":
+				return new MinorChord(root)
+			case "diminished":
+				return new DiminishedChord(root)
+			case "augmented":
+				return new AugmentedChord(root)
+			default:
+				throw new Error("Invalid chord quality")
 		}
 	}
 

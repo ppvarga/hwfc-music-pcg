@@ -40,6 +40,11 @@ export function noteDistanceAbs(first: Note, second: Note): number {
 	return Math.abs(noteDistance(first, second))
 }
 
+export type OctavedNoteIR = {
+	note: Note
+	octave: number
+}
+
 export class OctavedNote {
 	private note: Note
 	private octave: number
@@ -117,6 +122,13 @@ export class OctavedNote {
 
 	public toString(): string {
 		return `${this.note}${this.octave}`
+	}
+
+	public static fromIR(ir: OctavedNoteIR): OctavedNote {
+		return new OctavedNote(
+			ir.note,
+			ir.octave
+		)
 	}
 }
 

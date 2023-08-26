@@ -5,12 +5,10 @@ import { zip } from "../../util/utils"
 import { HigherValues } from "../HigherValues"
 import { TileCanvasProps, TileCanvas } from "../TileCanvas"
 import { NoteLevelNode } from "./NoteLevelNode"
-import { SectionLevelNode } from "./SectionLevelNode"
 import { ChordPrototype, Chordesque } from "./prototypes"
 import { ChordResult, ChordResultWithRhythm } from "./results"
 
 interface ChordLevelNodeProps {
-  parent?: SectionLevelNode;
   higherValues?: HigherValues;
   noteCanvasProps: TileCanvasProps<OctavedNote>;
   chordesqueCanvasProps: TileCanvasProps<Chordesque>;
@@ -19,14 +17,12 @@ interface ChordLevelNodeProps {
 }
 
 export class ChordLevelNode {
-	private parent?: SectionLevelNode
 	private higherValues: HigherValues
 	private noteCanvasProps: TileCanvasProps<OctavedNote>
 	private chordesqueCanvas: TileCanvas<Chordesque>
 	private rhythmPatternCanvas: TileCanvas<RhythmPattern>
 
 	constructor(props: ChordLevelNodeProps){
-		this.parent = props.parent
 		this.higherValues = props.higherValues ?? new HigherValues()
 		this.noteCanvasProps = props.noteCanvasProps
 		this.chordesqueCanvas = new TileCanvas(props.chordesqueCanvasProps, this.higherValues, props.random)
@@ -42,7 +38,7 @@ export class ChordLevelNode {
 			if(chord instanceof ChordPrototype) {
 				actualNoteCanvasProps = this.noteCanvasProps.union(chord.getNoteCanvasProps())
 			}
-			const noteLevelNode = new NoteLevelNode(this, actualNoteCanvasProps, this.higherValues.copyWithChord(chordValue), this.rhythmPatternCanvas.getRandom())
+			const noteLevelNode = new NoteLevelNode(actualNoteCanvasProps, this.higherValues.copyWithChord(chordValue), this.rhythmPatternCanvas.getRandom())
 			return {
 				chord: chordValue,
 				notes: noteLevelNode.generate(),
@@ -61,7 +57,7 @@ export class ChordLevelNode {
 				actualNoteCanvasProps = this.noteCanvasProps.union(chord.getNoteCanvasProps())
 			}
 			actualNoteCanvasProps.setSize(rhythmPattern.length)
-			const noteLevelNode = new NoteLevelNode(this, actualNoteCanvasProps, this.higherValues.copyWithChord(chordValue), this.rhythmPatternCanvas.getRandom())
+			const noteLevelNode = new NoteLevelNode(actualNoteCanvasProps, this.higherValues.copyWithChord(chordValue), this.rhythmPatternCanvas.getRandom())
 			return {
 				chord: chordValue,
 				notes: noteLevelNode.generate(),

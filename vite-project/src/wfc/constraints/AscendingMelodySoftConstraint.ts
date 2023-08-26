@@ -3,9 +3,15 @@ import { Tile } from "../Tile"
 import { SoftConstraint } from "./concepts/Constraint"
 import { noteConstraintTypeToName } from "./constraintUtils"
 
+export const AscendingMelodySoftConstraintInit = {
+	type: "AscendingMelodySoftConstraint" as const,
+	bonus: 1,
+	validByDefault: true as const,
+}
+
+export type AscendingMelodySoftConstraintIR = typeof AscendingMelodySoftConstraintInit
 export class AscendingMelodySoftConstraint extends SoftConstraint<OctavedNote>{
-	name = noteConstraintTypeToName.get("AscendingMelodySoftConstraint") as string
-	configText = () => `Bonus: ${this.bonus}`
+	name = noteConstraintTypeToName.get(AscendingMelodySoftConstraintInit.type) as string
 
 	constructor(bonus: number) {
 		super(bonus)

@@ -36,7 +36,13 @@ export class SectionLevelNode {
 	public generateWithoutRhythm() : SectionResult[] {
 		const sections = this.sectionCanvas.generate()
 		return sections.map(section => {
-			const chordLevelNode = new ChordLevelNode(this, this.higherValues.copyWithSection(section), this.noteCanvasProps.union(section.getNoteCanvasProps()), this.chordesqueCanvasProps.union(section.getChordesqueCanvasProps()), this.rhythmPatternCanvasProps.union(section.getRhythmPatternCanvasProps()), this.random)
+			const chordLevelNode = new ChordLevelNode({
+				higherValues: this.higherValues.copyWithSection(section),
+				noteCanvasProps: this.noteCanvasProps.union(section.getNoteCanvasProps()),
+				chordesqueCanvasProps: this.chordesqueCanvasProps.union(section.getChordesqueCanvasProps()), 
+				rhythmPatternCanvasProps: this.rhythmPatternCanvasProps.union(section.getRhythmPatternCanvasProps()), 
+				random: this.random
+			})
 			return chordLevelNode.generateWithoutRhythm()
 		})
 	}
@@ -44,7 +50,13 @@ export class SectionLevelNode {
 	public generateWithRhythm() : SectionResultWithRhythm[] {
 		const sections = this.sectionCanvas.generate()
 		return sections.map(section => {
-			const chordLevelNode = new ChordLevelNode(this, this.higherValues.copyWithSection(section), this.noteCanvasProps.union(section.getNoteCanvasProps()), this.chordesqueCanvasProps.union(section.getChordesqueCanvasProps()), this.rhythmPatternCanvasProps.union(section.getRhythmPatternCanvasProps()), this.random)
+			const chordLevelNode = new ChordLevelNode({
+				higherValues: this.higherValues.copyWithSection(section), 
+				noteCanvasProps: this.noteCanvasProps.union(section.getNoteCanvasProps()), 
+				chordesqueCanvasProps: this.chordesqueCanvasProps.union(section.getChordesqueCanvasProps()), 
+				rhythmPatternCanvasProps: this.rhythmPatternCanvasProps.union(section.getRhythmPatternCanvasProps()), 
+				random: this.random
+			})
 			return chordLevelNode.generateWithRhythm()
 		})
 	}

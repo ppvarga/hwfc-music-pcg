@@ -33,13 +33,13 @@ export abstract class GenericCadenceSoftConstraint extends SoftConstraint<Chorde
 	weight(tile: Tile<Chordesque>, higherValues: HigherValues): number {
 		const chord = tile.getValue().getChord()
 
-		const rootOfKey = this.keyGrabber.grab(higherValues).getRoot()
+		const rootOfKey = this.keyGrabber(higherValues).getRoot()
 
-		const firstRoot = relativeNote(rootOfKey, this.firstOffsetGrabber.grab(higherValues))
-		const firstChord = Chord.fromRootAndQuality(firstRoot, this.firstChordGrabber.grab(higherValues))
+		const firstRoot = relativeNote(rootOfKey, this.firstOffsetGrabber(higherValues))
+		const firstChord = Chord.fromRootAndQuality(firstRoot, this.firstChordGrabber(higherValues))
 
-		const secondRoot = relativeNote(rootOfKey, this.secondOffsetGrabber.grab(higherValues))
-		const secondChord = Chord.fromRootAndQuality(secondRoot, this.secondChordGrabber.grab(higherValues))
+		const secondRoot = relativeNote(rootOfKey, this.secondOffsetGrabber(higherValues))
+		const secondChord = Chord.fromRootAndQuality(secondRoot, this.secondChordGrabber(higherValues))
 
 		if(chord == secondChord){
 			const prev = tile.getPrev()

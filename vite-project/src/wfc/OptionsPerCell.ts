@@ -20,7 +20,11 @@ export class OptionsPerCell<T> {
 	}
 
 	public getOptions(position : number): T[] {
-		return this.cells.get(position) || this.allOptions
+		const options = this.cells.get(position)
+		if(options === undefined || options.length === 0) {
+			return this.allOptions
+		}
+		return options
 	}
 
 	public getAllOptions(): T[] {

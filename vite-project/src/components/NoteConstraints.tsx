@@ -1,171 +1,194 @@
 import { useState } from "react"
 import { useAppContext } from "../AppState"
-import { OctavedNote } from "../music_theory/Note"
-import { AscendingMelodySoftConstraint } from "../wfc/constraints/AscendingMelodySoftConstraint"
-import { DescendingMelodySoftConstraint } from "../wfc/constraints/DescendingMelodySoftConstraint"
-import { MelodyAbsoluteStepSizeHardConstraint } from "../wfc/constraints/MelodyAbsoluteStepSizeHardConstraint"
-import { NoteInKeyHardConstraint } from "../wfc/constraints/NoteInKeyHardConstraint"
-import { Constraint } from "../wfc/constraints/concepts/Constraint"
-import { constantGrabber } from "../wfc/grabbers/constantGrabbers"
 import Select from "react-select"
-import { NoteSelector, NoteSelectorResult } from "./NoteSelector"
-import { MelodyEndsOnNoteHardConstraint } from "../wfc/constraints/MelodyEndsOnNoteHardConstraint"
-import { MelodyStartsOnNoteHardConstraint } from "../wfc/constraints/MelodyStartsOnNoteHardConstraint"
-import { MelodyInRangeHardConstraint } from "../wfc/constraints/MelodyInRangeHardConstraint"
-import { constraintTextConfig, noteConstraintOptions } from "../wfc/constraints/constraintUtils"
+import { NoteConstraintIR, NoteConstraintType, initializeNoteConstraint, noteConstraintOptions, noteConstraintTypeToName } from "../wfc/constraints/constraintUtils"
 import { selectStyles } from "../styles"
-import { SelectOption } from "./utils"
+import { NoteSelector } from "./NoteSelector"
+import { OctavedNote, OctavedNoteIR } from "../music_theory/Note"
+import { ConstantOctavedNoteSelector } from "./ConstantOctavedNoteSelector"
+import { MelodyShape, } from "../wfc/constraints/concepts/MelodyShape"
+import { MelodyShapeSelector } from "./MelodyShapeSelector"
+import { SimpleConstraintConfigDiv } from "./SimpleConstraintConfigDiv"
 
-function NoteConstraintDiv({constraint}: {constraint: Constraint<OctavedNote>}) {
-	const {removeNoteConstraint} = useAppContext()
+interface NoteConstraintConfigProps {
+	constraintIR: NoteConstraintIR
+	onConstraintChange: (updatedConstraint: NoteConstraintIR) => void
+	setValid: (valid: boolean) => void
+}
 
-	return <div className="note-constraint-div">
-		<h5>{constraint.name}</h5>
-		<p>{constraint.configText()}</p>
-		<button onClick={() => removeNoteConstraint(constraint)}>Remove</button>
+function NoteConstraintConfig({ constraintIR, onConstraintChange, setValid}: NoteConstraintConfigProps) {
+	switch (constraintIR.type) {
+		case "NoteInKeyHardConstraint": return <></>
+		case "AscendingMelodySoftConstraint" : return	<SimpleConstraintConfigDiv>
+			<input
+				type="number"
+				placeholder="Boost value"
+				min={1}
+				defaultValue={constraintIR.bonus}
+				onChange={(e) =>{
+					const bonus = parseInt(e.target.value)
+					if (bonus > 0) {
+						setValid(true)
+						onConstraintChange({...constraintIR, bonus})
+					}
+					else setValid(false)
+				}}
+			/>
+		</SimpleConstraintConfigDiv>
+		case "DescendingMelodySoftConstraint" : return <SimpleConstraintConfigDiv>
+			<input
+				type="number"
+				placeholder="Boost value"
+				min={1}
+				defaultValue={constraintIR.bonus}
+				onChange={(e) => {
+					const bonus = parseInt(e.target.value)
+					if (bonus > 0) {
+						setValid(true)
+						onConstraintChange({...constraintIR, bonus})
+					}
+					else setValid(false)
+				}}
+			/>
+		</SimpleConstraintConfigDiv>
+		case "MelodyAbsoluteStepSizeHardConstraint" : return <SimpleConstraintConfigDiv>
+			<input
+				type="text"
+				placeholder="Allowed intervals"
+				onChange={(e) => {
+					const stepSizes = e.target.value.split(" ").map(str => parseInt(str)).filter(num => !isNaN(num))
+					if (stepSizes.length > 0) {
+						setValid(true)
+						onConstraintChange({...constraintIR, stepSizes})
+					}
+					else setValid(false)
+				}}
+			/>
+		</SimpleConstraintConfigDiv>
+		case "MelodyEndsOnNoteHardConstraint" : return <SimpleConstraintConfigDiv>
+			<NoteSelector
+				setValue={(noteGrabber) => {
+					if (noteGrabber === null) {
+						return setValid(false)
+					} else {
+						setValid(true)
+						onConstraintChange({...constraintIR, noteGrabber})
+					}
+				}}
+			/>
+		</SimpleConstraintConfigDiv>
+		case "MelodyStartsOnNoteHardConstraint" : return <SimpleConstraintConfigDiv>
+			<NoteSelector
+				setValue={(result) => {
+					if (result === null) {
+						return setValid(false)
+					} else {
+						setValid(true)
+						onConstraintChange({...constraintIR, noteGrabber: result})
+					}
+				}}
+			/>
+		</SimpleConstraintConfigDiv>
+		case "MelodyInRangeHardConstraint" : {
+			const [lowerNoteIR, setLowerNoteIR] = useState(constraintIR.lowerNoteIR)
+			const [higherNoteIR, setHigherNoteIR] = useState(constraintIR.higherNoteIR)
+
+			const checkValid = (lowerNoteIR: OctavedNoteIR, higherNoteIR: OctavedNoteIR) => {
+				if (lowerNoteIR === null || isNaN(lowerNoteIR.octave) || higherNoteIR === null || isNaN(higherNoteIR.octave)) return setValid(false)
+				if (OctavedNote.getStepSize(OctavedNote.fromIR(lowerNoteIR), OctavedNote.fromIR(higherNoteIR)) < 0) return setValid(false)
+				setValid(true)
+				onConstraintChange({...constraintIR, lowerNoteIR, higherNoteIR})
+			}
+			return <>
+				<ConstantOctavedNoteSelector label={"Lower bound:"} defaultValue={lowerNoteIR} setResult={newLowerNote => {
+					setLowerNoteIR(newLowerNote)
+					checkValid(newLowerNote, higherNoteIR)
+				}}/>
+				<ConstantOctavedNoteSelector label={"Higher bound:"} defaultValue={higherNoteIR} setResult={newHigherNote => {
+					setHigherNoteIR(newHigherNote)
+					checkValid(lowerNoteIR, newHigherNote)
+				}}/>
+			</>
+		}
+		case "MelodyShapeHardConstraint" : {
+			const {numNotesPerChord} = useAppContext()
+			const shapeSize = numNotesPerChord - 1
+
+			const setShape = (shape: MelodyShape) => {
+				onConstraintChange({...constraintIR, shape})
+			}
+
+			return <MelodyShapeSelector size={shapeSize} setResult={setShape}/>
+		}
+	}
+	throw new Error("Invalid constraint type")
+}
+
+interface NoteConstraintDivProps {
+	constraintIR: NoteConstraintIR
+	onConstraintChange: (updatedIR: NoteConstraintIR) => void
+	onRemove: () => void
+}
+
+function NoteConstraintDiv({ constraintIR, onConstraintChange, onRemove }: NoteConstraintDivProps) {
+	const [valid, setValid] = useState(constraintIR.validByDefault)
+
+	return <div className="constraint-div">
+		<h4 style={{color: valid ? "white" : "red"}}>{noteConstraintTypeToName.get(constraintIR.type)}</h4>
+		<NoteConstraintConfig constraintIR={constraintIR} onConstraintChange={onConstraintChange} setValid={setValid}/>
+		<button onClick={onRemove}>Remove</button>
 	</div>
 }
 
+type NoteConstraintTypeOption = { value: NoteConstraintType, label: string }
+
+interface AddNoteConstraintProps {
+	onAddConstraint: (constraintIR: NoteConstraintIR) => void
+}
+
+function AddNoteConstraint({ onAddConstraint }: AddNoteConstraintProps) {
+	const { noteConstraintSet } = useAppContext()
+	const [selectedType, setSelectedType] = useState<NoteConstraintTypeOption | null>(null)
+
+	const getNoteConstraintOptions = () => noteConstraintOptions.filter(option => !noteConstraintSet.map(constraint => constraint.type).includes(option.value))
+
+	const handleAddButtonClick = () => {
+		if (!selectedType) return
+
+		onAddConstraint(initializeNoteConstraint(selectedType.value))
+		setSelectedType(null)
+	}
+
+	return (
+		<div className="add-constraint">
+			<Select
+				options={getNoteConstraintOptions()}
+				value={selectedType}
+				placeholder="Note constraints..."
+				onChange={(option) => setSelectedType(option || null)}
+				styles={selectStyles}
+			/>
+			<button onClick={() => {handleAddButtonClick(); setSelectedType(null)}}>Add</button>
+		</div>
+	)
+}
+
 export function NoteConstraints() {
-	const {noteConstraintSet} = useAppContext()
-	return <>
-		<h3>Note constraints</h3>
-		{noteConstraintSet.getAllConstraints().map((constraint, i) => <NoteConstraintDiv key={i} constraint={constraint}/>)}
-	</>
+	const {noteConstraintSet, addNoteConstraint, removeNoteConstraint, handleNoteConstraintChange} = useAppContext()
+
+	return (
+		<>
+			<h3>Note constraints</h3>
+			{noteConstraintSet.map((constraintIR, index) => (
+				<NoteConstraintDiv
+					key={index}
+					constraintIR={constraintIR}
+					onConstraintChange={(updatedIR) => handleNoteConstraintChange(index, updatedIR)}
+					onRemove={() => removeNoteConstraint(index)}
+				/>
+			))}
+			<AddNoteConstraint onAddConstraint={addNoteConstraint} />
+		</>
+	)
 }
 
-export function AddNoteConstraint() {
-
-	const {keyGrabber, addNoteConstraint, noteConstraintSet} = useAppContext()
-    
-	const [noteConstraintConfigHidden, setNoteConstraintConfigHidden] = useState(true)
-	const [noteConstraintButtonHidden, setNoteConstraintButtonHidden] = useState(true)
-	const [noteConstraintConfigPlaceholder, setNoteConstraintConfigPlaceholder] = useState("")
-	const [noteConstraintConfig, setNoteConstraintConfig] = useState("")
-	const [addNoteConstraintCallback, setAddNoteConstraintCallback] = useState(() => (_config: string, _noteSelectorValue: NoteSelectorResult) => {})
-	const [noteConstraintSelected, setNoteConstraintSelected] = useState(null as SelectOption)
-
-	const addNoteConstraintButtonCallback = () => {
-		addNoteConstraintCallback(noteConstraintConfig, noteSelectorValue)
-		setNoteConstraintConfig("")
-		setNoteConstraintConfigHidden(true)
-		setNoteConstraintButtonHidden(true)
-		setNoteConstraintSelected(null)
-	}
-
-	const getNoteConstraintOptions = () => noteConstraintOptions.filter(option => !noteConstraintSet.getAllConstraints().map(constraint => constraint.name).includes(option.label))
-
-	const [noteSelectorHidden, setNoteSelectorHidden] = useState(true)
-	const [noteSelectorValue, setNoteSelectorValue] = useState(null as NoteSelectorResult)
-
-	function updateNoteConstraintAdder(value: string | undefined) {
-		if(value === undefined) {
-			setNoteConstraintConfigHidden(true)
-			setNoteConstraintButtonHidden(true)
-			setNoteSelectorHidden(true)
-			setNoteConstraintConfigPlaceholder("")
-			setAddNoteConstraintCallback(() => () => {})
-			return
-		}
-
-		setNoteConstraintButtonHidden(false)
-
-		const configPlaceholder = constraintTextConfig(value)
-		if(configPlaceholder === undefined){
-			setNoteConstraintConfigHidden(true)
-			setNoteConstraintConfigPlaceholder("")
-		} else {
-			setNoteConstraintConfigHidden(false)
-			setNoteConstraintConfigPlaceholder(configPlaceholder)
-		}
-
-		switch(value) {
-		case "NoteInKeyHardConstraint":
-			setNoteSelectorHidden(true)
-			setAddNoteConstraintCallback(() => () => addNoteConstraint(new NoteInKeyHardConstraint(keyGrabber)))
-			break
-		case "AscendingMelodySoftConstraint":
-			setNoteSelectorHidden(true)
-			setAddNoteConstraintCallback(() => (config: string) => {
-				const boost = parseInt(config)
-				if(boost !== 0){
-					addNoteConstraint(new AscendingMelodySoftConstraint(parseInt(config)))
-					setNoteConstraintConfigHidden(true)
-					setNoteConstraintConfig("")
-				}
-			})
-			break
-		case "DescendingMelodySoftConstraint":
-			setNoteSelectorHidden(true)
-			setAddNoteConstraintCallback(() => (config: string) => {
-				const boost = parseInt(config)
-				if(boost !== 0){
-					addNoteConstraint(new DescendingMelodySoftConstraint(parseInt(config)))
-					setNoteConstraintConfigHidden(true)
-					setNoteConstraintConfig("")
-				}
-			})
-			break
-		case "MelodyAbsoluteStepSizeHardConstraint":
-			setNoteSelectorHidden(true)
-			setAddNoteConstraintCallback(() => (config: string) => {
-				const intervals = new Set(config.split(" ").map(str => parseInt(str)))
-				if(intervals.size !== 0){
-					addNoteConstraint(new MelodyAbsoluteStepSizeHardConstraint(constantGrabber(intervals)))
-					setNoteConstraintConfigHidden(true)
-					setNoteConstraintConfig("")
-				}
-			})
-			break
-		case "MelodyEndsOnNoteHardConstraint":
-			setNoteSelectorHidden(false)
-			setAddNoteConstraintCallback(() => (_config: string, noteSelectorValue: NoteSelectorResult) => {
-				if(noteSelectorValue !== null) {
-					addNoteConstraint(new MelodyEndsOnNoteHardConstraint(noteSelectorValue))
-					setNoteSelectorHidden(true)
-					//setNoteSelectorValue(null)
-				}
-			})
-			break
-		case "MelodyStartsOnNoteHardConstraint":
-			setNoteSelectorHidden(false)
-			setAddNoteConstraintCallback(() => (_config: string, noteSelectorValue: NoteSelectorResult) => {
-				if(noteSelectorValue !== null) {
-					addNoteConstraint(new MelodyStartsOnNoteHardConstraint(noteSelectorValue))
-					setNoteSelectorHidden(true)
-					//setNoteSelectorValue(null)
-				}
-			})
-			break
-		case "MelodyInRangeHardConstraint":
-			setNoteSelectorHidden(true)
-			setAddNoteConstraintCallback(() => (config: string) => {
-				const [low, high] = config.split(" ").map(str => OctavedNote.parse(str))
-				addNoteConstraint(new MelodyInRangeHardConstraint(constantGrabber(low), constantGrabber(high)))
-			})
-			break
-			// case "MelodyShapeHardConstraint":
-			//   setNoteConstraintConfigHidden(false)
-			//   setNoteConstraintConfigPlaceholder("Shape of melody")
-			//   setAddNoteConstraintCallback(() => (config: string) => {
-			//     TODODO const shape = config.split(" ").map(str => parseInt(str))
-			//     addNoteConstraint(new MelodyShapeHardConstraint(constantGrabber(shape)))
-			//   })
-			//   break
-		default:
-			throw new Error(`Unknown note constraint ${value}`)
-		}
-	}
-
-	return <>
-		<Select options={getNoteConstraintOptions()} placeholder="Add a note constraint..." 
-			onChange={(option) => {setNoteConstraintSelected(option); updateNoteConstraintAdder(option?.value)}} 
-			value={noteConstraintSelected}
-			styles={selectStyles}
-		/>
-		<input type="text" placeholder={noteConstraintConfigPlaceholder} hidden={noteConstraintConfigHidden}
-			onChange={(e) => setNoteConstraintConfig(e.target.value)}/>
-		<NoteSelector hidden={noteSelectorHidden} value={noteSelectorValue} setValue={setNoteSelectorValue}/>
-		<button hidden={noteConstraintButtonHidden} onClick={addNoteConstraintButtonCallback}>Add</button>
-	</>
-}

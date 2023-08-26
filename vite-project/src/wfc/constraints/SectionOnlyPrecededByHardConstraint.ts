@@ -8,7 +8,6 @@ export class SectionOnlyPrecededByHardConstraint implements HardConstraint<Secti
 	private sectionName: string
 	private grabber: Grabber<Set<string>>
 	name = "Section Only Preceded By"
-	configText = () => `Section: ${this.sectionName}, Preceded By: ${this.grabber.configText()}`
 	constructor(sectionName: string, grabber: Grabber<Set<string>>) {
 		this.sectionName = sectionName
 		this.grabber = grabber
@@ -23,7 +22,7 @@ export class SectionOnlyPrecededByHardConstraint implements HardConstraint<Secti
 
 	checkPair(first: Section, second: Section, higherValues: HigherValues): boolean {
 		if(second.getName() != this.sectionName) return true
-		const sectionSet = this.grabber.grab(higherValues)
+		const sectionSet = this.grabber(higherValues)
 		return sectionSet.has(first.getName())
 	}
 }

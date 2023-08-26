@@ -2,27 +2,25 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState } f
 import { Chord } from "./music_theory/Chord"
 import { MajorKey, MinorKey } from "./music_theory/MusicalKey"
 import { Note, OctavedNote } from "./music_theory/Note"
-import { ConstraintSet } from "./wfc/ConstraintSet"
-import { Constraint } from "./wfc/constraints/concepts/Constraint"
-import { Chordesque } from "./wfc/hierarchy/prototypes"
-import { SelectNoteOption, SelectOption } from "./components/utils"
-import { ChordInKeyConstraint } from "./wfc/constraints/ChordInKeyHardConstraint"
-import { NoteInKeyHardConstraint } from "./wfc/constraints/NoteInKeyHardConstraint"
-import { MelodyInRangeHardConstraint } from "./wfc/constraints/MelodyInRangeHardConstraint"
-import { constantGrabber } from "./wfc/grabbers/constantGrabbers"
+import { SelectOption } from "./components/utils"
+import { ChordInKeyHardConstraintInit } from "./wfc/constraints/ChordInKeyHardConstraint"
+import { NoteInKeyHardConstraintInit } from "./wfc/constraints/NoteInKeyHardConstraint"
+import { MelodyInRangeHardConstraintInit } from "./wfc/constraints/MelodyInRangeHardConstraint"
+import { ChordConstraintIR, NoteConstraintIR } from "./wfc/constraints/constraintUtils"
+import { ChordRootAbsoluteStepSizeHardConstraintInit } from "./wfc/constraints/ChordRootAbsoluteStepSizeHardConstraint"
 
 function AppState() {
 	const [numChords, setNumChords] = useState(4)
 	const [numNotesPerChord, setNumNotesPerChord] = useState(4)
-	const [keyRoot, setKeyRoot] = useState({label: "C", value: Note.C} as SelectNoteOption)
+	const [keyRoot, setKeyRoot] = useState(Note.C)
 	const [keyType, setKeyType] = useState({label: "Major", value: "major"} as SelectOption)
 
 	const inferKey = useCallback(() => {
-		if(keyType === null || keyRoot === null) throw new Error("keyType and keyRoot must be defined")
+		if(keyType === null) throw new Error("keyType and keyRoot must be defined")
 		if (keyType.value === "major") {
-			return new MajorKey(keyRoot.value)
+			return new MajorKey(keyRoot)
 		} else if (keyType.value === "minor"){
-			return new MinorKey(keyRoot.value)
+			return new MinorKey(keyRoot)
 		} else {
 			throw new Error("keyType must be either major or minor")
 		}
@@ -34,44 +32,46 @@ function AppState() {
 		inferKeyRef.current = inferKey
 	}, [inferKey])
 
-	const keyGrabber = {
-		grab: () => inferKeyRef.current(),
-		configText: () => "Global key"
-	}
+	const keyGrabber = () => inferKeyRef.current()
 
-	const basicChordConstraintSet = new ConstraintSet<Chordesque>()
-	basicChordConstraintSet.addConstraint(new ChordInKeyConstraint(keyGrabber))
+	const basicChordConstraintSet: ChordConstraintIR[] = [ChordInKeyHardConstraintInit, ChordRootAbsoluteStepSizeHardConstraintInit]
 
 	const [chordConstraintSet, setChordConstraintSet] = useState(basicChordConstraintSet)
-	const addChordConstraint = (constraint: Constraint<Chordesque>) => {
-		const newConstraintSet = new ConstraintSet(chordConstraintSet.getAllConstraints())
-		newConstraintSet.addConstraint(constraint)
+
+	const addChordConstraint = (constraint: ChordConstraintIR) => {
+		setChordConstraintSet([...chordConstraintSet, constraint])
+	}
+
+	const removeChordConstraint = (index: number) => {
+		const newConstraintSet = [...chordConstraintSet]
+		newConstraintSet.splice(index, 1)
+		setChordConstraintSet(newConstraintSet)			
+	}
+
+	const handleChordConstraintChange = (index: number, constraint: ChordConstraintIR) => {
+		const newConstraintSet = [...chordConstraintSet]
+		newConstraintSet[index] = constraint
 		setChordConstraintSet(newConstraintSet)
 	}
 
-	const removeChordConstraint = (constraint: Constraint<Chordesque>) => {
-		const newConstraintSet = new ConstraintSet(chordConstraintSet.getAllConstraints())
-		newConstraintSet.removeConstraint(constraint)
-		setChordConstraintSet(newConstraintSet)
-	}
-
-	const basicNoteConstraintSet = new ConstraintSet<OctavedNote>()
-	basicNoteConstraintSet.addConstraint(new NoteInKeyHardConstraint(keyGrabber))
-	basicNoteConstraintSet.addConstraint(new MelodyInRangeHardConstraint(constantGrabber(new OctavedNote(Note.C, 4)), constantGrabber(new OctavedNote(Note.C, 5))))
-
+	const basicNoteConstraintSet = [NoteInKeyHardConstraintInit, MelodyInRangeHardConstraintInit] as NoteConstraintIR[]
 	const [noteConstraintSet, setNoteConstraintSet] = useState(basicNoteConstraintSet)
-	const addNoteConstraint = (constraint: Constraint<OctavedNote>) => {
-		const newConstraintSet = new ConstraintSet(noteConstraintSet.getAllConstraints())
-		newConstraintSet.addConstraint(constraint)
-		setNoteConstraintSet(newConstraintSet)
+
+	const addNoteConstraint = (constraint: NoteConstraintIR) => {
+		setNoteConstraintSet([...noteConstraintSet, constraint])
 	}
 
-	const removeNoteConstraint = (constraint: Constraint<OctavedNote>) => {
-		const newConstraintSet = new ConstraintSet(noteConstraintSet.getAllConstraints())
-		newConstraintSet.removeConstraint(constraint)
-		setNoteConstraintSet(newConstraintSet)
+	const removeNoteConstraint = (index: number) => {
+		const newConstraintSet = [...noteConstraintSet]
+		newConstraintSet.splice(index, 1)
+		setNoteConstraintSet(newConstraintSet)			
 	}
 
+	const handleNoteConstraintChange = (index: number, constraint: NoteConstraintIR) => {
+		const newConstraintSet = [...noteConstraintSet]
+		newConstraintSet[index] = constraint
+		setNoteConstraintSet(newConstraintSet)
+	}
 
 	const [chordOptionsPerCell, setChordOptionsPerCell] = useState(new Map<number, Chord[]>())
 	const [noteOptionsPerCell, setNoteOptionsPerCell] = useState(new Map<number, OctavedNote[]>())
@@ -99,6 +99,8 @@ function AppState() {
 		addNoteConstraint,
 		removeNoteConstraint,
 		keyGrabber,
+		handleChordConstraintChange,
+		handleNoteConstraintChange,
 	}
 }
 

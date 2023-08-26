@@ -2,14 +2,11 @@ import { OctavedNote } from "../../music_theory/Note"
 import { Random } from "../../util/Random"
 import { HigherValues } from "../HigherValues"
 import { TileCanvas, TileCanvasProps } from "../TileCanvas"
-import { ChordLevelNode } from "./ChordLevelNode"
 
 export class NoteLevelNode {
-	private parent : ChordLevelNode
 	private canvas : TileCanvas<OctavedNote>
 
-	constructor(parent : ChordLevelNode, canvasProps: TileCanvasProps<OctavedNote>, higherValues: HigherValues, random: Random) {
-		this.parent = parent
+	constructor(canvasProps: TileCanvasProps<OctavedNote>, higherValues: HigherValues, random: Random) {
 		this.canvas = new TileCanvas<OctavedNote>(canvasProps, higherValues, random) 
 	}
 

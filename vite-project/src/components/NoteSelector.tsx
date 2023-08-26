@@ -3,13 +3,12 @@ import { Note } from "../music_theory/Note"
 import { useState } from "react"
 import { Grabber } from "../wfc/Grabber"
 import { constantGrabber } from "../wfc/grabbers/constantGrabbers"
-import { fifthOfChordGrabber, rootOfChordGrabber, thirdOfChordGrabber } from "../wfc/grabbers/noteGrabbers"
+import { FifthOfChordGrabber, RootOfChordGrabber, ThirdOfChordGrabber } from "../wfc/grabbers/noteGrabbers"
 import { selectStyles } from "../styles"
-import { ConstantNoteSelector, noteOptions } from "./GlobalSettings"
+import { ConstantNoteSelector } from "./ConstantNoteSelector"
+import { SelectNoteOption, SelectOption } from "./utils"
 
 interface NoteSelectorProps {
-  hidden: boolean
-  value: NoteSelectorResult
   setValue:  (_: NoteSelectorResult) => void
 }
 
@@ -22,35 +21,37 @@ const noteSelectorOptions = [
 	{label: "Custom", value: "Custom"},
 ]
 
-export function NoteSelector({hidden, setValue} : NoteSelectorProps) {
-	const [selected, setSelected] = useState(null as {label: string, value: string} | null)
-	const [customNoteSelected, setCustomNoteSelected] = useState(noteOptions[0])
+export function NoteSelector({setValue} : NoteSelectorProps) {
+	const [selected, setSelected] = useState(null as SelectOption)
+	const [customNoteSelected, setCustomNoteSelected] = useState(Note.C)
 
-	const buildConstantGrabber = (option: {label: string, value: Note}) => {
+	const buildConstantGrabber = (option: SelectNoteOption) => {
+		if(option === null) throw new Error("Invalid option")
 		setValue(constantGrabber(option.value))
 	}
 
-	return <div hidden={hidden}>
+	return <>
 		<Select options={noteSelectorOptions} placeholder={"Select a note..."} styles={selectStyles}
 			value={selected}
 			onChange={(option) => {
 				setSelected(option)
 				switch (option?.value) {
-				case "RootOfChord":
-					setValue(rootOfChordGrabber())
-					break
-				case "ThirdOfChord":
-					setValue(thirdOfChordGrabber())
-					break
-				case "FifthOfChord":
-					setValue(fifthOfChordGrabber())
-					break
-				case "Custom":
-					setValue(constantGrabber(customNoteSelected.value))
-					break
-				default:
-					throw new Error("Invalid note selector option")
+					case "RootOfChord":
+						setValue(RootOfChordGrabber)
+						break
+					case "ThirdOfChord":
+						setValue(ThirdOfChordGrabber)
+						break
+					case "FifthOfChord":
+						setValue(FifthOfChordGrabber)
+						break
+					case "Custom":
+						if(customNoteSelected === null) throw new Error("Invalid custom note selected")
+						setValue(constantGrabber(customNoteSelected))
+						break
+					default:
+						throw new Error("Invalid note selector option")
 				}}}/>
 		{selected?.value === "Custom" && <ConstantNoteSelector value={customNoteSelected} setValue={setCustomNoteSelected} onChange={buildConstantGrabber} />}
-	</div>
+	</>
 }

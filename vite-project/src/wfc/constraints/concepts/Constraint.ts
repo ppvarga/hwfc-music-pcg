@@ -1,13 +1,10 @@
 import { HigherValues } from "../../HigherValues"
 import { Tile } from "../../Tile"
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export interface Constraint<T> {
-	name: string;
-	configText: () => string;
-}
+export type Constraint<T> = HardConstraint<T> | SoftConstraint<T>
 
-export interface HardConstraint<T> extends Constraint<T> {
+export interface HardConstraint<T> {
+	name: string;
 	check: (tile: Tile<T>, higherValues: HigherValues) => boolean;
 }
 
@@ -15,9 +12,8 @@ export function isHardConstraint<T>(constraint: Constraint<T>): constraint is Ha
 	return "check" in constraint
 }
 
-export abstract class SoftConstraint<T> implements Constraint<T> {
+export abstract class SoftConstraint<T> {
 	abstract name: string;
-	abstract configText() : string;
 	abstract weight(tile: Tile<T>, higherValues: HigherValues) : number;
 	protected bonus: number
 

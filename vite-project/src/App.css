@@ -21,18 +21,60 @@
   display: inline-block;
 }
 
-.chord-constraint-div {
+.constraint-div {
   border: #ddd solid 1px;
-}
-
-.note-constraint-div {
-  border: #ddd solid 1px;
+  padding: 1em;
+  margin-bottom: 1em;
+  border-radius: 0.5em;
 }
 
 midi-player {
   color-scheme: light;
   color: #222;
+  width: inherit
 }
 midi-visualizer {
-  background: white;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 1em;
+}
+
+.main-div {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.main-column {
+  width: 20vw
+}
+
+.add-constraint {
+  display: flex;
+  width: 100%;
+}
+
+.constant-octaved-note-selector {
+  padding-bottom: 0.5em;
+
+}
+
+input[type="number"], input[type="text"] {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+  color: #222;
+}
+
+input[type="number"]:focus, input[type="text"]:focus {
+  border-color: #2684ff;
+  outline: none;
+}
+
+.simple-constraint-config {
+  padding-bottom: 0.5em;
 }

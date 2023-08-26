@@ -1,12 +1,13 @@
+import { Grabber } from "../Grabber"
 import { HigherValues } from "../HigherValues"
 import { Tile } from "../Tile"
 import { Section } from "../hierarchy/prototypes"
+import { HardConstraint } from "./concepts/Constraint"
 
 export class SectionOnlyFollowedByHardConstraint implements HardConstraint<Section> {
 	private sectionName: string
 	private grabber: Grabber<Set<string>>
 	name = "Section Only Followed By"
-	configText = () => `Section: ${this.sectionName}, Followed By: ${this.grabber.configText()}`
 	constructor(sectionName: string, grabber: Grabber<Set<string>>) {
 		this.sectionName = sectionName
 		this.grabber = grabber
@@ -21,7 +22,7 @@ export class SectionOnlyFollowedByHardConstraint implements HardConstraint<Secti
 
 	checkPair(first: Section, second: Section, higherValues: HigherValues): boolean {
 		if(first.getName() != this.sectionName) return true
-		const sectionSet = this.grabber.grab(higherValues)
+		const sectionSet = this.grabber(higherValues)
 		return sectionSet.has(second.getName())
 	}
 }
