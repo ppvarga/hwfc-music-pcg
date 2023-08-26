@@ -46,5 +46,4 @@ export class OptionsPerCell<T> {
 		return newOptionsPerCell
 	}
 
-
 }

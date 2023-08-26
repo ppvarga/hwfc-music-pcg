@@ -5,16 +5,16 @@ import { HigherValues } from "../HigherValues"
 import { Tile } from "../Tile"
 import { noteConstraintTypeToName } from "./constraintUtils"
 
-export const NoteInKeyHardConstraintInit = {
-	type: "NoteInKeyHardConstraint" as const,
+export const MelodyInKeyHardConstraintInit = {
+	type: "MelodyInKeyHardConstraint" as const,
 	validByDefault: true as const,
 }
 
-export type NoteInKeyHardConstraintIR = typeof NoteInKeyHardConstraintInit
+export type MelodyInKeyHardConstraintIR = typeof MelodyInKeyHardConstraintInit
 
-export class NoteInKeyHardConstraint {
+export class MelodyInKeyHardConstraint {
 	private grabber: Grabber<MusicalKey>
-	name = noteConstraintTypeToName.get(NoteInKeyHardConstraintInit.type) as string
+	name = noteConstraintTypeToName.get(MelodyInKeyHardConstraintInit.type) as string
 	constructor(grabber: Grabber<MusicalKey>) {
 		this.grabber = grabber
 	}

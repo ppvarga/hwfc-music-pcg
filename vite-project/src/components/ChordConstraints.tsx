@@ -115,13 +115,12 @@ function AddChordConstraint({ onAddConstraint }: AddChordConstraintProps) {
 	)
 }
 
-
 export function ChordConstraints() {
 	const {chordConstraintSet, addChordConstraint, removeChordConstraint, handleChordConstraintChange} = useAppContext()
 
 	return (
 		<>
-			<h3>Chord Constraints</h3>
+			<h3>Chord constraints</h3>
 			{chordConstraintSet.map((constraintIR, index) => {
 				return <ChordConstraintDiv
 					key={index}

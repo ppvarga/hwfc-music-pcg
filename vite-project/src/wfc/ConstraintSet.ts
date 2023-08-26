@@ -14,7 +14,6 @@ function partition<T>(
 	)
 }
 
-
 export class ConstraintSet<T> {
 	private softConstraints: SoftConstraint<T>[]
 	private hardConstraints: HardConstraint<T>[]

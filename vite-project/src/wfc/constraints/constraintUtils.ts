@@ -12,11 +12,10 @@ import { MelodyEndsOnNoteHardConstraint, MelodyEndsOnNoteHardConstraintIR, Melod
 import { MelodyInRangeHardConstraint, MelodyInRangeHardConstraintIR, MelodyInRangeHardConstraintInit } from "./MelodyInRangeHardConstraint"
 import { MelodyShapeHardConstraint, MelodyShapeHardConstraintIR, MelodyShapeHardConstraintInit } from "./MelodyShapeHardConstraint"
 import { MelodyStartsOnNoteHardConstraint, MelodyStartsOnNoteHardConstraintIR, MelodyStartsOnNoteHardConstraintInit } from "./MelodyStartsOnNoteHardConstraint"
-import { NoteInKeyHardConstraint, NoteInKeyHardConstraintIR, NoteInKeyHardConstraintInit } from "./NoteInKeyHardConstraint"
+import { MelodyInKeyHardConstraint, MelodyInKeyHardConstraintIR, MelodyInKeyHardConstraintInit } from "./MelodyInKeyHardConstraint"
 import { PerfectCadenceSoftConstraintIR, PerfectCadenceSoftConstraintInit } from "./cadences/PerfectCadenceSoftConstraint"
 import { PlagalCadenceSoftConstraint, PlagalCadenceSoftConstraintIR, PlagalCadenceSoftConstraintInit } from "./cadences/PlagalCadenceSoftConstraint"
 import { Constraint } from "./concepts/Constraint"
-
 
 export type ChordConstraintIR =
 	| ChordInKeyHardConstraintIR
@@ -32,7 +31,7 @@ export type NoteConstraintIR =
 	| MelodyStartsOnNoteHardConstraintIR
 	| MelodyInRangeHardConstraintIR
 	| MelodyShapeHardConstraintIR
-	| NoteInKeyHardConstraintIR
+	| MelodyInKeyHardConstraintIR
 	
 export type ChordConstraintType = ChordConstraintIR["type"]
 export type NoteConstraintType = NoteConstraintIR["type"]
@@ -51,7 +50,7 @@ export const chordConstraintTypeToName = new Map<ChordConstraintType, ChordConst
 export const chordConstraintOptions = Array.from(chordConstraintTypeToName.entries()).map(([value, label]) => ({ value, label }))
 
 const noteConstraintTypesAndNames = [
-	["NoteInKeyHardConstraint", "Note in Key"],
+	["MelodyInKeyHardConstraint", "Melody in Key"],
 	["MelodyAbsoluteStepSizeHardConstraint", "Melody absolute step size"],
 	["AscendingMelodySoftConstraint", "Ascending Melody"],
 	["DescendingMelodySoftConstraint", "Descending Melody"],
@@ -66,24 +65,6 @@ type NoteConstraintName = typeof noteConstraintTypesAndNames[number][1]
 export const noteConstraintTypeToName = new Map<NoteConstraintType, NoteConstraintName>(noteConstraintTypesAndNames)
 
 export const noteConstraintOptions = Array.from(noteConstraintTypeToName.entries()).map(([value, label]) => ({ value, label }))
-
-type ConstraintTextConfigResult = undefined | string
-export const constraintTextConfig = (constraintType: string) : ConstraintTextConfigResult => {
-	switch (constraintType) {
-		case "ChordInKeyConstraint": return undefined
-		case "ChordRootAbsoluteStepSizeHardConstraint": return "Allowed intervals in semitones, separated by spaces"
-		case "PlagalCadenceSoftConstraint": return "Amount of boost"
-		case "PerfectCadenceSoftConstraint": return "Amount of boost"
-		case "NoteInKeyHardConstraint": return undefined
-		case "MelodyAbsoluteStepSizeHardConstraint": return "Allowed intervals in semitones, separated by spaces"
-		case "AscendingMelodySoftConstraint": return "Amount of boost"
-		case "DescendingMelodySoftConstraint": return "Amount of boost"
-		case "MelodyEndsOnNoteHardConstraint": return undefined
-		case "MelodyStartsOnNoteHardConstraint": return undefined
-		case "MelodyInRangeHardConstraint": return "Lowest note and highest note separated by a space"
-		default: throw new Error(`Unknown constraint type: ${constraintType}`)
-	}
-}
 
 interface ConversionProps {
 	keyGrabber: Grabber<MusicalKey>
@@ -107,7 +88,7 @@ type NoteConversionProps = {
 
 export const convertIRToNoteConstraint = ({ir, keyGrabber}: NoteConversionProps) : Constraint<OctavedNote> => {
 	switch (ir.type) {
-		case "NoteInKeyHardConstraint": return new NoteInKeyHardConstraint(keyGrabber)
+		case "MelodyInKeyHardConstraint": return new MelodyInKeyHardConstraint(keyGrabber)
 		case "MelodyAbsoluteStepSizeHardConstraint": return new MelodyAbsoluteStepSizeHardConstraint(constantGrabber(new Set(ir.stepSizes)))
 		case "AscendingMelodySoftConstraint": return new AscendingMelodySoftConstraint(ir.bonus)
 		case "DescendingMelodySoftConstraint": return new DescendingMelodySoftConstraint(ir.bonus)
@@ -129,7 +110,7 @@ export const initializeChordConstraint = (name: ChordConstraintType) : ChordCons
 
 export const initializeNoteConstraint = (name: NoteConstraintType) : NoteConstraintIR => {
 	switch (name) {
-		case "NoteInKeyHardConstraint": return NoteInKeyHardConstraintInit
+		case "MelodyInKeyHardConstraint": return MelodyInKeyHardConstraintInit
 		case "MelodyAbsoluteStepSizeHardConstraint": return MelodyAbsoluteStepSizeHardConstraintInit
 		case "AscendingMelodySoftConstraint": return AscendingMelodySoftConstraintInit
 		case "DescendingMelodySoftConstraint": return DescendingMelodySoftConstraintInit

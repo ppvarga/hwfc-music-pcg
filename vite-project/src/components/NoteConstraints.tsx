@@ -18,7 +18,7 @@ interface NoteConstraintConfigProps {
 
 function NoteConstraintConfig({ constraintIR, onConstraintChange, setValid}: NoteConstraintConfigProps) {
 	switch (constraintIR.type) {
-		case "NoteInKeyHardConstraint": return <></>
+		case "MelodyInKeyHardConstraint": return <></>
 		case "AscendingMelodySoftConstraint" : return	<SimpleConstraintConfigDiv>
 			<input
 				type="number"
@@ -178,7 +178,7 @@ export function NoteConstraints() {
 
 	return (
 		<>
-			<h3>Note constraints</h3>
+			<h3>Melody constraints</h3>
 			{noteConstraintSet.map((constraintIR, index) => (
 				<NoteConstraintDiv
 					key={index}

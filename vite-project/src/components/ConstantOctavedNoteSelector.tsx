@@ -19,7 +19,6 @@ export function ConstantOctavedNoteSelector({defaultValue, setResult, onChange, 
 			onChange(option) 
 		}))
 
-
 	const [note, setNote] = useState(defaultValue.note)
 	const [octave, setOctave] = useState(defaultValue.octave)
 
@@ -32,7 +31,6 @@ export function ConstantOctavedNoteSelector({defaultValue, setResult, onChange, 
 		setOctave(octave)
 		onChangeUsed({note, octave})
 	}
-
 
 	return <div className="constant-octaved-note-selector">
 		{label && <p>{label}</p>}

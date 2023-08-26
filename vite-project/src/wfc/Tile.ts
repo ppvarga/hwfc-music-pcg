@@ -8,7 +8,6 @@ export interface TileProps<T> {
   next? : Tile<T>;
 }
 
-
 export class Tile<T> {
 	private prev! : Tile<T>
 	private next! : Tile<T>

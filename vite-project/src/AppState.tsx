@@ -4,7 +4,7 @@ import { MajorKey, MinorKey } from "./music_theory/MusicalKey"
 import { Note, OctavedNote } from "./music_theory/Note"
 import { SelectOption } from "./components/utils"
 import { ChordInKeyHardConstraintInit } from "./wfc/constraints/ChordInKeyHardConstraint"
-import { NoteInKeyHardConstraintInit } from "./wfc/constraints/NoteInKeyHardConstraint"
+import { MelodyInKeyHardConstraintInit } from "./wfc/constraints/MelodyInKeyHardConstraint"
 import { MelodyInRangeHardConstraintInit } from "./wfc/constraints/MelodyInRangeHardConstraint"
 import { ChordConstraintIR, NoteConstraintIR } from "./wfc/constraints/constraintUtils"
 import { ChordRootAbsoluteStepSizeHardConstraintInit } from "./wfc/constraints/ChordRootAbsoluteStepSizeHardConstraint"
@@ -54,7 +54,7 @@ function AppState() {
 		setChordConstraintSet(newConstraintSet)
 	}
 
-	const basicNoteConstraintSet = [NoteInKeyHardConstraintInit, MelodyInRangeHardConstraintInit] as NoteConstraintIR[]
+	const basicNoteConstraintSet = [MelodyInKeyHardConstraintInit, MelodyInRangeHardConstraintInit] as NoteConstraintIR[]
 	const [noteConstraintSet, setNoteConstraintSet] = useState(basicNoteConstraintSet)
 
 	const addNoteConstraint = (constraint: NoteConstraintIR) => {
@@ -115,7 +115,6 @@ export const useAppContext = () => {
 	}
 	return context
 }
-
 
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 	const appState = AppState()

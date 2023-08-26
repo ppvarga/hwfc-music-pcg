@@ -30,7 +30,6 @@ function finishMidi(tracks: MidiWriter.Track[], setSrc: (url: string) => void): 
 	setSrc(url)
 }
 
-
 export function chordResultToMidi(chordResult: ChordResult, setSrc: (url: string) => void): void {
 	const chordTrack = chordToMidi(chordResult.chord, chordResult.notes.length)
 
@@ -71,7 +70,6 @@ export function chordResultWithRhythmToMidi(chordResultWithRhythm: ChordResultWi
 export function chordResultsWithRhythmToMidi(chordResultsWithRhythm: ChordResultWithRhythm[], setSrc: (url: string) => void){
 	const chordTrack = new MidiWriter.Track()
 	const noteTrack = new MidiWriter.Track()
-
   
 	let wait = 0
 	chordResultsWithRhythm.forEach((chordResultWithRhythm) => {

@@ -24,4 +24,3 @@ export abstract class NoteSet {
 	}
 }
 
-

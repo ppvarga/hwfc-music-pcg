@@ -54,8 +54,6 @@ export function Output(){
 		}
 	}
 
-
-
 	return <div className="main-column">
 		<h2>Output</h2>
 		<label>
