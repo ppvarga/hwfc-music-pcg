@@ -4,17 +4,19 @@ import Select from "react-select"
 import { selectStyles } from "../styles"
 import { SelectOption } from "./utils"
 import { ConstantNoteSelector } from "./ConstantNoteSelector"
+import { RhythmSettings } from "./RhythmSettings"
 
 export function GlobalSettings() {
 
-	const {numChords, setNumChords, numNotesPerChord, setNumNotesPerChord} = useAppContext()
+	const {numChords, setNumChords, melodyLength, setMelodyLength} = useAppContext()
 	return <div className="main-column">
 		<h2>Global settings</h2>
 		<h3>Number of chords</h3>
 		<input type="number" value={numChords} onChange={(e) => setNumChords(parseInt(e.target.value))} min={1} max={16}/>
-		<h3>Number of notes per chord</h3>
-		<input type="number" value={numNotesPerChord} onChange={(e) => setNumNotesPerChord(parseInt(e.target.value))} min={1} max={16}/>
+		<h3>Melody length</h3>
+		<input type="number" value={melodyLength} onChange={(e) => setMelodyLength(parseInt(e.target.value))} min={1} max={16}/>
 		<GlobalKeySelector/>
+		<RhythmSettings/>
 	</div>
 }
 

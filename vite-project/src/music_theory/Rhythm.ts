@@ -9,6 +9,10 @@ export function durationOfRhythmPattern(pattern: RhythmPattern){
 	return pattern.reduce((sum, unit) => sum + unit.duration, 0)
 }
 
+export function numberOfNotesInRhythmPattern(pattern: RhythmPattern){
+	return pattern.filter(unit => unit.type == "note").length
+}
+
 function abstractPatternsForLength(length: number){
 	if(length < 0) throw new Error("Pattern can't have negative length")
 

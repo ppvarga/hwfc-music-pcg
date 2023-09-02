@@ -50,10 +50,11 @@ export function chordResultWithRhythmToMidi(chordResultWithRhythm: ChordResultWi
 	const noteTrack = new MidiWriter.Track()
 
 	let wait = 0
-	chordResultWithRhythm.rhythmPattern.forEach((unit, index) => {
+	let noteIndex = 0
+	chordResultWithRhythm.rhythmPattern.forEach((unit) => {
 		if(unit.type == "note"){
 			noteTrack.addEvent(new MidiWriter.NoteEvent({
-				pitch: noteToPitch(chordResultWithRhythm.notes[index]),
+				pitch: noteToPitch(chordResultWithRhythm.notes[noteIndex++]),
 				duration: `T${unit.duration * 128}`,
 				sequential: true,
 				wait: `T${wait}`,
@@ -75,10 +76,11 @@ export function chordResultsWithRhythmToMidi(chordResultsWithRhythm: ChordResult
 	chordResultsWithRhythm.forEach((chordResultWithRhythm) => {
 		chordToMidi(chordResultWithRhythm.chord, durationOfRhythmPattern(chordResultWithRhythm.rhythmPattern), chordTrack)
 
-		chordResultWithRhythm.rhythmPattern.forEach((unit, index) => {
+		let noteIndex = 0
+		chordResultWithRhythm.rhythmPattern.forEach((unit) => {
 			if(unit.type == "note"){
 				noteTrack.addEvent(new MidiWriter.NoteEvent({
-					pitch: noteToPitch(chordResultWithRhythm.notes[index]),
+					pitch: noteToPitch(chordResultWithRhythm.notes[noteIndex++]),
 					duration: `T${unit.duration * 128}`,
 					sequential: true,
 					wait: `T${wait}`,

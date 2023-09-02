@@ -38,8 +38,8 @@ function NoteTile({index, initialOptions} : NoteTileProps) {
 }
 
 export function NoteTiles() {
-	const {numNotesPerChord, noteOptionsPerCell} = useAppContext()
-	const arr = Array(numNotesPerChord).fill(0)
+	const {melodyLength, noteOptionsPerCell} = useAppContext()
+	const arr = Array(melodyLength).fill(0)
 
 	return <>
 		<h3>Notes</h3>

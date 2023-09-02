@@ -1,5 +1,5 @@
 import { OctavedNote } from "../../music_theory/Note"
-import { RhythmPattern } from "../../music_theory/Rhythm"
+import { RhythmPattern, numberOfNotesInRhythmPattern } from "../../music_theory/Rhythm"
 import { Random } from "../../util/Random"
 import { zip } from "../../util/utils"
 import { HigherValues } from "../HigherValues"
@@ -56,7 +56,7 @@ export class ChordLevelNode {
 			if(chord instanceof ChordPrototype) {
 				actualNoteCanvasProps = this.noteCanvasProps.union(chord.getNoteCanvasProps())
 			}
-			actualNoteCanvasProps.setSize(rhythmPattern.length)
+			actualNoteCanvasProps.setSize(numberOfNotesInRhythmPattern(rhythmPattern))
 			const noteLevelNode = new NoteLevelNode(actualNoteCanvasProps, this.higherValues.copyWithChord(chordValue), this.rhythmPatternCanvas.getRandom())
 			return {
 				chord: chordValue,

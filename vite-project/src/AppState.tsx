@@ -11,7 +11,11 @@ import { ChordRootAbsoluteStepSizeHardConstraintInit } from "./wfc/constraints/C
 
 function AppState() {
 	const [numChords, setNumChords] = useState(4)
-	const [numNotesPerChord, setNumNotesPerChord] = useState(4)
+	const [melodyLength, setMelodyLength] = useState(4)
+	const [minNumNotes, setMinNumNotes] = useState(3)
+	const [maxRestLength, setMaxRestLength] = useState(1)
+	const [useRhythm, setUseRhythm] = useState(false)
+	const [startOnNote, setStartOnNote] = useState(true)
 	const [keyRoot, setKeyRoot] = useState(Note.C)
 	const [keyType, setKeyType] = useState({label: "Major", value: "major"} as SelectOption)
 
@@ -91,8 +95,8 @@ function AppState() {
 		setChordOptionsPerCell,
 		noteOptionsPerCell,
 		setNoteOptionsPerCell,
-		numNotesPerChord,
-		setNumNotesPerChord,
+		melodyLength,
+		setMelodyLength,
 		removeChordConstraint,
 		noteConstraintSet,
 		setNoteConstraintSet,
@@ -101,6 +105,14 @@ function AppState() {
 		keyGrabber,
 		handleChordConstraintChange,
 		handleNoteConstraintChange,
+		minNumNotes,
+		setMinNumNotes,
+		useRhythm,
+		setUseRhythm,
+		startOnNote,
+		setStartOnNote,
+		maxRestLength,
+		setMaxRestLength,
 	}
 }
 

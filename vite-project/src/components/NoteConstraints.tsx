@@ -111,8 +111,8 @@ function NoteConstraintConfig({ constraintIR, onConstraintChange, setValid}: Not
 			</>
 		}
 		case "MelodyShapeHardConstraint" : {
-			const {numNotesPerChord} = useAppContext()
-			const shapeSize = numNotesPerChord - 1
+			const {melodyLength} = useAppContext()
+			const shapeSize = melodyLength - 1
 
 			const setShape = (shape: MelodyShape) => {
 				onConstraintChange({...constraintIR, shape})
@@ -179,6 +179,7 @@ export function NoteConstraints() {
 	return (
 		<>
 			<h3>Melody constraints</h3>
+			<AddNoteConstraint onAddConstraint={addNoteConstraint} />
 			{noteConstraintSet.map((constraintIR, index) => (
 				<NoteConstraintDiv
 					key={index}
@@ -187,7 +188,6 @@ export function NoteConstraints() {
 					onRemove={() => removeNoteConstraint(index)}
 				/>
 			))}
-			<AddNoteConstraint onAddConstraint={addNoteConstraint} />
 		</>
 	)
 }

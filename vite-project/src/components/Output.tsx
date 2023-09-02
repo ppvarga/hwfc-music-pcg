@@ -13,14 +13,11 @@ import { RestMaximumLengthHardConstraint } from "../wfc/constraints/RestMaximumL
 import { ChordLevelNode } from "../wfc/hierarchy/ChordLevelNode"
 import { HigherValues } from "../wfc/HigherValues"
 import { convertIRToChordConstraint, convertIRToNoteConstraint } from "../wfc/constraints/constraintUtils"
+import { MinimumNumberOfNotesHardConstraint } from "../wfc/constraints/MinimumNumberOfNotesHardConstraint"
 
 export function Output(){
 	const [src, setSrc] = useState("")
-	const [useRhythm, setUseRhythm] = useState(false)
-
-	const switchUseRhythm = () => setUseRhythm(!useRhythm)
-
-	const {inferKey, numChords, chordOptionsPerCell, chordConstraintSet, numNotesPerChord, noteOptionsPerCell, noteConstraintSet, keyGrabber} = useAppContext()
+	const {inferKey, numChords, chordOptionsPerCell, chordConstraintSet, melodyLength, noteOptionsPerCell, noteConstraintSet, keyGrabber, useRhythm, minNumNotes, startOnNote, maxRestLength} = useAppContext()
 
 	const chordesqueCanvasProps = new TileCanvasProps(
 		numChords,
@@ -29,7 +26,7 @@ export function Output(){
 	)
 
 	const noteCanvasProps = new TileCanvasProps(
-		numNotesPerChord,
+		melodyLength,
 		new OptionsPerCell(OctavedNote.all(), noteOptionsPerCell),
 		new ConstraintSet(noteConstraintSet.map(noteConstraint => convertIRToNoteConstraint({ir: noteConstraint, keyGrabber}))),
 	)
@@ -39,9 +36,9 @@ export function Output(){
 			noteCanvasProps,
 			chordesqueCanvasProps,
 			rhythmPatternCanvasProps: new TileCanvasProps(
-				4,
-				new OptionsPerCell(rhythmPatternsForLength(4, 3, true)),
-				new ConstraintSet([new RestMaximumLengthHardConstraint(2)])
+				numChords,
+				new OptionsPerCell(rhythmPatternsForLength(melodyLength, minNumNotes, startOnNote)),
+				new ConstraintSet([new RestMaximumLengthHardConstraint(maxRestLength), new MinimumNumberOfNotesHardConstraint(minNumNotes)])
 			),
 			random: new Random(),
 			higherValues: new HigherValues({key: inferKey()})
@@ -56,11 +53,6 @@ export function Output(){
 
 	return <div className="main-column">
 		<h2>Output</h2>
-		<label>
-        Use rhythm
-			<input type="checkbox" checked={useRhythm} onChange={switchUseRhythm}/>
-		</label>
-		<br />
 		<button onClick={updatePlayer}>
         Generate
 		</button>

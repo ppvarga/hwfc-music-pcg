@@ -121,6 +121,7 @@ export function ChordConstraints() {
 	return (
 		<>
 			<h3>Chord constraints</h3>
+			<AddChordConstraint onAddConstraint={addChordConstraint}/>
 			{chordConstraintSet.map((constraintIR, index) => {
 				return <ChordConstraintDiv
 					key={index}
@@ -129,7 +130,6 @@ export function ChordConstraints() {
 					onRemove={() => removeChordConstraint(index)}
 				/>
 			})}
-			<AddChordConstraint onAddConstraint={addChordConstraint}/>
 		</>
 	)
 }
