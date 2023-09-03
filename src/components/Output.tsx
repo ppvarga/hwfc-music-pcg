@@ -1,9 +1,9 @@
 import { useState } from "react"
 import { useAppContext } from "../AppState"
-import { MidiPlayer, MidiVisualizer } from "../MidiPlayer"
+import { MidiPlayer } from "../MidiPlayer"
 import { chordResultsWithRhythmToMidi, sectionResultToMidi } from "../audio/midi"
 import { Chord } from "../music_theory/Chord"
-import { OctavedNote } from "../music_theory/Note"
+import { Note, OctavedNote } from "../music_theory/Note"
 import { rhythmPatternsForLength } from "../music_theory/Rhythm"
 import { Random } from "../util/Random"
 import { ConstraintSet } from "../wfc/ConstraintSet"
@@ -17,6 +17,7 @@ import { MinimumNumberOfNotesHardConstraint } from "../wfc/constraints/MinimumNu
 
 export function Output(){
 	const [src, setSrc] = useState("")
+	console.log(src)
 	const {inferKey, numChords, chordOptionsPerCell, chordConstraintSet, melodyLength, noteOptionsPerCell, noteConstraintSet, keyGrabber, useRhythm, minNumNotes, startOnNote, maxRestLength} = useAppContext()
 
 	const chordesqueCanvasProps = new TileCanvasProps(
@@ -57,8 +58,11 @@ export function Output(){
         Generate
 		</button>
 		<br />
-		{src && <><MidiPlayer
-			id="myPlayer" visualizer="#myVisualizer" src={src} />
-		<MidiVisualizer type="piano-roll" id="myVisualizer" /></>}
+		<MidiPlayer notes={[
+			{octavedNote: new OctavedNote(Note.G, 5), startTime: 0, duration: 0.5},
+			{octavedNote: new OctavedNote(Note.D, 5), startTime: 0.5, duration: 0.5},
+			{octavedNote: new OctavedNote(Note.E, 5), startTime: 1, duration: 0.5},
+			{octavedNote: new OctavedNote(Note.F, 5), startTime: 1.5, duration: 0.5},
+		]}/>
 	</div>
 }

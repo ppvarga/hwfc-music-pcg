@@ -130,5 +130,9 @@ export class OctavedNote {
 			ir.octave
 		)
 	}
+
+	public toY(): number {
+		return this.toMIDIValue() * 20
+	}
 }
 
