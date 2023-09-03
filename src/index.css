@@ -1,5 +1,5 @@
 html {
-  background: linear-gradient(rgba(0, 0, 0, 0.70), rgba(0, 0, 0, 0.70)), url("assets/piano.jpg");
+  background: linear-gradient(rgba(0, 0, 0, 0.70), rgba(0, 0, 0, 0.70)), url("../piano.jpg");
   background-size: cover; /* This ensures the image covers the viewport */
   background-attachment: fixed;
   background-color: #242424;

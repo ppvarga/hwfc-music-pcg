@@ -132,7 +132,7 @@ export class OctavedNote {
 	}
 
 	public toY(): number {
-		return this.toMIDIValue() * 20
+		return this.toMIDIValue() * 10
 	}
 }
 

@@ -21,7 +21,7 @@ function NoteTile({index, initialOptions} : NoteTileProps) {
 				<h3>Set options for note at position {index}</h3>
 				<div style={{display: "flex", gap: "0.5em"}}>
 					<input type="text" onChange={e => setInput(e.target.value)} value={input} style={{flex: 1}}/>
-					<img src="src\assets\hint.png" title="Try 'C5' or 'E5 F5'" width="30px" height="30px"/> <br/>
+					<img src="hint.png" title="Try 'C5' or 'E5 F5'" width="30px" height="30px"/> <br/>
 				</div>
 				<br/>
 				<p>Leaving this empty means allowing all notes</p>

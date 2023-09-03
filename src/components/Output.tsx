@@ -1,9 +1,9 @@
 import { useState } from "react"
 import { useAppContext } from "../AppState"
-import { MidiPlayer } from "../MidiPlayer"
-import { chordResultsWithRhythmToMidi, sectionResultToMidi } from "../audio/midi"
+import { MidiPlayer, NoteOutput } from "./MidiPlayer"
+import { sectionResultToOutput, sectionResultWithRhythmToOutput } from "../audio/midi"
 import { Chord } from "../music_theory/Chord"
-import { Note, OctavedNote } from "../music_theory/Note"
+import { OctavedNote } from "../music_theory/Note"
 import { rhythmPatternsForLength } from "../music_theory/Rhythm"
 import { Random } from "../util/Random"
 import { ConstraintSet } from "../wfc/ConstraintSet"
@@ -16,9 +16,8 @@ import { convertIRToChordConstraint, convertIRToNoteConstraint } from "../wfc/co
 import { MinimumNumberOfNotesHardConstraint } from "../wfc/constraints/MinimumNumberOfNotesHardConstraint"
 
 export function Output(){
-	const [src, setSrc] = useState("")
-	console.log(src)
-	const {inferKey, numChords, chordOptionsPerCell, chordConstraintSet, melodyLength, noteOptionsPerCell, noteConstraintSet, keyGrabber, useRhythm, minNumNotes, startOnNote, maxRestLength} = useAppContext()
+	const [output, setOutput] = useState<[NoteOutput[], number]>([[], 0])
+	const {inferKey, numChords, chordOptionsPerCell, chordConstraintSet, melodyLength, noteOptionsPerCell, noteConstraintSet, keyGrabber, minNumNotes, startOnNote, maxRestLength, useRhythm} = useAppContext()
 
 	const chordesqueCanvasProps = new TileCanvasProps(
 		numChords,
@@ -46,9 +45,9 @@ export function Output(){
 		})
 
 		if(useRhythm){
-			chordResultsWithRhythmToMidi(node.generateWithRhythm(), setSrc)
+			setOutput(sectionResultWithRhythmToOutput(node.generateWithRhythm()))
 		} else {
-			sectionResultToMidi(node.generateWithoutRhythm(), setSrc)
+			setOutput(sectionResultToOutput(node.generateWithoutRhythm()))
 		}
 	}
 
@@ -58,11 +57,6 @@ export function Output(){
         Generate
 		</button>
 		<br />
-		<MidiPlayer notes={[
-			{octavedNote: new OctavedNote(Note.G, 5), startTime: 0, duration: 0.5},
-			{octavedNote: new OctavedNote(Note.D, 5), startTime: 0.5, duration: 0.5},
-			{octavedNote: new OctavedNote(Note.E, 5), startTime: 1, duration: 0.5},
-			{octavedNote: new OctavedNote(Note.F, 5), startTime: 1.5, duration: 0.5},
-		]}/>
+		<MidiPlayer notes={output[0]} length={output[1]}/>
 	</div>
 }
