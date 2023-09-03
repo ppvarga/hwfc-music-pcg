@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { useAppContext } from "../AppState"
-import { MidiPlayer, MidiVisualizer } from "../MidiPlayer"
-import { chordResultsWithRhythmToMidi, sectionResultToMidi } from "../audio/midi"
+import { MidiPlayer, NoteOutput } from "./MidiPlayer"
+import { sectionResultToOutput, sectionResultWithRhythmToOutput } from "../audio/midi"
 import { Chord } from "../music_theory/Chord"
 import { OctavedNote } from "../music_theory/Note"
 import { rhythmPatternsForLength } from "../music_theory/Rhythm"
@@ -16,8 +16,8 @@ import { convertIRToChordConstraint, convertIRToNoteConstraint } from "../wfc/co
 import { MinimumNumberOfNotesHardConstraint } from "../wfc/constraints/MinimumNumberOfNotesHardConstraint"
 
 export function Output(){
-	const [src, setSrc] = useState("")
-	const {inferKey, numChords, chordOptionsPerCell, chordConstraintSet, melodyLength, noteOptionsPerCell, noteConstraintSet, keyGrabber, useRhythm, minNumNotes, startOnNote, maxRestLength} = useAppContext()
+	const [output, setOutput] = useState<[NoteOutput[], number]>([[], 0])
+	const {inferKey, numChords, chordOptionsPerCell, chordConstraintSet, melodyLength, noteOptionsPerCell, noteConstraintSet, keyGrabber, minNumNotes, startOnNote, maxRestLength, useRhythm} = useAppContext()
 
 	const chordesqueCanvasProps = new TileCanvasProps(
 		numChords,
@@ -45,9 +45,9 @@ export function Output(){
 		})
 
 		if(useRhythm){
-			chordResultsWithRhythmToMidi(node.generateWithRhythm(), setSrc)
+			setOutput(sectionResultWithRhythmToOutput(node.generateWithRhythm()))
 		} else {
-			sectionResultToMidi(node.generateWithoutRhythm(), setSrc)
+			setOutput(sectionResultToOutput(node.generateWithoutRhythm()))
 		}
 	}
 
@@ -57,8 +57,6 @@ export function Output(){
         Generate
 		</button>
 		<br />
-		{src && <><MidiPlayer
-			id="myPlayer" visualizer="#myVisualizer" src={src} />
-		<MidiVisualizer type="piano-roll" id="myVisualizer" /></>}
+		<MidiPlayer notes={output[0]} length={output[1]}/>
 	</div>
 }

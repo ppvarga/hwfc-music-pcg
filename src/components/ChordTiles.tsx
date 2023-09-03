@@ -19,7 +19,7 @@ function ChordTile({ index, initialOptions } : ChordTileProps) {
 			<h3>Set options for chord at position {index}</h3>
 			<div style={{display: "flex", gap: "0.5em"}}>
 				<input type="text" onChange={e => setInput(e.target.value)} value={input} style={{flex: 1}}/>
-				<img src="src\assets\hint.png" title="Try 'Dm' or 'C F'" width="30px" height="30px"/> <br/>
+				<img src="hint.png" title="Try 'Dm' or 'C F'" width="30px" height="30px"/> <br/>
 			</div>
 			<br />
 			<p>Leaving this empty means allowing all chords</p>
