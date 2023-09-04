@@ -16,13 +16,16 @@ export type NoteOutput = {
 type MidiPlayerProps = {
   notes: NoteOutput[];
   length: number;
+  isPlaying: boolean;
+  setIsPlaying: (isPlaying: boolean) => void;
 };
 
-export function MidiPlayer({ notes, length }: MidiPlayerProps) {
+export function MidiPlayer({ notes, length , isPlaying, setIsPlaying}: MidiPlayerProps) {
 	const canvasRef = useRef<HTMLCanvasElement>(null)
 	const [currentNotesIndices, setCurrentNotesIndices] = useState<number[]>([])
-	const [isPlaying, setIsPlaying] = useState(false)
 	const synthRef = useRef(new PolySynth(Synth).toDestination())
+	const [volume, setVolume] = useState(-25)
+	synthRef.current.volume.setValueAtTime(volume, new AudioContext().currentTime)
 
 	const yPositions = notes.map(note => note.octavedNote.toY())
 	const normalizedYPositions = normalizeYPositions(yPositions)
@@ -38,6 +41,12 @@ export function MidiPlayer({ notes, length }: MidiPlayerProps) {
 		Transport.cancel()
 		Transport.stop()
 		synthRef.current.releaseAll()
+	}
+
+	const handleVolumeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+		const newVolume = parseFloat(event.target.value)
+		setVolume(newVolume)
+		synthRef.current.volume.setValueAtTime(newVolume, new AudioContext().currentTime)
 	}
 
 	const handleTogglePlayback = () => {
@@ -92,13 +101,28 @@ export function MidiPlayer({ notes, length }: MidiPlayerProps) {
 
 	return (
 		notes.length > 0 &&
-		<div style={{paddingTop:"1em"}}>
+		<div style={{ paddingTop: "1em" }}>
 			<button onClick={handleTogglePlayback}>
-				{isPlaying ? "Stop" : "Play"}
+				{isPlaying ? "■" : "▶"}
 			</button>
-			<div style={{ overflowX: "scroll" , paddingTop: "1em"}}>
-				<canvas ref={canvasRef} width={length * 35} height={canvasHeight}></canvas>
+			<br />
+			<div style={{padding: "1em"}}>
+				<label>
+					🔉
+					<input
+						type="range"
+						min="-50"
+						max="0"
+						step="0.1"
+						value={volume}
+						onChange={handleVolumeChange}
+						style={{ marginLeft: "5px", verticalAlign: "middle" }}
+					/>
+				</label>
 			</div>
+			<div style={{ overflowX: "scroll", paddingTop: "1em" }}>
+				<canvas ref={canvasRef} width={length * 35} height={canvasHeight}></canvas>
+			</div>	
 		</div>
 	)
 }

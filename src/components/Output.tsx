@@ -17,6 +17,7 @@ import { MinimumNumberOfNotesHardConstraint } from "../wfc/constraints/MinimumNu
 
 export function Output(){
 	const [output, setOutput] = useState<[NoteOutput[], number]>([[], 0])
+	const [isPlaying, setIsPlaying] = useState(false)
 	const {inferKey, numChords, chordOptionsPerCell, chordConstraintSet, melodyLength, noteOptionsPerCell, noteConstraintSet, keyGrabber, minNumNotes, startOnNote, maxRestLength, useRhythm} = useAppContext()
 
 	const chordesqueCanvasProps = new TileCanvasProps(
@@ -53,10 +54,10 @@ export function Output(){
 
 	return <div className="main-column">
 		<h2>Output</h2>
-		<button onClick={updatePlayer}>
+		<button onClick={updatePlayer} disabled={isPlaying}>
         Generate
 		</button>
 		<br />
-		<MidiPlayer notes={output[0]} length={output[1]}/>
+		<MidiPlayer notes={output[0]} length={output[1]} isPlaying={isPlaying} setIsPlaying={setIsPlaying}/>
 	</div>
 }
