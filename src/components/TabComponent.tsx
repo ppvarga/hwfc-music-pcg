@@ -18,9 +18,9 @@ const TabComponent: React.FC<TabComponentProps> = ({ tabs }) => {
 			<div style={{ display: "flex"}}>
 				{tabs.map((tab, index) => (
 					<>
-						<div style={{width: "10px", borderBottom: "1px white solid"}}/>
+						<div key={2*index} style={{width: "10px", borderBottom: "1px white solid"}}/>
 						<Tab
-							key={index}
+							key={2*index+1}
 							title={tab.title}
 							isActive={index === activeTabIndex}
 							onClick={() => setActiveTabIndex(index)}
@@ -31,7 +31,7 @@ const TabComponent: React.FC<TabComponentProps> = ({ tabs }) => {
 			</div>
             
 			<div style={{overflowY: "auto", flexGrow: 1}}>
-				{tabs[activeTabIndex].content}
+				{{...tabs[activeTabIndex].content, key: activeTabIndex}}
 			</div>
 		</div>
 	)

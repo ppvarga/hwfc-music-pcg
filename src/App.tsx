@@ -7,8 +7,10 @@ import { ChordTiles } from "./components/ChordTiles"
 import { NoteConstraints } from "./components/NoteConstraints"
 import { NoteTiles } from "./components/NoteTiles"
 import TabComponent from "./components/TabComponent"
+import { ChordPrototypesPage } from "./components/ChordPrototypesPage"
 
 function App() {
+
 	const tabs = [
 		{
 			title: "Main",
@@ -30,10 +32,11 @@ function App() {
 			</>
 		},
 		{
-			title: "asd",
-			content: <h1>asd</h1>
+			title: "Chord prototypes",
+			content: <ChordPrototypesPage/>
 		}
 	]
+
 	return (
 		<AppProvider>
 			<h1>WFC Music</h1>		

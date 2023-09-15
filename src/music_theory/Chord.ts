@@ -5,6 +5,10 @@ import { NoteSet } from "./NoteSet"
 
 export type ConcreteChordQuality = "major" | "minor" | "diminished" | "augmented"
 export type ChordQuality = ConcreteChordQuality | null
+export type ChordIR = {
+	root: Note
+	quality: ChordQuality
+}
 
 export class Chord extends NoteSet implements Chordesque{
 	protected third: Note
@@ -62,8 +66,8 @@ export class Chord extends NoteSet implements Chordesque{
 		return `${this.root}${this.noteValues.map((value) => `+${value}`).join("")}`
 	}
 
-	static parseChordString(chordString: string): Chord {
-		if(!(["A", "B", "C", "D", "E", "F", "G"].includes(chordString[0]))) throw new Error("Invalid chord string")
+	static parseChordString(chordString: string): Chord | undefined {
+		if(!(["A", "B", "C", "D", "E", "F", "G"].includes(chordString[0]))) return undefined
 
 		const endOfRoot = chordString[1] == "#" ? 2 : 1
 		const root = chordString.slice(0,endOfRoot) as Note
@@ -74,13 +78,14 @@ export class Chord extends NoteSet implements Chordesque{
 		if(quality == "°") return new DiminishedChord(root)
 		if(quality == "+") return new AugmentedChord(root)
 
-		const noteValues = quality.split("+").map((value) => parseInt(value))
-		return new Chord(root, noteValues)
+		return undefined
 	}
 
-	static parseChordsString(chordsString: string): Chord[] {
+	static parseChordsString(chordsString: string): Chord[] | undefined {
 		if(chordsString == "") return []
-		return chordsString.split(" ").map((chordString) => Chord.parseChordString(chordString))
+		const res = chordsString.trim().split(" ").map((chordString) => Chord.parseChordString(chordString))
+		if(res.includes(undefined)) return undefined
+		return res as Chord[]
 	}
 
 }

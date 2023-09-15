@@ -10,3 +10,15 @@ export const selectStyles = {
 		flex: 1,
 	}),
 }
+
+export const buttonStyles = {
+	display: "flex",
+	gap: "0.5em", 
+	padding: "0.5em",
+	marginBottom: "1em",
+	border: "1px solid",
+	borderRadius: "0.5em",
+	color: "white",
+	borderColor: "white",
+	cursor: "pointer",
+}

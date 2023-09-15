@@ -1,7 +1,8 @@
-import { Chord } from "../../music_theory/Chord"
-import { OctavedNote } from "../../music_theory/Note"
+import { Chord, ChordQuality } from "../../music_theory/Chord"
+import { Note, OctavedNote } from "../../music_theory/Note"
 import { RhythmPattern } from "../../music_theory/Rhythm"
 import { TileCanvasProps } from "../TileCanvas"
+import { NoteConstraintIR } from "../constraints/constraintUtils"
 
 export interface Chordesque {
   getChord: () => Chord
@@ -30,6 +31,24 @@ export class ChordPrototype implements Chordesque {
 		return this.noteCanvasProps
 	}
 }
+
+export const ChordPrototypeInit = (id: number) => {
+	return {
+		name: "",
+		id: id,
+		noteCanvasProps: {
+			size: 4,
+			optionsPerCell: new Map<number, OctavedNote[]>(),
+			constraints: [] as NoteConstraintIR[],
+		},
+		chord: {
+			root: Note.C,
+			quality: "major" as ChordQuality,
+		}
+	}
+}
+
+export type ChordPrototypeIR = ReturnType<typeof ChordPrototypeInit>
 
 export class Section {
 	private noteCanvasProps: TileCanvasProps<OctavedNote>

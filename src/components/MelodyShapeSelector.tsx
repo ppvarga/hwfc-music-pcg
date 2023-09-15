@@ -31,11 +31,12 @@ function MelodyStepTile({ step, setStep}: MelodyStepTileProps) {
 interface MelodyShapeSelectorProps {
   size: number
   setResult: (shape: MelodyShape) => void
+  startValue?: MelodyShape
 }
 
-export function MelodyShapeSelector({ size, setResult }: MelodyShapeSelectorProps) {
+export function MelodyShapeSelector({ size, setResult, startValue }: MelodyShapeSelectorProps) {
 	const wildcard: MelodyStep = "wildcard"
-	const [shape, setShape] = useState<MelodyShape>(Array(size).fill(wildcard))
+	const [shape, setShape] = useState<MelodyShape>(startValue || Array(size).fill(wildcard))
 
 	useEffect(() => {
 		setResult(shape)
