@@ -5,6 +5,7 @@ import { TileCanvasProps } from "../TileCanvas"
 import { NoteConstraintIR } from "../constraints/constraintUtils"
 
 export interface Chordesque {
+	getName(): string
   getChord: () => Chord
 }
 

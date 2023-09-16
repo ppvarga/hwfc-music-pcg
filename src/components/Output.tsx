@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useAppContext } from "../AppState"
-import { MidiPlayer, NoteOutput } from "./MidiPlayer"
+import { MidiPlayer } from "./MidiPlayer"
 import { sectionResultToOutput, sectionResultWithRhythmToOutput } from "../audio/midi"
 import { Chord } from "../music_theory/Chord"
 import { OctavedNote } from "../music_theory/Note"
@@ -14,17 +14,14 @@ import { ChordLevelNode } from "../wfc/hierarchy/ChordLevelNode"
 import { HigherValues } from "../wfc/HigherValues"
 import { convertIRToChordConstraint, convertIRToNoteConstraint } from "../wfc/constraints/constraintUtils"
 import { MinimumNumberOfNotesHardConstraint } from "../wfc/constraints/MinimumNumberOfNotesHardConstraint"
+import { ChordPrototype } from "../wfc/hierarchy/prototypes"
+import { ChordPrototypeOnlyFollowedByConstraint } from "../wfc/constraints/ChordPrototypeOnlyFollowedByConstraint"
+import { constantGrabber } from "../wfc/grabbers/constantGrabbers"
+import { ChordPrototypeOnlyPrecededByConstraint } from "../wfc/constraints/ChordPrototypeOnlyPrecededByConstraint"
 
 export function Output(){
-	const [output, setOutput] = useState<[NoteOutput[], number]>([[], 0])
 	const [isPlaying, setIsPlaying] = useState(false)
-	const {inferKey, numChords, chordOptionsPerCell, chordConstraintSet, melodyLength, noteOptionsPerCell, noteConstraintSet, keyGrabber, minNumNotes, startOnNote, maxRestLength, useRhythm} = useAppContext()
-
-	const chordesqueCanvasProps = new TileCanvasProps(
-		numChords,
-		new OptionsPerCell(Chord.allBasicChords(), chordOptionsPerCell),
-		new ConstraintSet(chordConstraintSet.map(chordConstraint => convertIRToChordConstraint({ir: chordConstraint, keyGrabber}))),
-	)
+	const {output, setOutput, onlyUseChordPrototypes, chordPrototypes, inferKey, numChords, chordOptionsPerCell, chordConstraintSet, melodyLength, noteOptionsPerCell, noteConstraintSet, keyGrabber, minNumNotes, startOnNote, maxRestLength, useRhythm, } = useAppContext()
 
 	const noteCanvasProps = new TileCanvasProps(
 		melodyLength,
@@ -33,6 +30,52 @@ export function Output(){
 	)
 
 	function updatePlayer() {
+		const parsedChordPrototypes = []
+		const chordPrototypeConstraints = []
+
+		const properlyNamedChordPrototypes = chordPrototypes.map(proto => {
+			if(proto.name !== "") return proto
+			const protoName = `ChordPrototype${proto.id}`
+			return {...proto, name: protoName}
+		})
+		
+		for(const protoIR of properlyNamedChordPrototypes){
+			const noteCanvasProps = new TileCanvasProps(
+				protoIR.noteCanvasProps.size,
+				new OptionsPerCell(OctavedNote.all(), protoIR.noteCanvasProps.optionsPerCell),
+				new ConstraintSet(protoIR.noteCanvasProps.constraints.map(noteConstraint => convertIRToNoteConstraint({ir: noteConstraint, keyGrabber}))),
+			)
+			const proto = new ChordPrototype(protoIR.name, noteCanvasProps, Chord.fromIR(protoIR.chord))
+			parsedChordPrototypes.push(proto)
+
+			if(protoIR.restrictPrecedingChords){
+				if(protoIR.allowedPrecedingChords.every(chordName => {
+					if(properlyNamedChordPrototypes.some(proto => proto.name === chordName)) return true
+					return (Chord.parseChordString(chordName) !== undefined)
+				})){
+					chordPrototypeConstraints.push(new ChordPrototypeOnlyPrecededByConstraint(proto.getName(), constantGrabber(protoIR.allowedPrecedingChords)))
+				}
+			}
+
+			if(protoIR.restrictFollowingChords){
+				if(protoIR.allowedFollowingChords.every(chordName => {
+					if(properlyNamedChordPrototypes.some(proto => proto.name === chordName)) return true
+					return (Chord.parseChordString(chordName) !== undefined)
+				})){
+					chordPrototypeConstraints.push(new ChordPrototypeOnlyFollowedByConstraint(proto.getName(), constantGrabber(protoIR.allowedFollowingChords)))
+				}
+			}
+		}
+		
+		const chordesqueCanvasProps = new TileCanvasProps(
+			numChords,
+			new OptionsPerCell([
+				...parsedChordPrototypes,
+				...(onlyUseChordPrototypes ? [] : Chord.allBasicChords()),
+			], chordOptionsPerCell),
+			new ConstraintSet([...chordConstraintSet.map(chordConstraint => convertIRToChordConstraint({ir: chordConstraint, keyGrabber})), ...chordPrototypeConstraints]),
+		)
+
 		const node = new ChordLevelNode({
 			noteCanvasProps,
 			chordesqueCanvasProps,

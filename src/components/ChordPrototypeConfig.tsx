@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Note, OctavedNote } from "../music_theory/Note"
 import { ChordPrototypeIR } from "../wfc/hierarchy/prototypes"
 import { NoteConstraintIR } from "../wfc/constraints/constraintUtils"
@@ -73,22 +73,26 @@ export function ChordPrototypeConfig({prototype, removePrototype, onUpdate}: Cho
 	}
 
 	return <ChordPrototypeProvider env={env}>
-		<div style={{display: "flex", borderBottom: "1px solid grey", paddingBottom: "1em"}}>
+		<div style={{display: "flex", borderBottom: "1px solid grey", paddingBottom: "1em", flexDirection: "row", gap:"2em", alignItems:"end"}}>
 			<div style={{width: "15vw", display: "flex", flexDirection: "column", justifyContent: "left"}}>
 				Name:
 				<input type="text" value={prototype.name} placeholder={`ChordPrototype${prototype.id}`} onChange={(e) => {
 					onUpdate({name: e.target.value})
 				}}/>
 			</div>
-			<ChordSelector value={chordValue} setValue={(c) => {
-				setChordValue(c)
-				onUpdate({chord: c})
-			}}/>
+			<div style={{display: "flex", flexDirection: "column", justifyContent: "left"}}>
+				Value:
+				<ChordSelector value={chordValue} setValue={(c) => {
+					setChordValue(c)
+					onUpdate({chord: c})
+				}}/>
+			</div>
 			<div
 				style={{
 					...buttonStyles,
 					color: "red",
 					borderColor: "red",
+					cursor: "pointer",
 					marginLeft: "auto",
 				}}
 				onClick={removePrototype}>
@@ -175,9 +179,10 @@ function NeighborRules({inputLabel, checkboxLabel, restrict, setRestrict, allowe
 	}
 	
 	const isValid = (allowedSet: (string)[]) => {
+		if(restrict && allowedSet.length === 0) return false
 		let out = true
 		allowedSet.forEach(s => {
-			if(chordPrototypes.some(p => p.name === s)) return
+			if(chordPrototypes.some(p => p.name === s || p.name === "" && s === `ChordPrototype${p.id}`)) return
 			const chordIR = stringToChordIR(s)
 			if(chordIR) return
 			out = false
@@ -185,6 +190,10 @@ function NeighborRules({inputLabel, checkboxLabel, restrict, setRestrict, allowe
 		return out
 	}
 	const [valid, setValid] = useState(isValid(allowedSet))
+
+	useEffect(() => {
+		setValid(isValid(allowedSet))
+	}, [restrict, allowedSet])
 	
 	return <div style={{display: "flex", flexDirection: "column", gap: "1em"}}>
 		<div style={{display: "flex", justifyContent: "center", gap: "0.5em", marginTop:"2em"}}>
@@ -194,9 +203,7 @@ function NeighborRules({inputLabel, checkboxLabel, restrict, setRestrict, allowe
 		{ restrict && <>
 			<input type="text" value={allowedSet.map(createString).join(" ")}
 				placeholder={inputLabel} onChange={(e) => {
-					const newAllowed = e.target.value.split(" ")
-					setValid(isValid(newAllowed))
-					setAllowedSet(newAllowed)
+					setAllowedSet(e.target.value === "" ? [] : e.target.value.split(" "))
 				}}/>
 		</>}
 	</div>

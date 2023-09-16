@@ -9,6 +9,7 @@ import { MelodyInRangeHardConstraintInit } from "./wfc/constraints/MelodyInRange
 import { ChordConstraintIR, NoteConstraintIR } from "./wfc/constraints/constraintUtils"
 import { ChordRootAbsoluteStepSizeHardConstraintInit } from "./wfc/constraints/ChordRootAbsoluteStepSizeHardConstraint"
 import { ChordPrototypeIR } from "./wfc/hierarchy/prototypes"
+import { NoteOutput } from "./components/MidiPlayer"
 
 function AppState() {
 	//GLOBAL LENGTHS
@@ -92,6 +93,7 @@ function AppState() {
 	const [startOnNote, setStartOnNote] = useState(true)
 
 	//PROTOTYPES
+	const [onlyUseChordPrototypes, setOnlyUseChordPrototypes] = useState(false)
 	const [chordPrototypes, setChordPrototypes] = useState<ChordPrototypeIR[]>([])
 	const addChordPrototype = (prototype: ChordPrototypeIR) => {
 		setChordPrototypes([...chordPrototypes, prototype])
@@ -100,6 +102,9 @@ function AppState() {
 		const newPrototypes = [...chordPrototypes]
 		newPrototypes.splice(index, 1)
 		setChordPrototypes(newPrototypes)
+		if(newPrototypes.length === 0) {
+			setOnlyUseChordPrototypes(false)
+		}
 	}
 	const handleChordPrototypeChange = (index: number, prototype: ChordPrototypeIR) => {
 		const newPrototypes = [...chordPrototypes]
@@ -122,6 +127,9 @@ function AppState() {
 		const newNeighbors = [...(chordPrototypeAllowedNeighbors.filter(pair => pair !== neighborPair))]
 		setChordPrototypeAllowedNeighbors(newNeighbors)
 	}
+
+	//OUTPUT
+	const [output, setOutput] = useState<[NoteOutput[], number]>([[], 0])
 
 	return {
 		numChords,
@@ -169,6 +177,12 @@ function AppState() {
 		getNextChordPrototypeID,
 		addChordPrototypeAllowedNeighbor,
 		removeChordPrototypeAllowedNeighbor,
+		onlyUseChordPrototypes,
+		setOnlyUseChordPrototypes,
+
+		output,
+		setOutput,
+
 	}
 }
 

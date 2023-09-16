@@ -6,12 +6,14 @@ import { buttonStyles } from "../styles"
 
 export function ChordPrototypesPage() {
 	const [chosenPrototypeIndex, setChosenPrototypeIndex] = useState<number | undefined>(undefined)
-	const {chordPrototypes, addChordPrototype, removeChordPrototype, handleChordPrototypeChange, getNextChordPrototypeID} = useAppContext()
+	const {chordPrototypes, addChordPrototype, removeChordPrototype, handleChordPrototypeChange, getNextChordPrototypeID, onlyUseChordPrototypes, setOnlyUseChordPrototypes} = useAppContext()
 	
 	const updatePrototype = (index: number, changes: Partial<ChordPrototypeIR>) => {
 		const updatedPrototype = { ...chordPrototypes[index], ...changes }
 		handleChordPrototypeChange(index, updatedPrototype)
 	}
+
+	const listEmpty = chordPrototypes.length === 0
 
 	return <div style={{display:"flex", gap:"1em", paddingTop: "1em"}}>
 		<div style={{
@@ -20,6 +22,12 @@ export function ChordPrototypesPage() {
 			paddingRight: "1em",
 			height: "70vh",
 		}}>
+			<div style={{marginBottom: "1em"}}>
+				<h3 style={{color: listEmpty ? "gray" : "white", marginBottom: 0}}>Only use chord prototypes</h3>
+				<input type="checkbox" checked={onlyUseChordPrototypes} disabled={listEmpty} onChange={(e) => {
+					setOnlyUseChordPrototypes(e.target.checked)
+				}}/>
+			</div>
 			{chordPrototypes.map((prototype, index) => {
 				const effectiveName = prototype.name === "" ? `ChordPrototype${prototype.id}` : prototype.name
 				const chosen = chosenPrototypeIndex === index

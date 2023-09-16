@@ -83,6 +83,10 @@ export class Chord extends NoteSet implements Chordesque{
 		}
 	}
 
+	static fromIR(chordIR: ChordIR): Chord {
+		return Chord.fromRootAndQuality(chordIR.root, chordIR.quality)
+	}
+
 	getChord(){
 		return this
 	}
@@ -110,6 +114,10 @@ export class Chord extends NoteSet implements Chordesque{
 
 	toString(){
 		return `${this.root} ${this.noteValues.map((value) => `+${value}`).join("")}`
+	}
+
+	getName(){
+		return this.toString()
 	}
 
 	static parseChordString(chordString: string): Chord | undefined {

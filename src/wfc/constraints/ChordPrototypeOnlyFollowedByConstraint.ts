@@ -1,4 +1,3 @@
-import { Chord } from "../../music_theory/Chord"
 import { HigherValues } from "../HigherValues"
 import { Tile } from "../Tile"
 import { Chordesque, ChordPrototype } from "../hierarchy/prototypes"
@@ -7,11 +6,11 @@ import { HardConstraint } from "./concepts/Constraint"
 
 export class ChordPrototypeOnlyFollowedByConstraint implements HardConstraint<Chordesque> {
 	private chordPrototypeName: string
-	private grabber: Grabber<Set<Chord>>
+	private grabber: Grabber<string[]>
 
 	name = "Chord Prototype Only Followed By"
 
-	constructor(chordPrototypeName: string, grabber: Grabber<Set<Chord>>) {
+	constructor(chordPrototypeName: string, grabber: Grabber<string[]>) {
 		this.chordPrototypeName = chordPrototypeName
 		this.grabber = grabber
 	}
@@ -31,6 +30,6 @@ export class ChordPrototypeOnlyFollowedByConstraint implements HardConstraint<Ch
 		if(!(first instanceof ChordPrototype)) return true
 		if(first.getName() !== this.chordPrototypeName) return true
 		const chordSet = this.grabber(higherValues)
-		return chordSet.has(second.getChord())
+		return chordSet.some(chordString => chordString === second.getName())
 	}
 }
