@@ -44,7 +44,11 @@ export const ChordPrototypeInit = (id: number) => {
 		chord: {
 			root: Note.C,
 			quality: "major" as ChordQuality,
-		}
+		},
+		allowedPrecedingChords: [] as string[],
+		allowedFollowingChords: [] as string[],
+		restrictPrecedingChords: false,
+		restrictFollowingChords: false,
 	}
 }
 

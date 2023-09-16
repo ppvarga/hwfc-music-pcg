@@ -201,7 +201,7 @@ type ChordPrototypeEnvironment = {
 }
 
 export const ChordPrototypeProvider = ({ children, env }: { children: React.ReactNode, env: ChordPrototypeEnvironment }) => {
-	const appState = AppState()
+	const appState = useAppContext()
 	const newState = {...appState, ...env}
 	return <AppContext.Provider value={newState}>{children}</AppContext.Provider>
 }

@@ -10,6 +10,52 @@ export type ChordIR = {
 	quality: ChordQuality
 }
 
+export function stringToChordIR(chordString: string){
+	if(!(["A", "B", "C", "D", "E", "F", "G"].includes(chordString[0]))) return undefined
+
+	const endOfRoot = chordString[1] == "#" ? 2 : 1
+	const root = chordString.slice(0,endOfRoot) as Note
+	const quality = chordString.slice(endOfRoot)
+
+	if(["", "m", "°", "+"].includes(quality)) return {root: root, quality: notationToQuality(quality)!}
+
+	return undefined
+}
+
+export function chordIRToString(chordIR: ChordIR){
+	return `${chordIR.root}${qualityToNotation(chordIR.quality)}`
+}
+
+function notationToQuality(notation: string): ChordQuality | undefined {
+	switch(notation){
+		case "":
+			return "major"
+		case "m":
+			return "minor"
+		case "°":
+			return "diminished"
+		case "+":
+			return "augmented"
+		default:
+			return undefined
+	}
+}
+
+function qualityToNotation(quality: ChordQuality): string {
+	switch(quality){
+		case "major":
+			return ""
+		case "minor":
+			return "m"
+		case "diminished":
+			return "°"
+		case "augmented":
+			return "+"
+		default:
+			throw new Error("Invalid chord quality")
+	}
+}
+
 export class Chord extends NoteSet implements Chordesque{
 	protected third: Note
 	protected fifth: Note
@@ -63,22 +109,13 @@ export class Chord extends NoteSet implements Chordesque{
 	}
 
 	toString(){
-		return `${this.root}${this.noteValues.map((value) => `+${value}`).join("")}`
+		return `${this.root} ${this.noteValues.map((value) => `+${value}`).join("")}`
 	}
 
 	static parseChordString(chordString: string): Chord | undefined {
-		if(!(["A", "B", "C", "D", "E", "F", "G"].includes(chordString[0]))) return undefined
-
-		const endOfRoot = chordString[1] == "#" ? 2 : 1
-		const root = chordString.slice(0,endOfRoot) as Note
-		const quality = chordString.slice(endOfRoot)
-
-		if(quality == "") return new MajorChord(root)
-		if(quality == "m") return new MinorChord(root)
-		if(quality == "°") return new DiminishedChord(root)
-		if(quality == "+") return new AugmentedChord(root)
-
-		return undefined
+		const chordIR = stringToChordIR(chordString)
+		if(chordIR == undefined) return undefined
+		return Chord.fromRootAndQuality(chordIR.root, chordIR.quality)
 	}
 
 	static parseChordsString(chordsString: string): Chord[] | undefined {

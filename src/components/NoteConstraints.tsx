@@ -179,7 +179,7 @@ export function NoteConstraints() {
 	const {noteConstraintSet, addNoteConstraint, removeNoteConstraint, handleNoteConstraintChange} = useAppContext()
 
 	return (
-		<div>
+		<div style={{flex:1}}>
 			<h3>Melody constraints</h3>
 			<AddNoteConstraint onAddConstraint={addNoteConstraint} />
 			{noteConstraintSet.map((constraintIR, index) => (
