@@ -8,16 +8,41 @@ import { RhythmSettings } from "./RhythmSettings"
 
 export function GlobalSettings() {
 
-	const {numChords, setNumChords, melodyLength, setMelodyLength} = useAppContext()
+	const {numChords, setNumChords,} = useAppContext()
 	return <div className="main-column">
 		<h2>Global settings</h2>
-		<h3>Number of chords</h3>
-		<input type="number" value={numChords} onChange={(e) => setNumChords(parseInt(e.target.value))} min={1} max={16}/>
-		<h3>Melody length</h3>
-		<input type="number" value={melodyLength} onChange={(e) => setMelodyLength(parseInt(e.target.value))} min={1} max={16}/>
+		<NumberSelector value={numChords} setValue={setNumChords} min={1} max={16} label="Number of chords"/>
+		<MelodyLengthSelector/>
 		<GlobalKeySelector/>
 		<RhythmSettings/>
 	</div>
+}
+
+export function MelodyLengthSelector() {
+	const {melodyLength, setMelodyLength} = useAppContext()
+	return <>
+		<NumberSelector value={melodyLength} setValue={setMelodyLength} min={1} max={16} label="Melody length"/>
+	</>
+}
+
+interface NumberSelectorProps {
+	value: number
+	setValue: (value: number) => void
+	min: number
+	max: number
+	label?: string
+}
+
+export function NumberSelector({value, setValue, min, max, label}: NumberSelectorProps) {
+	return <div style={{display: "flex", alignItems: "center", padding: "1em",}}>
+		{label && <h3 style={{margin: 0}}>{label}:</h3>}
+		<div style={{display: "flex", gap:"0.5em", flexDirection: "row", marginLeft: "auto", alignItems: "center", paddingLeft: "0.5em"}}>
+			<button onClick={() => setValue(Math.max(min, value - 1))}>-</button>
+			<h3 style={{margin: 0}}>{value}</h3>
+			<button onClick={() => setValue(Math.min(max, value + 1))}>+</button>
+		</div>
+	</div>
+
 }
 
 export const noteOptions = [

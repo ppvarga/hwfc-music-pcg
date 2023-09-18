@@ -19,7 +19,7 @@ interface NoteConstraintConfigProps {
 function NoteConstraintConfig({ constraintIR, onConstraintChange, setValid}: NoteConstraintConfigProps) {
 	switch (constraintIR.type) {
 		case "MelodyInKeyHardConstraint": return <></>
-		case "AscendingMelodySoftConstraint" : return	<SimpleConstraintConfigDiv>
+		case "AscendingMelodySoftConstraint" : return <SimpleConstraintConfigDiv>
 			<input
 				type="number"
 				placeholder="Boost value"
@@ -51,22 +51,23 @@ function NoteConstraintConfig({ constraintIR, onConstraintChange, setValid}: Not
 				}}
 			/>
 		</SimpleConstraintConfigDiv>
-		case "MelodyAbsoluteStepSizeHardConstraint" : return <SimpleConstraintConfigDiv>
-			<input
-				type="text"
-				placeholder="Allowed intervals"
-				onChange={(e) => {
-					const stepSizes = e.target.value.split(" ").map(str => parseInt(str)).filter(num => !isNaN(num))
-					if (stepSizes.length > 0) {
-						setValid(true)
+		case "MelodyAbsoluteStepSizeHardConstraint" :
+			setValid(constraintIR.stepSizes.length > 0)
+			return <SimpleConstraintConfigDiv>
+				<input
+					type="text"
+					placeholder="Allowed intervals"
+					defaultValue={constraintIR.stepSizes.join(" ")}
+					onChange={(e) => {
+						const stepSizes = e.target.value.split(" ").map(str => parseInt(str)).filter(num => !isNaN(num))
 						onConstraintChange({...constraintIR, stepSizes})
-					}
-					else setValid(false)
-				}}
-			/>
-		</SimpleConstraintConfigDiv>
+						setValid(stepSizes.length > 0)
+					}}
+				/>
+			</SimpleConstraintConfigDiv>
 		case "MelodyEndsOnNoteHardConstraint" : return <SimpleConstraintConfigDiv>
 			<NoteSelector
+				startValue={constraintIR.noteGrabber}
 				setValue={(noteGrabber) => {
 					if (noteGrabber === null) {
 						return setValid(false)
@@ -79,6 +80,7 @@ function NoteConstraintConfig({ constraintIR, onConstraintChange, setValid}: Not
 		</SimpleConstraintConfigDiv>
 		case "MelodyStartsOnNoteHardConstraint" : return <SimpleConstraintConfigDiv>
 			<NoteSelector
+				startValue={constraintIR.noteGrabber}
 				setValue={(result) => {
 					if (result === null) {
 						return setValid(false)
@@ -118,7 +120,7 @@ function NoteConstraintConfig({ constraintIR, onConstraintChange, setValid}: Not
 				onConstraintChange({...constraintIR, shape})
 			}
 
-			return <MelodyShapeSelector size={shapeSize} setResult={setShape}/>
+			return <MelodyShapeSelector size={shapeSize} setResult={setShape} startValue={constraintIR.shape}/>
 		}
 	}
 	throw new Error("Invalid constraint type")
@@ -177,7 +179,7 @@ export function NoteConstraints() {
 	const {noteConstraintSet, addNoteConstraint, removeNoteConstraint, handleNoteConstraintChange} = useAppContext()
 
 	return (
-		<>
+		<div style={{flex:1}}>
 			<h3>Melody constraints</h3>
 			<AddNoteConstraint onAddConstraint={addNoteConstraint} />
 			{noteConstraintSet.map((constraintIR, index) => (
@@ -188,7 +190,7 @@ export function NoteConstraints() {
 					onRemove={() => removeNoteConstraint(index)}
 				/>
 			))}
-		</>
+		</div>
 	)
 }
 

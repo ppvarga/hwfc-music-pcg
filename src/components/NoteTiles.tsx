@@ -11,7 +11,7 @@ interface NoteTileProps {
 function NoteTile({index, initialOptions} : NoteTileProps) {
 	const [input, setInput] = useState(initialOptions?.join(" ") || "")
 	const [popupOpen, setPopupOpen] = useState(false)
-	const {noteOptionsPerCell, setNoteOptionsPerCell} = useAppContext()
+	const {handleNoteOptionsPerCellChange} = useAppContext()
 	const optionsString = (!initialOptions || initialOptions.length === 0) ? "*" : initialOptions.join(" | ")
 
 	return <div key={index} className='tile'>
@@ -26,9 +26,7 @@ function NoteTile({index, initialOptions} : NoteTileProps) {
 				<br/>
 				<p>Leaving this empty means allowing all notes</p>
 				<button onClick={() => {
-					const newOptionsPerCell = new Map(noteOptionsPerCell)
-					newOptionsPerCell.set(index, OctavedNote.parseMultiple(input))
-					setNoteOptionsPerCell(newOptionsPerCell)
+					handleNoteOptionsPerCellChange(index, OctavedNote.parseMultiple(input))
 					setPopupOpen(false)
 				}}>Save</button>
 				<button onClick={() => {
@@ -44,8 +42,8 @@ export function NoteTiles() {
 	const {melodyLength, noteOptionsPerCell} = useAppContext()
 	const arr = Array(melodyLength).fill(0)
 
-	return <>
+	return <div>
 		<h3>Notes</h3>
 		{arr.map((_, i) => <NoteTile key={i} index={i} initialOptions={noteOptionsPerCell.get(i)?.map(note => note.toString())}/>)}
-	</>
+	</div>
 }

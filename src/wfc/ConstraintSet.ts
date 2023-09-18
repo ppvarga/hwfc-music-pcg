@@ -68,7 +68,9 @@ export class ConstraintSet<T> {
 	}
 
 	public union(other: ConstraintSet<T>): ConstraintSet<T> {
-		const out = new ConstraintSet<T>(this.getAllConstraints())
+		const out = new ConstraintSet<T>(this.getAllConstraints().filter(constraint => 
+			!other.getAllConstraints().some(otherConstraint => otherConstraint.name === constraint.name)
+		))
 		out.addConstraints(other.getAllConstraints())
 		return out
 	}
