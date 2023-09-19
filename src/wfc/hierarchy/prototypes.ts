@@ -1,6 +1,6 @@
 import { Chord, ChordQuality } from "../../music_theory/Chord"
 import { Note, OctavedNote } from "../../music_theory/Note"
-import { RhythmPattern } from "../../music_theory/Rhythm"
+import { RhythmPatternOptions } from "../../music_theory/Rhythm"
 import { TileCanvasProps } from "../TileCanvas"
 import { NoteConstraintIR } from "../constraints/constraintUtils"
 
@@ -58,13 +58,13 @@ export type ChordPrototypeIR = ReturnType<typeof ChordPrototypeInit>
 export class Section {
 	private noteCanvasProps: TileCanvasProps<OctavedNote>
 	private chordesqueCanvasProps: TileCanvasProps<Chordesque>
-	private rhythmPatternCanvasProps: TileCanvasProps<RhythmPattern>
+	private rhythmPatternOptions: RhythmPatternOptions
 	private name: string
 
-	constructor(noteCanvasProps: TileCanvasProps<OctavedNote>, chordesqueCanvasProps: TileCanvasProps<Chordesque>, rhythmPatternCanvasProps: TileCanvasProps<RhythmPattern>, name: string) {
+	constructor(noteCanvasProps: TileCanvasProps<OctavedNote>, chordesqueCanvasProps: TileCanvasProps<Chordesque>, rhythmPatternOptions: RhythmPatternOptions, name: string) {
 		this.noteCanvasProps = noteCanvasProps
 		this.chordesqueCanvasProps = chordesqueCanvasProps
-		this.rhythmPatternCanvasProps = rhythmPatternCanvasProps
+		this.rhythmPatternOptions = rhythmPatternOptions
 		this.name = name
 	}
 
@@ -76,8 +76,8 @@ export class Section {
 		return this.chordesqueCanvasProps
 	}
 
-	getRhythmPatternCanvasProps() {
-		return this.rhythmPatternCanvasProps
+	getRhythmPatternOptions() {
+		return this.rhythmPatternOptions
 	}
 
 	getName() {

@@ -1,3 +1,5 @@
+import { Random } from "../util/Random"
+
 type RhythmUnit = {
   duration: number,
   type: "note" | "rest"
@@ -29,27 +31,58 @@ function abstractPatternsForLength(length: number){
 	return out
 }
 
-export function rhythmPatternsForLength(length: number, minimumNumberOfUnits: number = 1, onlyStartOnNote: boolean = false){
-	const abstractPatterns = abstractPatternsForLength(length).filter(pattern => pattern.length >= minimumNumberOfUnits)
-	const out: RhythmPattern[] = []
-	for(const abstractPattern of abstractPatterns){
-		out.push(...allRhythmicCombinations([], abstractPattern))
-	}
-	return out.filter(pattern => !onlyStartOnNote || pattern[0].type == "note")
+export interface RhythmPatternOptions {
+	length: number,
+	minimumNumberOfUnits?: number,
+	onlyStartOnNote: boolean
+	minimumNumberOfNotes: number,
+	maximumRestLength: number,
 }
 
-function allRhythmicCombinations(prefix: RhythmPattern = [], abstractPattern: number[]){
+export function generateRhythmPatterns({length, minimumNumberOfUnits = 1, onlyStartOnNote, minimumNumberOfNotes, maximumRestLength}: RhythmPatternOptions){
+	const abstractPatterns = abstractPatternsForLength(length).filter(pattern => pattern.length >= minimumNumberOfUnits)
+	return abstractPatterns.flatMap(abstractPattern => allRhythmicCombinations({prefix: [], abstractPattern, onlyStartOnNote, minimumNumberOfNotes, maximumRestLength}))
+}
+
+export function getRandomRhythmPattern(options: RhythmPatternOptions, random: Random){
+	const patterns = generateRhythmPatterns(options)
+	if(patterns.length == 0) throw new Error("No possible patterns")
+	return patterns[random.nextInt(patterns.length)]
+}
+
+interface RhytmicCombinationOptions {
+	prefix: RhythmPattern,
+	abstractPattern: number[],
+	onlyStartOnNote: boolean,
+	minimumNumberOfNotes: number,
+	maximumRestLength: number,
+}
+
+function allRhythmicCombinations({prefix, abstractPattern, onlyStartOnNote, minimumNumberOfNotes, maximumRestLength}: RhytmicCombinationOptions){
+	if(minimumNumberOfNotes > abstractPattern.length) return []
 	if(abstractPattern.length == 0) return [prefix]
 	const out: RhythmPattern[] = []
 	const unitLength = abstractPattern[0]
 	const restOfPattern = abstractPattern.slice(1)
 
 	const prefixPlusNote = [...prefix, {duration: unitLength, type: "note"} as RhythmUnit]
-	out.push(...allRhythmicCombinations(prefixPlusNote, restOfPattern))
+	out.push(...allRhythmicCombinations({
+		prefix: prefixPlusNote,
+		abstractPattern: restOfPattern,
+		onlyStartOnNote: false,
+		minimumNumberOfNotes: minimumNumberOfNotes - 1,
+		maximumRestLength,
+	}))
 
-	if(prefix.length == 0 || prefix[prefix.length - 1].type == "note"){
+	if(!onlyStartOnNote && unitLength <= maximumRestLength){
 		const prefixPlusRest = [...prefix, {duration: unitLength, type: "rest"} as RhythmUnit]
-		out.push(...allRhythmicCombinations(prefixPlusRest, restOfPattern))
+		out.push(...allRhythmicCombinations({
+			prefix: prefixPlusRest,
+			abstractPattern: restOfPattern,
+			onlyStartOnNote: true,
+			minimumNumberOfNotes,
+			maximumRestLength,
+		}))
 	}
 
 	return out

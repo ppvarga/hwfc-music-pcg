@@ -4,16 +4,13 @@ import { MidiPlayer } from "./MidiPlayer"
 import { sectionResultToOutput, sectionResultWithRhythmToOutput } from "../audio/midi"
 import { Chord } from "../music_theory/Chord"
 import { OctavedNote } from "../music_theory/Note"
-import { rhythmPatternsForLength } from "../music_theory/Rhythm"
 import { Random } from "../util/Random"
 import { ConstraintSet } from "../wfc/ConstraintSet"
 import { OptionsPerCell } from "../wfc/OptionsPerCell"
 import { TileCanvasProps } from "../wfc/TileCanvas"
-import { RestMaximumLengthHardConstraint } from "../wfc/constraints/RestMaximumLengthHardConstraint"
 import { ChordLevelNode } from "../wfc/hierarchy/ChordLevelNode"
 import { HigherValues } from "../wfc/HigherValues"
 import { convertIRToChordConstraint, convertIRToNoteConstraint } from "../wfc/constraints/constraintUtils"
-import { MinimumNumberOfNotesHardConstraint } from "../wfc/constraints/MinimumNumberOfNotesHardConstraint"
 import { ChordPrototype } from "../wfc/hierarchy/prototypes"
 import { ChordPrototypeOnlyFollowedByConstraint } from "../wfc/constraints/ChordPrototypeOnlyFollowedByConstraint"
 import { constantGrabber } from "../wfc/grabbers/constantGrabbers"
@@ -79,11 +76,12 @@ export function Output(){
 		const node = new ChordLevelNode({
 			noteCanvasProps,
 			chordesqueCanvasProps,
-			rhythmPatternCanvasProps: new TileCanvasProps(
-				numChords,
-				new OptionsPerCell(rhythmPatternsForLength(melodyLength, minNumNotes, startOnNote)),
-				new ConstraintSet([new RestMaximumLengthHardConstraint(maxRestLength), new MinimumNumberOfNotesHardConstraint(minNumNotes)])
-			),
+			rhythmPatternOptions: {
+				length: melodyLength,
+				minimumNumberOfNotes: minNumNotes,
+				onlyStartOnNote: startOnNote,
+				maximumRestLength: maxRestLength,
+			},
 			random: new Random(),
 			higherValues: new HigherValues({key: inferKey()})
 		})
