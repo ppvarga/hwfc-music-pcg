@@ -20,12 +20,14 @@ type MidiPlayerProps = {
   setIsPlaying: (isPlaying: boolean) => void;
 };
 
+const audioContext = new AudioContext()
+
 export function MidiPlayer({ notes, length , isPlaying, setIsPlaying}: MidiPlayerProps) {
 	const canvasRef = useRef<HTMLCanvasElement>(null)
 	const [currentNotesIndices, setCurrentNotesIndices] = useState<number[]>([])
 	const synthRef = useRef(new PolySynth(Synth).toDestination())
 	const [volume, setVolume] = useState(-25)
-	synthRef.current.volume.setValueAtTime(volume, new AudioContext().currentTime)
+	synthRef.current.volume.setValueAtTime(volume, audioContext.currentTime)
 
 	const yPositions = notes.map(note => note.octavedNote.toY())
 	const normalizedYPositions = normalizeYPositions(yPositions)
@@ -46,7 +48,7 @@ export function MidiPlayer({ notes, length , isPlaying, setIsPlaying}: MidiPlaye
 	const handleVolumeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const newVolume = parseFloat(event.target.value)
 		setVolume(newVolume)
-		synthRef.current.volume.setValueAtTime(newVolume, new AudioContext().currentTime)
+		synthRef.current.volume.setValueAtTime(newVolume, audioContext.currentTime)
 	}
 
 	const handleTogglePlayback = () => {
@@ -108,12 +110,12 @@ export function MidiPlayer({ notes, length , isPlaying, setIsPlaying}: MidiPlaye
 			<br />
 			<div style={{padding: "1em"}}>
 				<label>
-					🔉
+					{volume < -35 ? "🔈" : volume < -15 ? "🔉" : "🔊"}
 					<input
 						type="range"
 						min="-50"
 						max="0"
-						step="0.1"
+						step="5"
 						value={volume}
 						onChange={handleVolumeChange}
 						style={{ marginLeft: "5px", verticalAlign: "middle" }}
