@@ -1,5 +1,5 @@
 import { arrayEquals } from "../util/utils"
-import { Chordesque } from "../wfc/hierarchy/prototypes"
+import { Chordesque, ChordesqueIR } from "../wfc/hierarchy/prototypes"
 import { Note, relativeNote } from "./Note"
 import { NoteSet } from "./NoteSet"
 
@@ -8,6 +8,10 @@ export type ChordQuality = ConcreteChordQuality | null
 export type ChordIR = {
 	root: Note
 	quality: ChordQuality
+}
+
+export const isChordIR = (obj: ChordesqueIR): obj is ChordIR => {
+	return typeof obj == "object"
 }
 
 export function stringToChordIR(chordString: string){

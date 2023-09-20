@@ -1,7 +1,8 @@
 import { useState } from "react"
 import { useAppContext } from "../AppState"
 import Popup from "reactjs-popup"
-import { Chord } from "../music_theory/Chord"
+import { stringToChordIR } from "../music_theory/Chord"
+import { ChordPrototypeIR, ChordesqueIR, chordesqueIRToString } from "../wfc/hierarchy/prototypes"
 
 interface ChordTileProps {
   index: number;
@@ -32,6 +33,24 @@ export function ChordValuesInput({value, setValue}: ChordValuesInputProps) {
 	</div>
 }
 
+const parseChordsAndPrototypes = (input: string, chordPrototypes: ChordPrototypeIR[]): ChordesqueIR[] | undefined => {
+	const items = input.split(" ").filter(item => item !== "")
+	const out = [] as ChordesqueIR[]
+	for (const item of items) {
+		if (chordPrototypes.some(proto => proto.name === item)) {
+			out.push(item)
+		} else {
+			const chord = stringToChordIR(item)
+			if (chord) {
+				out.push(chord)
+			} else {
+				return undefined
+			}
+		}
+	}
+	return out
+}
+
 interface ChordValuesPopupProps {
 	popupOpen: boolean
 	index: number
@@ -40,8 +59,9 @@ interface ChordValuesPopupProps {
 }
 function ChordValuesPopup({popupOpen, index, setPopupOpen, initialOptions}: ChordValuesPopupProps) {
 	const [input, setInput] = useState(initialOptions?.join(" ") || "")
-	const {handleChordOptionsPerCellChange} = useAppContext()
-	const chords = Chord.parseChordsString(input)
+	const {handleChordOptionsPerCellChange, chordPrototypes} = useAppContext()
+
+	const chordesques = parseChordsAndPrototypes(input, chordPrototypes)
 
 	return <Popup open={popupOpen} closeOnDocumentClick={false}>
 		<div className='modal'>
@@ -49,9 +69,9 @@ function ChordValuesPopup({popupOpen, index, setPopupOpen, initialOptions}: Chor
 			<ChordValuesInput value={input} setValue={setInput} />
 			<br />
 			<p>Leaving this empty means allowing all chords</p>
-			<button disabled={chords === undefined}
+			<button disabled={chordesques === undefined}
 				onClick={() => {
-					handleChordOptionsPerCellChange(index, chords as Chord[])
+					handleChordOptionsPerCellChange(index, chordesques as ChordesqueIR[])
 					setPopupOpen(false)
 				} }>Save</button>
 			<button onClick={() => {
@@ -70,7 +90,7 @@ export function ChordTiles() {
 		<>
 			<h3>Chords</h3>
 			{arr.map((_, i) => (
-				<ChordTile key={i} index={i} initialOptions={chordOptionsPerCell.get(i)?.map(chord => chord.toString())} />
+				<ChordTile key={i} index={i} initialOptions={chordOptionsPerCell.get(i)?.map(chordesqueIRToString)} />
 			))}
 		</>
 	)

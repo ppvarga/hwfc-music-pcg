@@ -1,5 +1,4 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react"
-import { Chord } from "./music_theory/Chord"
 import { MajorKey, MinorKey } from "./music_theory/MusicalKey"
 import { Note, OctavedNote } from "./music_theory/Note"
 import { SelectOption } from "./components/utils"
@@ -8,7 +7,7 @@ import { MelodyInKeyHardConstraintInit } from "./wfc/constraints/MelodyInKeyHard
 import { MelodyInRangeHardConstraintInit } from "./wfc/constraints/MelodyInRangeHardConstraint"
 import { ChordConstraintIR, NoteConstraintIR } from "./wfc/constraints/constraintUtils"
 import { ChordRootAbsoluteStepSizeHardConstraintInit } from "./wfc/constraints/ChordRootAbsoluteStepSizeHardConstraint"
-import { ChordPrototypeIR } from "./wfc/hierarchy/prototypes"
+import { ChordPrototypeIR, ChordesqueIR } from "./wfc/hierarchy/prototypes"
 import { NoteOutput } from "./components/MidiPlayer"
 
 function AppState() {
@@ -39,8 +38,8 @@ function AppState() {
 	const keyGrabber = () => inferKeyRef.current()
 	
 	//OPTIONS PER CELL
-	const [chordOptionsPerCell, setChordOptionsPerCell] = useState(new Map<number, Chord[]>())
-	const handleChordOptionsPerCellChange = (index: number, chordOptions: Chord[]) => {
+	const [chordOptionsPerCell, setChordOptionsPerCell] = useState(new Map<number, ChordesqueIR[]>())
+	const handleChordOptionsPerCellChange = (index: number, chordOptions: ChordesqueIR[]) => {
 		const newOptionsPerCell = new Map(chordOptionsPerCell)
 		newOptionsPerCell.set(index, chordOptions)
 		setChordOptionsPerCell(newOptionsPerCell)
@@ -87,10 +86,20 @@ function AppState() {
 	}
 	
 	//RHYTHM
-	const [minNumNotes, setMinNumNotes] = useState(3)
-	const [maxRestLength, setMaxRestLength] = useState(1)
 	const [useRhythm, setUseRhythm] = useState(false)
-	const [startOnNote, setStartOnNote] = useState(true)
+	
+	const [minNumNotes, tempSetMinNumNotes] = useState(3)
+	const setMinNumNotes = (newMinNumNotes: number) => {
+		tempSetMinNumNotes(newMinNumNotes)
+	}
+	const [maxRestLength, tempSetMaxRestLength] = useState(1)
+	const setMaxRestLength = (newMaxRestLength: number) => {
+		tempSetMaxRestLength(newMaxRestLength)
+	}
+	const [startOnNote, tempSetStartOnNote] = useState(true)
+	const setStartOnNote = (newStartOnNote: boolean) => {
+		tempSetStartOnNote(newStartOnNote)
+	}
 
 	//PROTOTYPES
 	const [onlyUseChordPrototypes, setOnlyUseChordPrototypes] = useState(false)
@@ -212,6 +221,12 @@ type ChordPrototypeEnvironment = {
 	addNoteConstraint: (constraint: NoteConstraintIR) => void,
 	removeNoteConstraint: (index: number) => void,
 	handleNoteConstraintChange: (index: number, constraint: NoteConstraintIR) => void,
+	minNumNotes: number,
+	setMinNumNotes: (newMinNumNotes: number) => void,
+	startOnNote: boolean,
+	setStartOnNote: (newStartOnNote: boolean) => void,
+	maxRestLength: number,
+	setMaxRestLength: (newMaxRestLength: number) => void,
 }
 
 export const ChordPrototypeProvider = ({ children, env }: { children: React.ReactNode, env: ChordPrototypeEnvironment }) => {
