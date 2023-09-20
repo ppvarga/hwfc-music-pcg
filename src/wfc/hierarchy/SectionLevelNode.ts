@@ -13,6 +13,7 @@ interface SectionLevelNodeProps {
   chordesqueCanvasProps: TileCanvasProps<Chordesque>;
   sectionCanvasProps: TileCanvasProps<Section>;
 	rhythmPatternOptions: RhythmPatternOptions
+	melodyLength: number
   random: Random;
 }
 
@@ -23,6 +24,7 @@ export class SectionLevelNode {
 	private sectionCanvas: TileCanvas<Section>
 	private rhythmPatternOptions: RhythmPatternOptions
 	private random: Random
+	private melodyLength: number
 
 	constructor(props: SectionLevelNodeProps){
 		this.higherValues = props.higherValues ?? new HigherValues()
@@ -31,6 +33,7 @@ export class SectionLevelNode {
 		this.rhythmPatternOptions = props.rhythmPatternOptions
 		this.sectionCanvas = new TileCanvas(props.sectionCanvasProps, this.higherValues, props.random)
 		this.random = props.random
+		this.melodyLength = props.melodyLength
 	}
 
 	private createChordLevelNode(section: Section) {
@@ -39,7 +42,8 @@ export class SectionLevelNode {
 			noteCanvasProps: this.noteCanvasProps.union(section.getNoteCanvasProps()),
 			chordesqueCanvasProps: this.chordesqueCanvasProps.union(section.getChordesqueCanvasProps()), 
 			rhythmPatternOptions: {...this.rhythmPatternOptions, ...section.getRhythmPatternOptions()},
-			random: this.random
+			random: this.random,
+			melodyLength: this.melodyLength,
 		})
 	}
 

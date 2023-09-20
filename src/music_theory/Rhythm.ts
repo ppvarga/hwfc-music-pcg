@@ -32,20 +32,19 @@ function abstractPatternsForLength(length: number){
 }
 
 export interface RhythmPatternOptions {
-	length: number,
 	minimumNumberOfUnits?: number,
 	onlyStartOnNote: boolean
 	minimumNumberOfNotes: number,
 	maximumRestLength: number,
 }
 
-export function generateRhythmPatterns({length, minimumNumberOfUnits = 1, onlyStartOnNote, minimumNumberOfNotes, maximumRestLength}: RhythmPatternOptions){
+export function generateRhythmPatterns(length: number, {minimumNumberOfUnits = 1, onlyStartOnNote, minimumNumberOfNotes, maximumRestLength}: RhythmPatternOptions){
 	const abstractPatterns = abstractPatternsForLength(length).filter(pattern => pattern.length >= minimumNumberOfUnits)
 	return abstractPatterns.flatMap(abstractPattern => allRhythmicCombinations({prefix: [], abstractPattern, onlyStartOnNote, minimumNumberOfNotes, maximumRestLength}))
 }
 
-export function getRandomRhythmPattern(options: RhythmPatternOptions, random: Random){
-	const patterns = generateRhythmPatterns(options)
+export function getRandomRhythmPattern(length: number, options: RhythmPatternOptions, random: Random){
+	const patterns = generateRhythmPatterns(length, options)
 	if(patterns.length == 0) throw new Error("No possible patterns")
 	return patterns[random.nextInt(patterns.length)]
 }

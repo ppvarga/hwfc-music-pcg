@@ -11,6 +11,7 @@ import { ChordIR, ChordQuality, chordIRToString, stringToChordIR } from "../musi
 import Select from "react-select"
 import { ConstantNoteSelector } from "./ConstantNoteSelector"
 import { SelectOption } from "./utils"
+import { InheritedRhythmSettings } from "./RhythmSettings"
 
 interface ChordPrototypeConfigProps {
     prototype: ChordPrototypeIR,
@@ -21,6 +22,9 @@ interface ChordPrototypeConfigProps {
 export function ChordPrototypeConfig({prototype, removePrototype, onUpdate}: ChordPrototypeConfigProps){
 	const updateNoteCanvasProps = (changes: Partial<ChordPrototypeIR["noteCanvasProps"]>) => {
 		onUpdate({noteCanvasProps: {...prototype.noteCanvasProps, ...changes}})
+	}
+	const updateRhythmPatternOptions = (changes: Partial<ChordPrototypeIR["rhythmPatternOptions"]>) => {
+		onUpdate({rhythmPatternOptions: {...prototype.rhythmPatternOptions, ...changes}})
 	}
 	
 	const [noteOptionsPerCell, setNoteOptionsPerCell] = useState(prototype.noteCanvasProps.optionsPerCell)
@@ -36,7 +40,28 @@ export function ChordPrototypeConfig({prototype, removePrototype, onUpdate}: Cho
 	const [melodyLength, tempSetMelodyLength] = useState(prototype.noteCanvasProps.size)
 	const setMelodyLength = (newMelodyLength: number) => {
 		tempSetMelodyLength(newMelodyLength)
-		updateNoteCanvasProps({size: newMelodyLength})	
+		updateNoteCanvasProps({size: newMelodyLength})
+	}
+
+	const [rhythmStrategy, tempSetRhythmStrategy] = useState(prototype.rhythmStrategy)
+	const setRhythmStrategy = (newRhythmStrategy: ChordPrototypeIR["rhythmStrategy"]) => {
+		tempSetRhythmStrategy(newRhythmStrategy)
+		onUpdate({rhythmStrategy: newRhythmStrategy})
+	}
+	const [minNumNotes, tempSetMinNumNotes] = useState(prototype.rhythmPatternOptions.minimumNumberOfNotes)
+	const setMinNumNotes = (newMinNumNotes: number) => {
+		tempSetMinNumNotes(newMinNumNotes)
+		updateRhythmPatternOptions({minimumNumberOfNotes: newMinNumNotes})
+	}
+	const [startOnNote, tempSetStartOnNote] = useState(prototype.rhythmPatternOptions.onlyStartOnNote)
+	const setStartOnNote = (newStartOnNote: boolean) => {
+		tempSetStartOnNote(newStartOnNote)
+		updateRhythmPatternOptions({onlyStartOnNote: newStartOnNote})
+	}
+	const [maxRestLength, tempSetMaxRestLength] = useState(prototype.rhythmPatternOptions.maximumRestLength)
+	const setMaxRestLength = (newMaxRestLength: number) => {
+		tempSetMaxRestLength(newMaxRestLength)
+		updateRhythmPatternOptions({maximumRestLength: newMaxRestLength})
 	}
 
 	const [noteConstraintSet, tempSetNoteConstraintSet] = useState(prototype.noteCanvasProps.constraints)
@@ -69,7 +94,13 @@ export function ChordPrototypeConfig({prototype, removePrototype, onUpdate}: Cho
 		noteConstraintSet,
 		addNoteConstraint,
 		removeNoteConstraint,
-		handleNoteConstraintChange
+		handleNoteConstraintChange,
+		minNumNotes,
+		setMinNumNotes,
+		startOnNote,
+		setStartOnNote,
+		maxRestLength,
+		setMaxRestLength,
 	}
 
 	return <ChordPrototypeProvider env={env}>
@@ -103,6 +134,7 @@ export function ChordPrototypeConfig({prototype, removePrototype, onUpdate}: Cho
 			<div style={{flex: 1}}>
 				<MelodyLengthSelector/>
 				<NoteTiles/>
+				<InheritedRhythmSettings strategy={rhythmStrategy} setStrategy={setRhythmStrategy}/>
 			</div>
 			<NoteConstraints/>
 			<div style={{flex: 1}}>
