@@ -37,9 +37,8 @@ const parseChordsAndPrototypes = (input: string, chordPrototypes: ChordPrototype
 	const items = input.split(" ").filter(item => item !== "")
 	const out = [] as ChordesqueIR[]
 	for (const item of items) {
-		const proto = chordPrototypes.find(proto => proto.name === item)
-		if (proto) {
-			out.push(proto)
+		if (chordPrototypes.some(proto => proto.name === item)) {
+			out.push(item)
 		} else {
 			const chord = stringToChordIR(item)
 			if (chord) {

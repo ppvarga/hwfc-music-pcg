@@ -93,7 +93,7 @@ export class ChordLevelNode {
 			const useRhythm = chordHasPreference ? chord.getRhythmStrategy() === "On" : useRhythmByDefault
 
 			if(useRhythm){
-				const rhythmPattern = getRandomRhythmPattern(this.melodyLength, rhythmPatternOptions, this.random)
+				const rhythmPattern = getRandomRhythmPattern(actualNoteCanvasProps.getSize(), rhythmPatternOptions, this.random)
 				actualNoteCanvasProps.setSize(numberOfNotesInRhythmPattern(rhythmPattern))
 				const noteLevelNode = new NoteLevelNode(actualNoteCanvasProps, this.higherValues.copyWithChord(chordValue), this.random)
 				const abstractResult = {

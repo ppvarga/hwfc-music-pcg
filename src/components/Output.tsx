@@ -26,60 +26,65 @@ export function Output(){
 	)
 
 	function updatePlayer() {
-		const parsedChordPrototypes = []
-		const chordPrototypeConstraints = []
+		try{
+			const parsedChordPrototypes = []
+			const chordPrototypeConstraints = []
 
-		const properlyNamedChordPrototypes = chordPrototypes.map(proto => {
-			if(proto.name !== "") return proto
-			const protoName = `ChordPrototype${proto.id}`
-			return {...proto, name: protoName}
-		})
+			const properlyNamedChordPrototypes = chordPrototypes.map(proto => {
+				if(proto.name !== "") return proto
+				const protoName = `ChordPrototype${proto.id}`
+				return {...proto, name: protoName}
+			})
 
-		for(const protoIR of properlyNamedChordPrototypes){
-			parsedChordPrototypes.push(chordPrototypeIRToChordPrototype(protoIR, keyGrabber))
+			for(const protoIR of properlyNamedChordPrototypes){
+				parsedChordPrototypes.push(chordPrototypeIRToChordPrototype(protoIR, keyGrabber))
 
-			if(protoIR.restrictPrecedingChords){
-				if(protoIR.allowedPrecedingChords.every(chordName => {
-					if(properlyNamedChordPrototypes.some(proto => proto.name === chordName)) return true
-					return (Chord.parseChordString(chordName) !== undefined)
-				})){
-					chordPrototypeConstraints.push(new ChordPrototypeOnlyPrecededByConstraint(protoIR.name, constantGrabber(protoIR.allowedPrecedingChords)))
+				if(protoIR.restrictPrecedingChords){
+					if(protoIR.allowedPrecedingChords.every(chordName => {
+						if(properlyNamedChordPrototypes.some(proto => proto.name === chordName)) return true
+						return (Chord.parseChordString(chordName) !== undefined)
+					})){
+						chordPrototypeConstraints.push(new ChordPrototypeOnlyPrecededByConstraint(protoIR.name, constantGrabber(protoIR.allowedPrecedingChords)))
+					}
+				}
+
+				if(protoIR.restrictFollowingChords){
+					if(protoIR.allowedFollowingChords.every(chordName => {
+						if(properlyNamedChordPrototypes.some(proto => proto.name === chordName)) return true
+						return (Chord.parseChordString(chordName) !== undefined)
+					})){
+						chordPrototypeConstraints.push(new ChordPrototypeOnlyFollowedByConstraint(protoIR.name, constantGrabber(protoIR.allowedFollowingChords)))
+					}
 				}
 			}
+			
+			const chordesqueCanvasProps = new TileCanvasProps(
+				numChords,
+				new OptionsPerCell([
+					...parsedChordPrototypes,
+					...(onlyUseChordPrototypes ? [] : Chord.allBasicChords()),
+				], chordesqueIRMapToChordesqueMap(chordOptionsPerCell, chordPrototypes, keyGrabber)),
+				new ConstraintSet([...chordConstraintSet.map(chordConstraint => convertIRToChordConstraint({ir: chordConstraint, keyGrabber})), ...chordPrototypeConstraints]),
+			)
 
-			if(protoIR.restrictFollowingChords){
-				if(protoIR.allowedFollowingChords.every(chordName => {
-					if(properlyNamedChordPrototypes.some(proto => proto.name === chordName)) return true
-					return (Chord.parseChordString(chordName) !== undefined)
-				})){
-					chordPrototypeConstraints.push(new ChordPrototypeOnlyFollowedByConstraint(protoIR.name, constantGrabber(protoIR.allowedFollowingChords)))
-				}
-			}
+			const node = new ChordLevelNode({
+				noteCanvasProps,
+				chordesqueCanvasProps,
+				melodyLength,
+				rhythmPatternOptions: {
+					minimumNumberOfNotes: minNumNotes,
+					onlyStartOnNote: startOnNote,
+					maximumRestLength: maxRestLength,
+				},
+				random: new Random(),
+				higherValues: new HigherValues({key: inferKey()})
+			})
+
+			setOutput(node.generate(useRhythm))
+		} catch(e){
+			console.error(e)
+			alert(e)
 		}
-		
-		const chordesqueCanvasProps = new TileCanvasProps(
-			numChords,
-			new OptionsPerCell([
-				...parsedChordPrototypes,
-				...(onlyUseChordPrototypes ? [] : Chord.allBasicChords()),
-			], chordesqueIRMapToChordesqueMap(chordOptionsPerCell, keyGrabber)),
-			new ConstraintSet([...chordConstraintSet.map(chordConstraint => convertIRToChordConstraint({ir: chordConstraint, keyGrabber})), ...chordPrototypeConstraints]),
-		)
-
-		const node = new ChordLevelNode({
-			noteCanvasProps,
-			chordesqueCanvasProps,
-			melodyLength,
-			rhythmPatternOptions: {
-				minimumNumberOfNotes: minNumNotes,
-				onlyStartOnNote: startOnNote,
-				maximumRestLength: maxRestLength,
-			},
-			random: new Random(),
-			higherValues: new HigherValues({key: inferKey()})
-		})
-
-		setOutput(node.generate(useRhythm))
 	}
 
 	return <div className="main-column">

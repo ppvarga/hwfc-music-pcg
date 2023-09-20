@@ -1,5 +1,5 @@
 import { RhythmStrategy } from "../../components/RhythmSettings"
-import { Chord, ChordIR, ChordQuality, chordIRToString } from "../../music_theory/Chord"
+import { Chord, ChordIR, ChordQuality, chordIRToString, isChordIR } from "../../music_theory/Chord"
 import { MusicalKey } from "../../music_theory/MusicalKey"
 import { Note, OctavedNote } from "../../music_theory/Note"
 import { RhythmPatternOptions } from "../../music_theory/Rhythm"
@@ -14,7 +14,7 @@ export interface Chordesque {
 	getChord: () => Chord
 }
 
-export type ChordesqueIR = ChordIR | ChordPrototypeIR
+export type ChordesqueIR = ChordIR | string
 
 export class ChordPrototype implements Chordesque {
 	private noteCanvasProps: TileCanvasProps<OctavedNote>
@@ -111,10 +111,6 @@ export class Section {
   
 }
 
-function isChordPrototypeIR(chordesqueIR: ChordesqueIR): chordesqueIR is ChordPrototypeIR {
-	return (chordesqueIR as ChordPrototypeIR).id !== undefined
-}
-
 export function chordPrototypeIRToChordPrototype(protoIR: ChordPrototypeIR, keyGrabber: Grabber<MusicalKey>): ChordPrototype {
 	const noteCanvasProps = new TileCanvasProps(
 		protoIR.noteCanvasProps.size,
@@ -124,15 +120,17 @@ export function chordPrototypeIRToChordPrototype(protoIR: ChordPrototypeIR, keyG
 	return new ChordPrototype(protoIR.name, noteCanvasProps, Chord.fromIR(protoIR.chord), protoIR.rhythmStrategy, protoIR.rhythmPatternOptions)
 }
 
-export function chordesqueIRMapToChordesqueMap(chordesqueIRMap: Map<number, ChordesqueIR[]>, keyGrabber: Grabber<MusicalKey>): Map<number, Chordesque[]> {
+export function chordesqueIRMapToChordesqueMap(chordesqueIRMap: Map<number, ChordesqueIR[]>, chordPrototypes: ChordPrototypeIR[], keyGrabber: Grabber<MusicalKey>): Map<number, Chordesque[]> {
 	const chordesqueMap = new Map<number, Chordesque[]>()
 
 	for(const [position, chordesqueIRs] of chordesqueIRMap.entries()) {
 		const chordesqueList: Chordesque[] = chordesqueIRs.map((chordesqueIR) => {
-			if(isChordPrototypeIR(chordesqueIR)) {
-				return chordPrototypeIRToChordPrototype(chordesqueIR, keyGrabber)
-			} else {
+			if(isChordIR(chordesqueIR)) {
 				return Chord.fromIR(chordesqueIR)
+			} else {
+				const proto = chordPrototypes.find(proto => proto.name === chordesqueIR)
+				if(proto === undefined) throw new Error(`Chord prototype ${chordesqueIR} not found`)
+				return chordPrototypeIRToChordPrototype(proto, keyGrabber)
 			}
 		})
 		chordesqueMap.set(position, chordesqueList)
@@ -141,8 +139,8 @@ export function chordesqueIRMapToChordesqueMap(chordesqueIRMap: Map<number, Chor
 }
 
 export function chordesqueIRToString(chordesqueIR: ChordesqueIR): string {
-	if(isChordPrototypeIR(chordesqueIR)) {
-		return chordesqueIR.name
+	if(typeof chordesqueIR === "string") {
+		return chordesqueIR
 	} else {
 		return chordIRToString(chordesqueIR)
 	}
