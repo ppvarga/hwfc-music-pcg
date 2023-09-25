@@ -99,25 +99,35 @@ export class OctavedNote {
 		return Math.abs(OctavedNote.getStepSize(first, second))
 	}
 
-	public static parse(note: string): OctavedNote {
-		const regex = /([A-G]#?)(-?\d+)/
-		const match = note.match(regex)
-		if(match === null) throw new Error("Invalid note format")
-		const noteName = match[1]
-		if(!Object.values(Note).includes(noteName as Note)) throw new Error("Invalid note name")
-		const octave = parseInt(match[2])
-		return new OctavedNote(
-      noteName as Note,
-      octave
-		)
+	public static parse(note: string): OctavedNote | undefined {
+		if(!(["A", "B", "C", "D", "E", "F", "G"].includes(note[0]))) return undefined
+
+		const endOfRoot = note[1] == "#" ? 2 : 1
+		const root = note.slice(0,endOfRoot) as Note
+
+		const octave = parseInt(note.slice(endOfRoot))
+		if(isNaN(octave)) return undefined
+
+		try{
+			return new OctavedNote(
+				root,
+				octave
+			)
+		} catch(e) {
+			return undefined
+		}
 	}
 
-	public static parseMultiple(notes: string): OctavedNote[] {
+	public static parseMultiple(notes: string): OctavedNote[] | undefined {
 		if(notes === "") return []
-		const regex = /([A-G]#?)(-?\d+)/g
-		const matches = notes.match(regex)
-		if(matches === null) throw new Error("Invalid notes format")
-		return matches.map((match) => OctavedNote.parse(match))
+		const items = notes.split(" ").filter(item => item !== "")
+		const octavedNotes: OctavedNote[] = []
+		for(const item of items) {
+			const octavedNote = OctavedNote.parse(item)
+			if(octavedNote === undefined) return undefined
+			octavedNotes.push(octavedNote)
+		}
+		return octavedNotes
 	}
 
 	public toString(): string {
