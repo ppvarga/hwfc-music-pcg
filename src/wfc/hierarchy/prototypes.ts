@@ -22,13 +22,15 @@ export class ChordPrototype implements Chordesque {
 	private name: string
 	private rhythmStrategy: RhythmStrategy
 	private rhythmPatternOptions: RhythmPatternOptions
+	private melodyLength: number
 
-	constructor(name: string, noteCanvasProps: TileCanvasProps<OctavedNote>, value: Chord, rhythmStrategy: RhythmStrategy, rhythmPatternOptions: RhythmPatternOptions) {
+	constructor(name: string, noteCanvasProps: TileCanvasProps<OctavedNote>, value: Chord, rhythmStrategy: RhythmStrategy, rhythmPatternOptions: RhythmPatternOptions, melodyLength: number) {
 		this.name = name
 		this.noteCanvasProps = noteCanvasProps
 		this.chord = value
 		this.rhythmStrategy = rhythmStrategy
 		this.rhythmPatternOptions = rhythmPatternOptions
+		this.melodyLength = melodyLength
 	}
 
 	getChord() {
@@ -50,6 +52,10 @@ export class ChordPrototype implements Chordesque {
 	getRhythmPatternOptions() {
 		return this.rhythmPatternOptions
 	}
+
+	getMelodyLength() {
+		return this.melodyLength
+	}
 }
 
 export const ChordPrototypeInit = (id: number) => {
@@ -70,6 +76,7 @@ export const ChordPrototypeInit = (id: number) => {
 		restrictPrecedingChords: false,
 		restrictFollowingChords: false,
 		rhythmStrategy: "Inherit" as RhythmStrategy,
+		melodyLength: 4,
 		rhythmPatternOptions: {
 			onlyStartOnNote: true,
 			minimumNumberOfNotes: 3,
@@ -117,7 +124,7 @@ export function chordPrototypeIRToChordPrototype(protoIR: ChordPrototypeIR, keyG
 		new OptionsPerCell(OctavedNote.all(), protoIR.noteCanvasProps.optionsPerCell),
 		new ConstraintSet(protoIR.noteCanvasProps.constraints.map(noteConstraint => convertIRToNoteConstraint({ir: noteConstraint, keyGrabber}))),
 	)
-	return new ChordPrototype(protoIR.name, noteCanvasProps, Chord.fromIR(protoIR.chord), protoIR.rhythmStrategy, protoIR.rhythmPatternOptions)
+	return new ChordPrototype(protoIR.name, noteCanvasProps, Chord.fromIR(protoIR.chord), protoIR.rhythmStrategy, protoIR.rhythmPatternOptions, protoIR.melodyLength)
 }
 
 export function chordesqueIRMapToChordesqueMap(chordesqueIRMap: Map<number, ChordesqueIR[]>, chordPrototypes: ChordPrototypeIR[], keyGrabber: Grabber<MusicalKey>): Map<number, Chordesque[]> {

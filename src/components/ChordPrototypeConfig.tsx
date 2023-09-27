@@ -40,7 +40,7 @@ export function ChordPrototypeConfig({prototype, removePrototype, onUpdate}: Cho
 	const [melodyLength, tempSetMelodyLength] = useState(prototype.noteCanvasProps.size)
 	const setMelodyLength = (newMelodyLength: number) => {
 		tempSetMelodyLength(newMelodyLength)
-		updateNoteCanvasProps({size: newMelodyLength})
+		onUpdate({melodyLength: newMelodyLength})
 	}
 
 	const [rhythmStrategy, tempSetRhythmStrategy] = useState(prototype.rhythmStrategy)
