@@ -74,9 +74,11 @@ export function ChordConstraintDiv({ constraintIR, onConstraintChange, onRemove 
 	const [valid, setValid] = useState(constraintIR.validByDefault as boolean)
 
 	return <div className="constraint-div">
-		<h4 style={{color: valid ? "white" : "red"}}>{chordConstraintTypeToName.get(constraintIR.type)}</h4>
+		<div style={{display: "flex", justifyContent: "end", gap: "0.5em", flexDirection:"row", alignItems:"center", fontSize: 8}}>
+			<button style={{width: "fit-content", height: "fit-content"}} onClick={onRemove}>X</button>
+		</div>
+		<h4 style={{color: valid ? "white" : "red", marginTop:0}}>{chordConstraintTypeToName.get(constraintIR.type)}</h4>
 		<ChordConstraintConfig constraintIR={constraintIR} onConstraintChange={onConstraintChange} setValid={setValid}/>
-		<button onClick={onRemove}>Remove</button>
 	</div>
 }
 
