@@ -14,21 +14,28 @@ interface ChordConstraintConfigProps {
 export function ChordConstraintConfig({ constraintIR, onConstraintChange, setValid }: ChordConstraintConfigProps) {
 	switch (constraintIR.type) {
 		case "ChordInKeyHardConstraint": return <></>
-		case "ChordRootAbsoluteStepSizeHardConstraint": return <SimpleConstraintConfigDiv>
-			<input
-				type="text"
-				placeholder="Allowed intervals"
-				defaultValue={constraintIR.stepSizes.join(" ")}
-				onChange={(e) => {
-					const stepSizes = e.target.value.split(" ").map(str => parseInt(str)).filter(num => !isNaN(num))
-					if (stepSizes.length > 0) {
-						setValid(true)
-						onConstraintChange({ ...constraintIR, stepSizes })
-					}
-					else setValid(false)
-				}}
-			/>
-		</SimpleConstraintConfigDiv>
+		case "ChordRootAbsoluteStepSizeHardConstraint": 
+			
+			return <SimpleConstraintConfigDiv>
+				<div style={{display:"flex", flexDirection:"row", gap:"0.5em", flexWrap:"wrap", justifyContent:"center"}}>
+					{[0, 1, 2, 3, 4, 5, 6].map(num => (
+						<div key={num} style={{display:"flex", flexDirection:"column"}}>
+							<input
+								type="checkbox"
+								defaultChecked={constraintIR.stepSizes.includes(num)}
+								onChange={(e) => {
+									const stepSizes = [...constraintIR.stepSizes]
+									if (e.target.checked) stepSizes.push(num)
+									else stepSizes.splice(stepSizes.indexOf(num), 1)
+									onConstraintChange({ ...constraintIR, stepSizes })
+									setValid(stepSizes.length > 0)
+								}}
+							/>
+							{num}
+						</div>
+					))}
+				</div>
+			</SimpleConstraintConfigDiv>
 		case "PerfectCadenceSoftConstraint": return <SimpleConstraintConfigDiv>
 			<input
 				type="number"
