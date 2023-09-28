@@ -17,12 +17,12 @@ import { ChordPrototypeOnlyPrecededByConstraint } from "../wfc/constraints/Chord
 
 export function Output(){
 	const [isPlaying, setIsPlaying] = useState(false)
-	const {output, setOutput, onlyUseChordPrototypes, chordPrototypes, inferKey, numChords, chordOptionsPerCell, chordConstraintSet, melodyLength, noteOptionsPerCell, noteConstraintSet, keyGrabber, minNumNotes, startOnNote, maxRestLength, useRhythm, } = useAppContext()
+	const {output, setOutput, onlyUseChordPrototypes, chordPrototypes, inferKey, inferMelodyKey, differentMelodyKey, numChords, chordOptionsPerCell, chordConstraintSet, melodyLength, noteOptionsPerCell, noteConstraintSet, keyGrabber, melodyKeyGrabber, minNumNotes, startOnNote, maxRestLength, useRhythm, } = useAppContext()
 
 	const noteCanvasProps = new TileCanvasProps(
 		melodyLength,
 		new OptionsPerCell(OctavedNote.all(), noteOptionsPerCell),
-		new ConstraintSet(noteConstraintSet.map(noteConstraint => convertIRToNoteConstraint({ir: noteConstraint, keyGrabber}))),
+		new ConstraintSet(noteConstraintSet.map(noteConstraint => convertIRToNoteConstraint({ir: noteConstraint, keyGrabber: melodyKeyGrabber}))),
 	)
 
 	function updatePlayer() {
@@ -37,7 +37,7 @@ export function Output(){
 			})
 
 			for(const protoIR of properlyNamedChordPrototypes){
-				parsedChordPrototypes.push(chordPrototypeIRToChordPrototype(protoIR, keyGrabber))
+				parsedChordPrototypes.push(chordPrototypeIRToChordPrototype(protoIR, melodyKeyGrabber))
 
 				if(protoIR.restrictPrecedingChords){
 					if(protoIR.allowedPrecedingChords.every(chordName => {
@@ -63,7 +63,7 @@ export function Output(){
 				new OptionsPerCell([
 					...parsedChordPrototypes,
 					...(onlyUseChordPrototypes ? [] : Chord.allBasicChords()),
-				], chordesqueIRMapToChordesqueMap(chordOptionsPerCell, chordPrototypes, keyGrabber)),
+				], chordesqueIRMapToChordesqueMap(chordOptionsPerCell, chordPrototypes, melodyKeyGrabber)),
 				new ConstraintSet([...chordConstraintSet.map(chordConstraint => convertIRToChordConstraint({ir: chordConstraint, keyGrabber})), ...chordPrototypeConstraints]),
 			)
 
@@ -77,7 +77,7 @@ export function Output(){
 					maximumRestLength: maxRestLength,
 				},
 				random: new Random(),
-				higherValues: new HigherValues({key: inferKey()})
+				higherValues: new HigherValues({key: inferKey(), melodyKey: differentMelodyKey ? inferMelodyKey() : undefined}),
 			})
 
 			setOutput(node.generate(useRhythm))

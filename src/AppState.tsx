@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react"
-import { MajorKey, MinorKey } from "./music_theory/MusicalKey"
+import { MusicalKey } from "./music_theory/MusicalKey"
 import { Note, OctavedNote } from "./music_theory/Note"
-import { SelectOption } from "./components/utils"
+import { SelectKeyTypeOption } from "./components/utils"
 import { ChordInKeyHardConstraintInit } from "./wfc/constraints/ChordInKeyHardConstraint"
 import { MelodyInKeyHardConstraintInit } from "./wfc/constraints/MelodyInKeyHardConstraint"
 import { MelodyInRangeHardConstraintInit } from "./wfc/constraints/MelodyInRangeHardConstraint"
@@ -20,22 +20,29 @@ function AppState() {
 
 	//GLOBAL KEY
 	const [keyRoot, setKeyRoot] = useState(Note.C)
-	const [keyType, setKeyType] = useState({label: "Major", value: "major"} as SelectOption)
+	const [keyType, setKeyType] = useState({label: "Major", value: "major"} as SelectKeyTypeOption)
 	const inferKey = useCallback(() => {
 		if(keyType === null) throw new Error("keyType and keyRoot must be defined")
-		if (keyType.value === "major") {
-			return new MajorKey(keyRoot)
-		} else if (keyType.value === "minor"){
-			return new MinorKey(keyRoot)
-		} else {
-			throw new Error("keyType must be either major or minor")
-		}
+		return MusicalKey.fromRootAndType(keyRoot, keyType.value)
 	}, [keyRoot, keyType])
 	const inferKeyRef = useRef(inferKey)
 	useEffect(() => {
 		inferKeyRef.current = inferKey
 	}, [inferKey])
 	const keyGrabber = () => inferKeyRef.current()
+
+	const [differentMelodyKey, setDifferentMelodyKey] = useState(false)
+	const [melodyKeyRoot, setMelodyKeyRoot] = useState(Note.C)
+	const [melodyKeyType, setMelodyKeyType] = useState({label: "Major", value: "major"} as SelectKeyTypeOption)
+	const inferMelodyKey = useCallback(() => {
+		if(melodyKeyType === null) throw new Error("keyType and keyRoot must be defined")
+		return MusicalKey.fromRootAndType(melodyKeyRoot, melodyKeyType.value)
+	}, [melodyKeyRoot, melodyKeyType])
+	const inferMelodyKeyRef = useRef(inferMelodyKey)
+	useEffect(() => {
+		inferMelodyKeyRef.current = inferMelodyKey
+	}, [inferMelodyKey])
+	const melodyKeyGrabber = () => inferMelodyKeyRef.current()
 	
 	//OPTIONS PER CELL
 	const [chordOptionsPerCell, setChordOptionsPerCell] = useState(new Map<number, ChordesqueIR[]>())
@@ -153,6 +160,15 @@ function AppState() {
 		setKeyType,
 		inferKey,
 		keyGrabber,
+
+		differentMelodyKey,
+		setDifferentMelodyKey,
+		melodyKeyRoot,
+		setMelodyKeyRoot,
+		melodyKeyType,
+		setMelodyKeyType,
+		inferMelodyKey,
+		melodyKeyGrabber,
 
 		chordOptionsPerCell,
 		handleChordOptionsPerCellChange,

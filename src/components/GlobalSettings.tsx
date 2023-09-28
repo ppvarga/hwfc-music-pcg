@@ -2,7 +2,7 @@ import { useAppContext } from "../AppState"
 import { Note } from "../music_theory/Note"
 import Select from "react-select"
 import { selectStyles } from "../styles"
-import { SelectOption } from "./utils"
+import { SelectKeyTypeOption, SelectOption } from "./utils"
 import { ConstantNoteSelector } from "./ConstantNoteSelector"
 import { RhythmSettings } from "./RhythmSettings"
 
@@ -65,13 +65,43 @@ const keyTypeOptions = [
 	{label: "Minor", value: "minor"},
 ]
 
+const melodyKeyTypeOptions = [
+	{label: "Major", value: "major" as const},
+	{label: "Minor", value: "minor" as const},
+	{label: "Blues", value: "blues" as const},
+	{label: "Major Pentatonic", value: "major_pentatonic" as const},
+	{label: "Minor Pentatonic", value: "minor_pentatonic" as const},
+	{label: "Harmonic Minor", value: "harmonic_minor" as const},
+	{label: "Melodic Minor", value: "melodic_minor" as const},
+	{label: "Diminished", value: "diminished" as const},
+	{label: "Whole Tone", value: "whole_tone" as const},
+]
+
+export type MusicalKeyType = typeof melodyKeyTypeOptions[number]["value"]
+
 function GlobalKeySelector() {
-	const {keyRoot, setKeyRoot, keyType, setKeyType} = useAppContext()
+	const {keyRoot, setKeyRoot, keyType, setKeyType, differentMelodyKey, setDifferentMelodyKey, melodyKeyRoot, melodyKeyType, setMelodyKeyRoot, setMelodyKeyType} = useAppContext()
 	return <>
 		<h3>Key</h3>
-		<div style={{display:"flex"}}>
-			<ConstantNoteSelector placeholder={"Select a key root"} value={keyRoot} setValue={setKeyRoot} style={{flex: 1}}/>
-			<Select options={keyTypeOptions} placeholder={"Select a key type"} styles={selectStyles} value={keyType} onChange={(option: SelectOption) => {setKeyType(option)}}/>
+		<div style={{display:"flex", flexDirection:"column"}}>
+			<div style={{display:"flex", flexDirection:"row"}}>
+				<div style={{width:"6em"}}>
+					<ConstantNoteSelector placeholder={"Select a key root"} value={keyRoot} setValue={setKeyRoot} style={{flex: 1}}/>
+				</div>
+				<Select options={keyTypeOptions} placeholder={"Select a key type"} styles={selectStyles} value={keyType} onChange={(option: SelectOption) => {setKeyType(option as SelectKeyTypeOption)}}/>
+			</div>
+			<div>
+				<div style={{display: "flex", flexDirection:"row", gap:"1em", justifyContent:"center"}}>
+					<h4>Use different key for melody</h4>
+					<input type="checkbox" checked={differentMelodyKey} onChange={(e) => setDifferentMelodyKey(e.target.checked)}/>
+				</div>
+				{differentMelodyKey && <div style={{display:"flex", flexDirection:"row"}}>
+					<div style={{width:"6em"}}>
+						<ConstantNoteSelector placeholder={"Select a key root"} value={melodyKeyRoot} setValue={setMelodyKeyRoot} style={{flex: 1}}/>
+					</div>
+					<Select options={melodyKeyTypeOptions} placeholder={"Select a key type"} styles={selectStyles} value={melodyKeyType} onChange={(option: SelectOption) => {setMelodyKeyType(option as SelectKeyTypeOption)}}/>
+				</div>}													
+			</div>
 		</div>
 	</>
 }

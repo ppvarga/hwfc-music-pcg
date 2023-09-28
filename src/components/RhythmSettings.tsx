@@ -5,7 +5,7 @@ import { NumberSelector } from "./GlobalSettings"
 export function RhythmSettings() {
 	const {useRhythm, setUseRhythm} = useAppContext()
 	return <>
-		<div style={{display: "flex", justifyContent: "center", gap: "0.5em", marginTop:"2em"}}>
+		<div style={{display: "flex", justifyContent: "center", gap: "0.5em", marginTop:"1em"}}>
 			<h2 style={{marginBottom:0, marginTop:0}}>Rhythm</h2>
 			<input type="checkbox" checked={useRhythm} onChange={(e) => setUseRhythm(e.target.checked)}/>
 		</div>

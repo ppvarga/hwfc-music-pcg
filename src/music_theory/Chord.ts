@@ -83,7 +83,7 @@ export class Chord extends NoteSet implements Chordesque{
 			case "augmented":
 				return new AugmentedChord(root)
 			default:
-				throw new Error("Invalid chord quality")
+				throw new Error("Invalid chord quality: " + quality)
 		}
 	}
 

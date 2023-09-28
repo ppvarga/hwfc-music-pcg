@@ -5,6 +5,7 @@ import { Section } from "./hierarchy/prototypes"
 
 interface HigherValuesProps {
     key?: MusicalKey;
+	melodyKey?: MusicalKey;
     section?: Section;
     chord?: Chord;
     rhythmPattern?: RhythmPattern;
@@ -12,6 +13,7 @@ interface HigherValuesProps {
 
 export class HigherValues {
 	private key!: MusicalKey
+	private melodyKey!: MusicalKey
 	private section!: Section
 	private chord!: Chord
 	private rhythmPattern!: RhythmPattern
@@ -22,12 +24,16 @@ export class HigherValues {
 			if (props.section) this.section = props.section
 			if (props.chord) this.chord = props.chord
 			if (props.rhythmPattern) this.rhythmPattern = props.rhythmPattern
+
+			if (props.melodyKey) this.melodyKey = props.melodyKey
+			else this.melodyKey = this.key
 		}
 	}
 
 	public copy() : HigherValues {
 		const out = new HigherValues()
 		out.setKey(this.key)
+		out.setMelodyKey(this.melodyKey)
 		out.setSection(this.section)
 		out.setChord(this.chord)
 		out.setRhythmPattern(this.rhythmPattern)
@@ -37,6 +43,7 @@ export class HigherValues {
 	public copyWithChord(otherChord: Chord) : HigherValues {
 		const out = new HigherValues()
 		out.setKey(this.key)
+		out.setMelodyKey(this.melodyKey)
 		out.setSection(this.section)
 		out.setChord(otherChord)
 		out.setRhythmPattern(this.rhythmPattern)
@@ -46,6 +53,7 @@ export class HigherValues {
 	public copyWithSection(otherSection: Section) : HigherValues {
 		const out = new HigherValues()
 		out.setKey(this.key)
+		out.setMelodyKey(this.melodyKey)
 		out.setSection(otherSection)
 		out.setChord(this.chord)
 		out.setRhythmPattern(this.rhythmPattern)
@@ -55,6 +63,17 @@ export class HigherValues {
 	public copyWithKey(otherKey: MusicalKey) : HigherValues {
 		const out = new HigherValues()
 		out.setKey(otherKey)
+		out.setMelodyKey(otherKey)
+		out.setSection(this.section)
+		out.setChord(this.chord)
+		out.setRhythmPattern(this.rhythmPattern)
+		return out
+	}
+
+	public copyWithMelodyKey(otherMelodyKey: MusicalKey) : HigherValues {
+		const out = new HigherValues()
+		out.setKey(this.key)
+		out.setMelodyKey(otherMelodyKey)
 		out.setSection(this.section)
 		out.setChord(this.chord)
 		out.setRhythmPattern(this.rhythmPattern)
@@ -64,6 +83,7 @@ export class HigherValues {
 	public copyWithRhythmPattern(otherRhythmPattern: RhythmPattern) : HigherValues {
 		const out = new HigherValues()
 		out.setKey(this.key)
+		out.setMelodyKey(this.melodyKey)
 		out.setSection(this.section)
 		out.setChord(this.chord)
 		out.setRhythmPattern(otherRhythmPattern)
@@ -74,8 +94,16 @@ export class HigherValues {
 		return this.key
 	}
 
+	public getMelodyKey() : MusicalKey {
+		return this.melodyKey
+	}
+
 	public setKey(key: MusicalKey) : void {
 		this.key = key
+	}
+
+	public setMelodyKey(melodyKey: MusicalKey) : void {
+		this.melodyKey = melodyKey
 	}
 
 	public getSection() : Section {
