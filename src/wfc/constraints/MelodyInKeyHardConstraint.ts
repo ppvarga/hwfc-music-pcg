@@ -14,7 +14,9 @@ export type MelodyInKeyHardConstraintIR = typeof MelodyInKeyHardConstraintInit
 
 export class MelodyInKeyHardConstraint {
 	private grabber: Grabber<MusicalKey>
-	name = noteConstraintTypeToName.get(MelodyInKeyHardConstraintInit.type) as string
+	name = noteConstraintTypeToName.get(
+		MelodyInKeyHardConstraintInit.type,
+	) as string
 	constructor(grabber: Grabber<MusicalKey>) {
 		this.grabber = grabber
 	}

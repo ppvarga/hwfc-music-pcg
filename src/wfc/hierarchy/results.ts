@@ -3,12 +3,12 @@ import { OctavedNote } from "../../music_theory/Note"
 import { RhythmPattern } from "../../music_theory/Rhythm"
 
 export type ChordResult = {
-  chord: Chord,
-  notes: OctavedNote[]
+	chord: Chord
+	notes: OctavedNote[]
 }
 
 export type ChordResultWithRhythm = ChordResult & {
-  rhythmPattern: RhythmPattern
+	rhythmPattern: RhythmPattern
 }
 
 export type SectionResult = ChordResult[]

@@ -14,12 +14,12 @@ interface ChordConstraintConfigProps {
 export function ChordConstraintConfig({ constraintIR, onConstraintChange, setValid }: ChordConstraintConfigProps) {
 	switch (constraintIR.type) {
 		case "ChordInKeyHardConstraint": return <></>
-		case "ChordRootAbsoluteStepSizeHardConstraint": 
-			
+		case "ChordRootAbsoluteStepSizeHardConstraint":
+
 			return <SimpleConstraintConfigDiv>
-				<div style={{display:"flex", flexDirection:"row", gap:"0.5em", flexWrap:"wrap", justifyContent:"center"}}>
+				<div style={{ display: "flex", flexDirection: "row", gap: "0.5em", flexWrap: "wrap", justifyContent: "center" }}>
 					{[0, 1, 2, 3, 4, 5, 6].map(num => (
-						<div key={num} style={{display:"flex", flexDirection:"column"}}>
+						<div key={num} style={{ display: "flex", flexDirection: "column" }}>
 							<input
 								type="checkbox"
 								defaultChecked={constraintIR.stepSizes.includes(num)}
@@ -81,15 +81,15 @@ export function ChordConstraintDiv({ constraintIR, onConstraintChange, onRemove 
 	const [valid, setValid] = useState(constraintIR.validByDefault as boolean)
 
 	return <div className="constraint-div">
-		<div style={{display: "flex", justifyContent: "end", gap: "0.5em", flexDirection:"row", alignItems:"center", fontSize: 8}}>
-			<button style={{width: "fit-content", height: "fit-content"}} onClick={onRemove}>X</button>
+		<div style={{ display: "flex", justifyContent: "end", gap: "0.5em", flexDirection: "row", alignItems: "center", fontSize: 8 }}>
+			<button style={{ width: "fit-content", height: "fit-content" }} onClick={onRemove}>X</button>
 		</div>
-		<h4 style={{color: valid ? "white" : "red", marginTop:0}}>{chordConstraintTypeToName.get(constraintIR.type)}</h4>
-		<ChordConstraintConfig constraintIR={constraintIR} onConstraintChange={onConstraintChange} setValid={setValid}/>
+		<h4 style={{ color: valid ? "white" : "red", marginTop: 0 }}>{chordConstraintTypeToName.get(constraintIR.type)}</h4>
+		<ChordConstraintConfig constraintIR={constraintIR} onConstraintChange={onConstraintChange} setValid={setValid} />
 	</div>
 }
 
-type ChordConstraintTypeOption = {value: ChordConstraintType, label: string}
+type ChordConstraintTypeOption = { value: ChordConstraintType, label: string }
 
 interface AddChordConstraintProps {
 	onAddConstraint: (constraintIR: ChordConstraintIR) => void
@@ -110,7 +110,7 @@ function AddChordConstraint({ onAddConstraint }: AddChordConstraintProps) {
 
 	return (
 		<div className="add-constraint">
-			<div style={{flex:1}}>
+			<div style={{ flex: 1 }}>
 				<Select
 					options={getChordConstraintOptions()}
 					value={selectedType}
@@ -119,18 +119,18 @@ function AddChordConstraint({ onAddConstraint }: AddChordConstraintProps) {
 					styles={selectStyles}
 				/>
 			</div>
-			<button onClick={() => {handleAddButtonClick(); setSelectedType(null)}}>Add</button>
+			<button onClick={() => { handleAddButtonClick(); setSelectedType(null) }}>Add</button>
 		</div>
 	)
 }
 
 export function ChordConstraints() {
-	const {chordConstraintSet, addChordConstraint, removeChordConstraint, handleChordConstraintChange} = useAppContext()
+	const { chordConstraintSet, addChordConstraint, removeChordConstraint, handleChordConstraintChange } = useAppContext()
 
 	return (
 		<>
 			<h3>Chord constraints</h3>
-			<AddChordConstraint onAddConstraint={addChordConstraint}/>
+			<AddChordConstraint onAddConstraint={addChordConstraint} />
 			{chordConstraintSet.map((constraintIR, index) => {
 				return <ChordConstraintDiv
 					key={index}

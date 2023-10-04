@@ -4,11 +4,11 @@ import { RhythmPattern } from "../music_theory/Rhythm"
 import { Section } from "./hierarchy/prototypes"
 
 interface HigherValuesProps {
-    key?: MusicalKey;
-	melodyKey?: MusicalKey;
-    section?: Section;
-    chord?: Chord;
-    rhythmPattern?: RhythmPattern;
+	key?: MusicalKey
+	melodyKey?: MusicalKey
+	section?: Section
+	chord?: Chord
+	rhythmPattern?: RhythmPattern
 }
 
 export class HigherValues {
@@ -30,7 +30,7 @@ export class HigherValues {
 		}
 	}
 
-	public copy() : HigherValues {
+	public copy(): HigherValues {
 		const out = new HigherValues()
 		out.setKey(this.key)
 		out.setMelodyKey(this.melodyKey)
@@ -40,7 +40,7 @@ export class HigherValues {
 		return out
 	}
 
-	public copyWithChord(otherChord: Chord) : HigherValues {
+	public copyWithChord(otherChord: Chord): HigherValues {
 		const out = new HigherValues()
 		out.setKey(this.key)
 		out.setMelodyKey(this.melodyKey)
@@ -50,7 +50,7 @@ export class HigherValues {
 		return out
 	}
 
-	public copyWithSection(otherSection: Section) : HigherValues {
+	public copyWithSection(otherSection: Section): HigherValues {
 		const out = new HigherValues()
 		out.setKey(this.key)
 		out.setMelodyKey(this.melodyKey)
@@ -60,7 +60,7 @@ export class HigherValues {
 		return out
 	}
 
-	public copyWithKey(otherKey: MusicalKey) : HigherValues {
+	public copyWithKey(otherKey: MusicalKey): HigherValues {
 		const out = new HigherValues()
 		out.setKey(otherKey)
 		out.setMelodyKey(otherKey)
@@ -70,7 +70,7 @@ export class HigherValues {
 		return out
 	}
 
-	public copyWithMelodyKey(otherMelodyKey: MusicalKey) : HigherValues {
+	public copyWithMelodyKey(otherMelodyKey: MusicalKey): HigherValues {
 		const out = new HigherValues()
 		out.setKey(this.key)
 		out.setMelodyKey(otherMelodyKey)
@@ -80,7 +80,9 @@ export class HigherValues {
 		return out
 	}
 
-	public copyWithRhythmPattern(otherRhythmPattern: RhythmPattern) : HigherValues {
+	public copyWithRhythmPattern(
+		otherRhythmPattern: RhythmPattern,
+	): HigherValues {
 		const out = new HigherValues()
 		out.setKey(this.key)
 		out.setMelodyKey(this.melodyKey)
@@ -90,43 +92,43 @@ export class HigherValues {
 		return out
 	}
 
-	public getKey() : MusicalKey {
+	public getKey(): MusicalKey {
 		return this.key
 	}
 
-	public getMelodyKey() : MusicalKey {
+	public getMelodyKey(): MusicalKey {
 		return this.melodyKey
 	}
 
-	public setKey(key: MusicalKey) : void {
+	public setKey(key: MusicalKey): void {
 		this.key = key
 	}
 
-	public setMelodyKey(melodyKey: MusicalKey) : void {
+	public setMelodyKey(melodyKey: MusicalKey): void {
 		this.melodyKey = melodyKey
 	}
 
-	public getSection() : Section {
+	public getSection(): Section {
 		return this.section
 	}
 
-	public setSection(section: Section) : void {
+	public setSection(section: Section): void {
 		this.section = section
 	}
 
-	public getChord() : Chord {
+	public getChord(): Chord {
 		return this.chord
 	}
 
-	public setChord(chord: Chord) : void {
+	public setChord(chord: Chord): void {
 		this.chord = chord
 	}
 
-	public getRhythmPattern() : RhythmPattern {
+	public getRhythmPattern(): RhythmPattern {
 		return this.rhythmPattern
 	}
 
-	public setRhythmPattern(rhythmPattern: RhythmPattern) : void {
-		this.rhythmPattern =rhythmPattern
+	public setRhythmPattern(rhythmPattern: RhythmPattern): void {
+		this.rhythmPattern = rhythmPattern
 	}
 }

@@ -4,7 +4,9 @@ import { Tile } from "../Tile"
 import { Chordesque, ChordPrototype } from "../hierarchy/prototypes"
 import { HardConstraint } from "./concepts/Constraint"
 
-export class ChordPrototypeOnlyPrecededByConstraint implements HardConstraint<Chordesque> {
+export class ChordPrototypeOnlyPrecededByConstraint
+	implements HardConstraint<Chordesque>
+{
 	private chordPrototypeName: string
 	private grabber: Grabber<string[]>
 
@@ -21,15 +23,23 @@ export class ChordPrototypeOnlyPrecededByConstraint implements HardConstraint<Ch
 		const next = tile.getNext()
 
 		let out = true
-		if(prev.isCollapsed()) out = out && this.checkPair(prev.getValue(), chordesque, higherValues)
-		if(next.isCollapsed()) out = out && this.checkPair(chordesque, next.getValue(), higherValues)
+		if (prev.isCollapsed())
+			out =
+				out && this.checkPair(prev.getValue(), chordesque, higherValues)
+		if (next.isCollapsed())
+			out =
+				out && this.checkPair(chordesque, next.getValue(), higherValues)
 		return out
 	}
 
-	private checkPair(first: Chordesque, second: Chordesque, higherValues: HigherValues): boolean {
-		if(!(second instanceof ChordPrototype)) return true
-		if(second.getName() !== this.chordPrototypeName) return true
+	private checkPair(
+		first: Chordesque,
+		second: Chordesque,
+		higherValues: HigherValues,
+	): boolean {
+		if (!(second instanceof ChordPrototype)) return true
+		if (second.getName() !== this.chordPrototypeName) return true
 		const chordSet = this.grabber(higherValues)
-		return chordSet.some(chordString => chordString === first.getName())
+		return chordSet.some((chordString) => chordString === first.getName())
 	}
 }

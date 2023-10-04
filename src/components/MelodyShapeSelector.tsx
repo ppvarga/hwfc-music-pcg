@@ -2,11 +2,11 @@ import { useEffect, useState } from "react"
 import { MelodyShape, MelodyStep, } from "../wfc/constraints/concepts/MelodyShape"
 
 interface MelodyStepTileProps {
-  step: MelodyStep
-  setStep: (step: MelodyStep) => void
+	step: MelodyStep
+	setStep: (step: MelodyStep) => void
 }
 
-function MelodyStepTile({ step, setStep}: MelodyStepTileProps) {
+function MelodyStepTile({ step, setStep }: MelodyStepTileProps) {
 	const stepToSymbol = (step: MelodyStep) => {
 		switch (step) {
 			case "wildcard": return "*"
@@ -29,9 +29,9 @@ function MelodyStepTile({ step, setStep}: MelodyStepTileProps) {
 }
 
 interface MelodyShapeSelectorProps {
-  size: number
-  setResult: (shape: MelodyShape) => void
-  startValue?: MelodyShape
+	size: number
+	setResult: (shape: MelodyShape) => void
+	startValue?: MelodyShape
 }
 
 export function MelodyShapeSelector({ size, setResult, startValue }: MelodyShapeSelectorProps) {
@@ -43,8 +43,8 @@ export function MelodyShapeSelector({ size, setResult, startValue }: MelodyShape
 	}, [])
 
 	useEffect(() => {
-		if(size === shape.length) return
-		if(size > shape.length) setShape([...shape, ...Array(size - shape.length).fill(wildcard)])
+		if (size === shape.length) return
+		if (size > shape.length) setShape([...shape, ...Array(size - shape.length).fill(wildcard)])
 		else setShape(shape.slice(0, size))
 	}, [size])
 
@@ -55,7 +55,7 @@ export function MelodyShapeSelector({ size, setResult, startValue }: MelodyShape
 		setResult(newShape)
 	}
 
-	return <div style={{paddingBottom : "0.5em"}}>
+	return <div style={{ paddingBottom: "0.5em" }}>
 		{shape.map((step, index) => <MelodyStepTile key={index} step={step} setStep={(step) => setStep(index, step)} />)}
 	</div>
 }

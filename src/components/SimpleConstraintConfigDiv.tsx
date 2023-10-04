@@ -1,5 +1,5 @@
 interface SimpleConstraintConfigDivProps {
-  children: React.ReactNode
+	children: React.ReactNode
 }
 
 export function SimpleConstraintConfigDiv({ children }: SimpleConstraintConfigDivProps) {

@@ -5,11 +5,11 @@ import { stringToChordIR } from "../music_theory/Chord"
 import { ChordPrototypeIR, ChordesqueIR, chordesqueIRToString } from "../wfc/hierarchy/prototypes"
 
 interface ChordTileProps {
-  index: number;
-  initialOptions?: string[];
+	index: number;
+	initialOptions?: string[];
 }
 
-function ChordTile({ index, initialOptions } : ChordTileProps) {
+function ChordTile({ index, initialOptions }: ChordTileProps) {
 	const [popupOpen, setPopupOpen] = useState(false)
 	const optionsString = (!initialOptions || initialOptions.length === 0) ? "*" : initialOptions.join(" | ")
 
@@ -26,7 +26,7 @@ interface ChordValuesInputProps {
 	setValue: (s: string) => void
 }
 
-export function ChordValuesInput({value, setValue}: ChordValuesInputProps) {
+export function ChordValuesInput({ value, setValue }: ChordValuesInputProps) {
 	return <div style={{ display: "flex", gap: "0.5em" }}>
 		<input type="text" onChange={e => setValue(e.target.value)} value={value} style={{ flex: 1 }} />
 		<img src="hint.png" title="Try 'Dm' or 'C F'" width="30px" height="30px" />
@@ -57,9 +57,9 @@ interface ChordValuesPopupProps {
 	setPopupOpen: (b: boolean) => void
 	initialOptions: string[] | undefined
 }
-function ChordValuesPopup({popupOpen, index, setPopupOpen, initialOptions}: ChordValuesPopupProps) {
+function ChordValuesPopup({ popupOpen, index, setPopupOpen, initialOptions }: ChordValuesPopupProps) {
 	const [input, setInput] = useState(initialOptions?.join(" ") || "")
-	const {handleChordOptionsPerCellChange, chordPrototypes} = useAppContext()
+	const { handleChordOptionsPerCellChange, chordPrototypes } = useAppContext()
 
 	const chordesques = parseChordsAndPrototypes(input, chordPrototypes)
 
@@ -73,11 +73,11 @@ function ChordValuesPopup({popupOpen, index, setPopupOpen, initialOptions}: Chor
 				onClick={() => {
 					handleChordOptionsPerCellChange(index, chordesques as ChordesqueIR[])
 					setPopupOpen(false)
-				} }>Save</button>
+				}}>Save</button>
 			<button onClick={() => {
 				setInput(initialOptions?.join(" ") || "")
 				setPopupOpen(false)
-			} }>Cancel</button>
+			}}>Cancel</button>
 		</div>
 	</Popup>
 }

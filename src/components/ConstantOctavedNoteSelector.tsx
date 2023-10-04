@@ -4,19 +4,19 @@ import { ConstantNoteSelector } from "./ConstantNoteSelector"
 
 interface ConstantOctavedNoteSelectorProps {
 	label?: string
-  defaultValue : OctavedNoteIR
-  setResult: (_: OctavedNoteIR) => void
-  onChange?: (_: OctavedNoteIR) => void
+	defaultValue: OctavedNoteIR
+	setResult: (_: OctavedNoteIR) => void
+	onChange?: (_: OctavedNoteIR) => void
 }
 
-export function ConstantOctavedNoteSelector({defaultValue, setResult, onChange, label}: ConstantOctavedNoteSelectorProps) {
+export function ConstantOctavedNoteSelector({ defaultValue, setResult, onChange, label }: ConstantOctavedNoteSelectorProps) {
 	const onChangeUsed = (onChange === undefined ?
-		((option: OctavedNoteIR) => { 
-			setResult(option) 
-		}) :
-		((option: OctavedNoteIR) => { 
+		((option: OctavedNoteIR) => {
 			setResult(option)
-			onChange(option) 
+		}) :
+		((option: OctavedNoteIR) => {
+			setResult(option)
+			onChange(option)
 		}))
 
 	const [note, setNote] = useState(defaultValue.note)
@@ -24,25 +24,25 @@ export function ConstantOctavedNoteSelector({defaultValue, setResult, onChange, 
 
 	const setNoteUsed = (note: Note) => {
 		setNote(note)
-		onChangeUsed({note, octave})
+		onChangeUsed({ note, octave })
 	}
 
 	const setOctaveUsed = (octave: number) => {
 		setOctave(octave)
-		onChangeUsed({note, octave})
+		onChangeUsed({ note, octave })
 	}
 
 	return <div className="constant-octaved-note-selector">
 		{label && <p>{label}</p>}
-		<div style={{display:"flex"}}>
+		<div style={{ display: "flex" }}>
 			<ConstantNoteSelector
-				style={{flex: 1}}
+				style={{ flex: 1 }}
 				placeholder={"Select a note"}
 				value={note}
 				setValue={setNoteUsed}
 			/>
 			<input
-				style={{flex: 0.8}}
+				style={{ flex: 0.8 }}
 				type="number"
 				placeholder="Octave"
 				value={octave}

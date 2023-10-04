@@ -20,7 +20,7 @@ export abstract class GenericCadenceSoftConstraint extends SoftConstraint<Chorde
 		secondOffsetGrabber: Grabber<number>,
 		firstChordGrabber: Grabber<ChordQuality>,
 		secondChordGrabber: Grabber<ChordQuality>,
-		keyGrabber: Grabber<MusicalKey>
+		keyGrabber: Grabber<MusicalKey>,
 	) {
 		super(bonus)
 		this.firstOffsetGrabber = firstOffsetGrabber
@@ -35,20 +35,38 @@ export abstract class GenericCadenceSoftConstraint extends SoftConstraint<Chorde
 
 		const rootOfKey = this.keyGrabber(higherValues).getRoot()
 
-		const firstRoot = relativeNote(rootOfKey, this.firstOffsetGrabber(higherValues))
-		const firstChord = Chord.fromRootAndQuality(firstRoot, this.firstChordGrabber(higherValues))
+		const firstRoot = relativeNote(
+			rootOfKey,
+			this.firstOffsetGrabber(higherValues),
+		)
+		const firstChord = Chord.fromRootAndQuality(
+			firstRoot,
+			this.firstChordGrabber(higherValues),
+		)
 
-		const secondRoot = relativeNote(rootOfKey, this.secondOffsetGrabber(higherValues))
-		const secondChord = Chord.fromRootAndQuality(secondRoot, this.secondChordGrabber(higherValues))
+		const secondRoot = relativeNote(
+			rootOfKey,
+			this.secondOffsetGrabber(higherValues),
+		)
+		const secondChord = Chord.fromRootAndQuality(
+			secondRoot,
+			this.secondChordGrabber(higherValues),
+		)
 
-		if(chord == secondChord){
+		if (chord == secondChord) {
 			const prev = tile.getPrev()
-			if(prev.isCollapsed() && prev.getValue().getChord() == firstChord){
+			if (
+				prev.isCollapsed() &&
+				prev.getValue().getChord() == firstChord
+			) {
 				return this.bonus
 			}
-		} else if(chord == firstChord){
+		} else if (chord == firstChord) {
 			const next = tile.getNext()
-			if(next.isCollapsed() && next.getValue().getChord() == secondChord){
+			if (
+				next.isCollapsed() &&
+				next.getValue().getChord() == secondChord
+			) {
 				return this.bonus
 			}
 		}

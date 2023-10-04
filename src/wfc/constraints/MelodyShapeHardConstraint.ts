@@ -16,17 +16,24 @@ export type MelodyShapeHardConstraintIR = typeof MelodyShapeHardConstraintInit
 
 export class MelodyShapeHardConstraint implements HardConstraint<OctavedNote> {
 	private grabber: Grabber<MelodyShape>
-	name = noteConstraintTypeToName.get(MelodyShapeHardConstraintInit.type) as string
+	name = noteConstraintTypeToName.get(
+		MelodyShapeHardConstraintInit.type,
+	) as string
 	constructor(grabber: Grabber<MelodyShape>) {
 		this.grabber = grabber
 	}
 
-	private checkPair(pos: number, first: OctavedNote, second: OctavedNote, shape: MelodyShape): boolean {
-		if(pos >= shape.length) throw new Error("Melody shape not long enough")
+	private checkPair(
+		pos: number,
+		first: OctavedNote,
+		second: OctavedNote,
+		shape: MelodyShape,
+	): boolean {
+		if (pos >= shape.length) throw new Error("Melody shape not long enough")
 		const step = shape[pos]
 		const stepSize = second.toMIDIValue() - first.toMIDIValue()
 
-		switch(step) {
+		switch (step) {
 			case "ascend":
 				return stepSize > 0
 			case "descend":
@@ -49,8 +56,10 @@ export class MelodyShapeHardConstraint implements HardConstraint<OctavedNote> {
 		const shape = this.grabber(higherValues)
 
 		let out = true
-		if(prev.isCollapsed()) out = out && this.checkPair(pos - 1, prev.getValue(), note, shape)
-		if(next.isCollapsed()) out = out && this.checkPair(pos, note, next.getValue(), shape)
+		if (prev.isCollapsed())
+			out = out && this.checkPair(pos - 1, prev.getValue(), note, shape)
+		if (next.isCollapsed())
+			out = out && this.checkPair(pos, note, next.getValue(), shape)
 		return out
 	}
 }

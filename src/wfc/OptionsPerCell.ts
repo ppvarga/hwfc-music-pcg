@@ -1,8 +1,8 @@
 export class OptionsPerCell<T> {
-	cells : Map<number, T[]>
-	allOptions : T[]
+	cells: Map<number, T[]>
+	allOptions: T[]
 
-	constructor(allOptions : T[], map? : Map<number, T[]>) {
+	constructor(allOptions: T[], map?: Map<number, T[]>) {
 		this.cells = map ?? new Map<number, T[]>()
 		this.allOptions = allOptions
 	}
@@ -11,17 +11,17 @@ export class OptionsPerCell<T> {
 		this.cells.clear()
 	}
 
-	public setOptions(position : number, options : T[]): void {
+	public setOptions(position: number, options: T[]): void {
 		this.cells.set(position, options)
 	}
 
-	public setValue(position : number, value : T): void {
+	public setValue(position: number, value: T): void {
 		this.cells.set(position, [value])
 	}
 
-	public getOptions(position : number): T[] {
+	public getOptions(position: number): T[] {
 		const options = this.cells.get(position)
-		if(options === undefined || options.length === 0) {
+		if (options === undefined || options.length === 0) {
 			return this.allOptions
 		}
 		return options
@@ -33,13 +33,13 @@ export class OptionsPerCell<T> {
 
 	public union(other: OptionsPerCell<T>): OptionsPerCell<T> {
 		const newAllOptions = [...this.allOptions, ...other.allOptions]
-    
+
 		const newOptionsPerCell = new OptionsPerCell<T>(newAllOptions)
 
-		for(const [position, options] of this.cells) {
+		for (const [position, options] of this.cells) {
 			newOptionsPerCell.setOptions(position, options)
 		}
-		for(const [position, options] of other.cells) {
+		for (const [position, options] of other.cells) {
 			newOptionsPerCell.setOptions(position, options)
 		}
 

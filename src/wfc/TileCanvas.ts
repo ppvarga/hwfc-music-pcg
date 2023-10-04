@@ -6,17 +6,21 @@ import { Tile } from "./Tile"
 import { TileSelector } from "./TileSelector"
 
 export class TileCanvasProps<T> {
-	private size : number
-	private optionsPerCell : OptionsPerCell<T>
-	private constraints : ConstraintSet<T>
+	private size: number
+	private optionsPerCell: OptionsPerCell<T>
+	private constraints: ConstraintSet<T>
 
-	constructor(size : number, optionsPerCell : OptionsPerCell<T>, constraints : ConstraintSet<T>) {
+	constructor(
+		size: number,
+		optionsPerCell: OptionsPerCell<T>,
+		constraints: ConstraintSet<T>,
+	) {
 		this.size = size
 		this.optionsPerCell = optionsPerCell
 		this.constraints = constraints
 	}
 
-	union(other : TileCanvasProps<T>) : TileCanvasProps<T> {
+	union(other: TileCanvasProps<T>): TileCanvasProps<T> {
 		return new TileCanvasProps<T>(
 			other.size,
 			this.optionsPerCell.union(other.optionsPerCell),
@@ -24,45 +28,49 @@ export class TileCanvasProps<T> {
 		)
 	}
 
-	getOptionsPerCell() : OptionsPerCell<T> {
+	getOptionsPerCell(): OptionsPerCell<T> {
 		return this.optionsPerCell
 	}
 
-	getConstraints() : ConstraintSet<T> {
+	getConstraints(): ConstraintSet<T> {
 		return this.constraints
 	}
 
-	getSize() : number {
+	getSize(): number {
 		return this.size
 	}
 
-	setOptionsPerCell(optionsPerCell : OptionsPerCell<T>) : void {
+	setOptionsPerCell(optionsPerCell: OptionsPerCell<T>): void {
 		this.optionsPerCell = optionsPerCell
 	}
 
-	setSize(size : number) : void {
+	setSize(size: number): void {
 		this.size = size
 	}
 }
 
-const optionsToWeighedOptions = <T>(options : Set<T>) : Set<[T, number]> => {
+const optionsToWeighedOptions = <T>(options: Set<T>): Set<[T, number]> => {
 	return new Set([...options].map((option: T) => [option, 1]))
 }
 
-export class TileCanvas<T>{
-	private size : number
-	private collapsed : number
-	private tiles : Tile<T>[]
-	private pq : TileSelector<T>
-	private random : Random
-	private higherValues : HigherValues
-	private constraints : ConstraintSet<T>
+export class TileCanvas<T> {
+	private size: number
+	private collapsed: number
+	private tiles: Tile<T>[]
+	private pq: TileSelector<T>
+	private random: Random
+	private higherValues: HigherValues
+	private constraints: ConstraintSet<T>
 
-	public getSize() : number {
+	public getSize(): number {
 		return this.size
 	}
 
-	constructor(props : TileCanvasProps<T>, higherValues : HigherValues, random : Random) {
+	constructor(
+		props: TileCanvasProps<T>,
+		higherValues: HigherValues,
+		random: Random,
+	) {
 		this.size = props.getSize()
 		this.collapsed = 0
 
@@ -75,7 +83,7 @@ export class TileCanvas<T>{
 
 		this.tiles = [this.createTile(optionsPerCell, 0)]
 
-		for(let i = 1; i < this.size; i++) {
+		for (let i = 1; i < this.size; i++) {
 			const tile = this.createTile(optionsPerCell, i)
 
 			this.tiles[i - 1].setNext(tile)
@@ -94,7 +102,7 @@ export class TileCanvas<T>{
 	private createTile(optionsPerCell: OptionsPerCell<T>, i: number) {
 		const options = optionsPerCell.getOptions(i)
 		let status
-		if(options.length === 1) {
+		if (options.length === 1) {
 			this.collapsed++
 			status = options[0]
 		} else {
@@ -104,39 +112,39 @@ export class TileCanvas<T>{
 			status,
 			canvas: this,
 			position: i,
-			prev: i===0 ? Tile.header(this) : this.tiles[i - 1],
+			prev: i === 0 ? Tile.header(this) : this.tiles[i - 1],
 		})
 	}
 
-	public getConstraints() : ConstraintSet<T> {
+	public getConstraints(): ConstraintSet<T> {
 		return this.constraints
 	}
 
-	public getHigherValues() : HigherValues {
+	public getHigherValues(): HigherValues {
 		return this.higherValues
 	}
 
-	public collapseOne() : number {
+	public collapseOne(): number {
 		return ++this.collapsed
 	}
 
-	public addTileOption(tile: Tile<T>){
+	public addTileOption(tile: Tile<T>) {
 		this.pq.add(tile)
 	}
 
-	public getRandom() : Random {
+	public getRandom(): Random {
 		return this.random
 	}
-  
-	public collapseNext(): Tile<T>{
-		if(this.collapsed >= this.size) throw new Error("Nothing to collapse")
+
+	public collapseNext(): Tile<T> {
+		if (this.collapsed >= this.size) throw new Error("Nothing to collapse")
 		const tileToCollapse = this.pq.poll()
 		tileToCollapse.collapse()
 		return tileToCollapse
 	}
 
 	public generate(): T[] {
-		while(this.collapsed < this.size) this.collapseNext()
+		while (this.collapsed < this.size) this.collapseNext()
 		return this.tiles.map((tile) => tile.getValue())
 	}
 }

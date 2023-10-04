@@ -1,13 +1,22 @@
 import { MusicalKeyType } from "../../components/GlobalSettings"
 import { RhythmStrategy } from "../../components/RhythmSettings"
-import { Chord, ChordIR, ChordQuality, chordIRToString, isChordIR } from "../../music_theory/Chord"
+import {
+	Chord,
+	ChordIR,
+	ChordQuality,
+	chordIRToString,
+	isChordIR,
+} from "../../music_theory/Chord"
 import { MusicalKey } from "../../music_theory/MusicalKey"
 import { Note, OctavedNote } from "../../music_theory/Note"
 import { RhythmPatternOptions } from "../../music_theory/Rhythm"
 import { ConstraintSet } from "../ConstraintSet"
 import { OptionsPerCell } from "../OptionsPerCell"
 import { TileCanvasProps } from "../TileCanvas"
-import { NoteConstraintIR, convertIRToNoteConstraint } from "../constraints/constraintUtils"
+import {
+	NoteConstraintIR,
+	convertIRToNoteConstraint,
+} from "../constraints/constraintUtils"
 
 export interface Chordesque {
 	getName(): string
@@ -17,14 +26,14 @@ export interface Chordesque {
 export type ChordesqueIR = ChordIR | string
 
 interface ChordPrototypeProps {
-	name: string,
-	noteCanvasProps: TileCanvasProps<OctavedNote>,
-	value: Chord,
-	rhythmStrategy: RhythmStrategy,
-	rhythmPatternOptions: RhythmPatternOptions,
-	melodyLength: number,
-	useDifferentMelodyKey: boolean,
-	melodyKey: MusicalKey,
+	name: string
+	noteCanvasProps: TileCanvasProps<OctavedNote>
+	value: Chord
+	rhythmStrategy: RhythmStrategy
+	rhythmPatternOptions: RhythmPatternOptions
+	melodyLength: number
+	useDifferentMelodyKey: boolean
+	melodyKey: MusicalKey
 }
 
 export class ChordPrototype implements Chordesque {
@@ -37,7 +46,16 @@ export class ChordPrototype implements Chordesque {
 	private useDifferentMelodyKey: boolean
 	private melodyKey: MusicalKey
 
-	constructor({name, noteCanvasProps, value, rhythmStrategy, rhythmPatternOptions, melodyLength, useDifferentMelodyKey, melodyKey}: ChordPrototypeProps) {
+	constructor({
+		name,
+		noteCanvasProps,
+		value,
+		rhythmStrategy,
+		rhythmPatternOptions,
+		melodyLength,
+		useDifferentMelodyKey,
+		melodyKey,
+	}: ChordPrototypeProps) {
 		this.name = name
 		this.noteCanvasProps = noteCanvasProps
 		this.chord = value
@@ -107,7 +125,7 @@ export const ChordPrototypeInit = (id: number) => {
 		} as RhythmPatternOptions,
 		useDifferentMelodyKey: false,
 		melodyKeyRoot: Note.C,
-		melodyKeyType: "major" as MusicalKeyType
+		melodyKeyType: "major" as MusicalKeyType,
 	}
 }
 
@@ -119,7 +137,12 @@ export class Section {
 	private rhythmPatternOptions: RhythmPatternOptions
 	private name: string
 
-	constructor(noteCanvasProps: TileCanvasProps<OctavedNote>, chordesqueCanvasProps: TileCanvasProps<Chordesque>, rhythmPatternOptions: RhythmPatternOptions, name: string) {
+	constructor(
+		noteCanvasProps: TileCanvasProps<OctavedNote>,
+		chordesqueCanvasProps: TileCanvasProps<Chordesque>,
+		rhythmPatternOptions: RhythmPatternOptions,
+		name: string,
+	) {
 		this.noteCanvasProps = noteCanvasProps
 		this.chordesqueCanvasProps = chordesqueCanvasProps
 		this.rhythmPatternOptions = rhythmPatternOptions
@@ -141,43 +164,64 @@ export class Section {
 	getName() {
 		return this.name
 	}
-  
 }
 
-export function chordPrototypeIRToChordPrototype(protoIR: ChordPrototypeIR): ChordPrototype {
+export function chordPrototypeIRToChordPrototype(
+	protoIR: ChordPrototypeIR,
+): ChordPrototype {
 	const noteCanvasProps = new TileCanvasProps(
 		protoIR.noteCanvasProps.size,
-		new OptionsPerCell(OctavedNote.all(), protoIR.noteCanvasProps.optionsPerCell),
-		new ConstraintSet(protoIR.noteCanvasProps.constraints.map(noteConstraint => convertIRToNoteConstraint(noteConstraint))),
+		new OptionsPerCell(
+			OctavedNote.all(),
+			protoIR.noteCanvasProps.optionsPerCell,
+		),
+		new ConstraintSet(
+			protoIR.noteCanvasProps.constraints.map((noteConstraint) =>
+				convertIRToNoteConstraint(noteConstraint),
+			),
+		),
 	)
 	return new ChordPrototype({
 		...protoIR,
 		value: Chord.fromIR(protoIR.chord),
 		noteCanvasProps,
-		melodyKey: MusicalKey.fromRootAndType(protoIR.melodyKeyRoot, protoIR.melodyKeyType),
+		melodyKey: MusicalKey.fromRootAndType(
+			protoIR.melodyKeyRoot,
+			protoIR.melodyKeyType,
+		),
 	})
 }
 
-export function chordesqueIRMapToChordesqueMap(chordesqueIRMap: Map<number, ChordesqueIR[]>, chordPrototypes: ChordPrototypeIR[]): Map<number, Chordesque[]> {
+export function chordesqueIRMapToChordesqueMap(
+	chordesqueIRMap: Map<number, ChordesqueIR[]>,
+	chordPrototypes: ChordPrototypeIR[],
+): Map<number, Chordesque[]> {
 	const chordesqueMap = new Map<number, Chordesque[]>()
 
-	for(const [position, chordesqueIRs] of chordesqueIRMap.entries()) {
-		const chordesqueList: Chordesque[] = chordesqueIRs.map((chordesqueIR) => {
-			if(isChordIR(chordesqueIR)) {
-				return Chord.fromIR(chordesqueIR)
-			} else {
-				const proto = chordPrototypes.find(proto => proto.name === chordesqueIR)
-				if(proto === undefined) throw new Error(`Chord prototype ${chordesqueIR} not found`)
-				return chordPrototypeIRToChordPrototype(proto)
-			}
-		})
+	for (const [position, chordesqueIRs] of chordesqueIRMap.entries()) {
+		const chordesqueList: Chordesque[] = chordesqueIRs.map(
+			(chordesqueIR) => {
+				if (isChordIR(chordesqueIR)) {
+					return Chord.fromIR(chordesqueIR)
+				} else {
+					const proto = chordPrototypes.find(
+						(proto) => proto.name === chordesqueIR,
+					)
+					if (proto === undefined)
+						throw new Error(
+							`Chord prototype ${chordesqueIR} not found`,
+						)
+					return chordPrototypeIRToChordPrototype(proto)
+				}
+			},
+		)
 		chordesqueMap.set(position, chordesqueList)
 	}
 	return chordesqueMap
 }
 
 export function chordesqueIRToString(chordesqueIR: ChordesqueIR): string {
-	if(typeof chordesqueIR === "string") {
+	if (typeof chordesqueIR === "string") {
 		return chordesqueIR
 	} else {
 		return chordIRToString(chordesqueIR)

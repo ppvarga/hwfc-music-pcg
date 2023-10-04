@@ -1,9 +1,9 @@
 import React from "react"
 
 interface TabProps {
-  title: string;
-  isActive: boolean;
-  onClick: () => void;
+	title: string;
+	isActive: boolean;
+	onClick: () => void;
 }
 
 const Tab: React.FC<TabProps> = ({ title, isActive, onClick }) => {

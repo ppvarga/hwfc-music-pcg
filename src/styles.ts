@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export const selectStyles = {
-	option:(provided: any, state: any) => ({
+	option: (provided: any, state: any) => ({
 		...provided,
 		color: state.isSelected ? "white" : "black",
 	}),
@@ -13,7 +13,7 @@ export const selectStyles = {
 
 export const buttonStyles = {
 	display: "flex",
-	gap: "0.5em", 
+	gap: "0.5em",
 	padding: "0.5em",
 	marginBottom: "1em",
 	border: "1px solid",

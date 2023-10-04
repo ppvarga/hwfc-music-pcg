@@ -1,4 +1,3 @@
-
 import { ConcreteChordQuality } from "../../../music_theory/Chord"
 import { GenericCadenceSoftConstraint } from "./GenericCadenceSoftConstraint"
 import { Grabber } from "../../Grabber"
@@ -12,10 +11,20 @@ export const PerfectCadenceSoftConstraintInit = {
 	validByDefault: true as const,
 }
 
-export type PerfectCadenceSoftConstraintIR = typeof PerfectCadenceSoftConstraintInit
+export type PerfectCadenceSoftConstraintIR =
+	typeof PerfectCadenceSoftConstraintInit
 export class PerfectCadenceSoftConstraint extends GenericCadenceSoftConstraint {
-	name = chordConstraintTypeToName.get(PerfectCadenceSoftConstraintInit.type) as string
+	name = chordConstraintTypeToName.get(
+		PerfectCadenceSoftConstraintInit.type,
+	) as string
 	constructor(bonus: number, keyGrabber: Grabber<MusicalKey>) {
-		super(bonus, constantGrabber(7), constantGrabber(0), constantGrabber("major" as ConcreteChordQuality), constantGrabber("major" as ConcreteChordQuality), keyGrabber)
+		super(
+			bonus,
+			constantGrabber(7),
+			constantGrabber(0),
+			constantGrabber("major" as ConcreteChordQuality),
+			constantGrabber("major" as ConcreteChordQuality),
+			keyGrabber,
+		)
 	}
 }

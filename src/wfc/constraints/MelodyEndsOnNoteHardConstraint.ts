@@ -12,17 +12,22 @@ export const MelodyEndsOnNoteHardConstraintInit = {
 	validByDefault: true as const,
 }
 
-export type MelodyEndsOnNoteHardConstraintIR = typeof MelodyEndsOnNoteHardConstraintInit
+export type MelodyEndsOnNoteHardConstraintIR =
+	typeof MelodyEndsOnNoteHardConstraintInit
 
-export class MelodyEndsOnNoteHardConstraint implements HardConstraint<OctavedNote> {
+export class MelodyEndsOnNoteHardConstraint
+	implements HardConstraint<OctavedNote>
+{
 	private grabber: Grabber<Note>
-	name = noteConstraintTypeToName.get(MelodyEndsOnNoteHardConstraintInit.type) as string
+	name = noteConstraintTypeToName.get(
+		MelodyEndsOnNoteHardConstraintInit.type,
+	) as string
 	constructor(grabber: Grabber<Note>) {
 		this.grabber = grabber
 	}
 
 	check(tile: Tile<OctavedNote>, higherValues: HigherValues): boolean {
-		if(tile.getPosition() != tile.getCanvas().getSize() - 1) return true
+		if (tile.getPosition() != tile.getCanvas().getSize() - 1) return true
 		const note = tile.getValue()
 		const startNote = this.grabber(higherValues)
 		return note.getNote() == startNote

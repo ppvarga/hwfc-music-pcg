@@ -9,7 +9,7 @@ export abstract class NoteSet {
 		return this.root
 	}
 
-	constructor(root: Note, noteValues: number[]){
+	constructor(root: Note, noteValues: number[]) {
 		this.root = root
 		this.noteValues = noteValues
 		this.notes = noteValues.map((value) => relativeNote(root, value))
@@ -23,4 +23,3 @@ export abstract class NoteSet {
 		return this.notes
 	}
 }
-

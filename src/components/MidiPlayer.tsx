@@ -8,21 +8,21 @@ const normalizeYPositions = (yPositions: number[]): number[] => {
 }
 
 export type NoteOutput = {
-  octavedNote: OctavedNote;
-  startTime: number;
-  duration: number;
+	octavedNote: OctavedNote;
+	startTime: number;
+	duration: number;
 };
 
 type MidiPlayerProps = {
-  notes: NoteOutput[];
-  length: number;
-  isPlaying: boolean;
-  setIsPlaying: (isPlaying: boolean) => void;
+	notes: NoteOutput[];
+	length: number;
+	isPlaying: boolean;
+	setIsPlaying: (isPlaying: boolean) => void;
 };
 
 const audioContext = new AudioContext()
 
-export function MidiPlayer({ notes, length , isPlaying, setIsPlaying}: MidiPlayerProps) {
+export function MidiPlayer({ notes, length, isPlaying, setIsPlaying }: MidiPlayerProps) {
 	const canvasRef = useRef<HTMLCanvasElement>(null)
 	const [currentNotesIndices, setCurrentNotesIndices] = useState<number[]>([])
 	const synthRef = useRef(new PolySynth(Synth).toDestination())
@@ -108,7 +108,7 @@ export function MidiPlayer({ notes, length , isPlaying, setIsPlaying}: MidiPlaye
 				{isPlaying ? "■" : "▶"}
 			</button>
 			<br />
-			<div style={{padding: "1em"}}>
+			<div style={{ padding: "1em" }}>
 				<label>
 					{volume < -35 ? "🔈" : volume < -15 ? "🔉" : "🔊"}
 					<input
@@ -124,7 +124,7 @@ export function MidiPlayer({ notes, length , isPlaying, setIsPlaying}: MidiPlaye
 			</div>
 			<div style={{ overflowX: "scroll", paddingTop: "1em" }}>
 				<canvas ref={canvasRef} width={length * 35} height={canvasHeight}></canvas>
-			</div>	
+			</div>
 		</div>
 	)
 }

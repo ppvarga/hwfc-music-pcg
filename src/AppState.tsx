@@ -20,9 +20,9 @@ function AppState() {
 
 	//GLOBAL KEY
 	const [keyRoot, setKeyRoot] = useState(Note.C)
-	const [keyType, setKeyType] = useState({label: "Major", value: "major"} as SelectKeyTypeOption)
+	const [keyType, setKeyType] = useState({ label: "Major", value: "major" } as SelectKeyTypeOption)
 	const inferKey = useCallback(() => {
-		if(keyType === null) throw new Error("keyType and keyRoot must be defined")
+		if (keyType === null) throw new Error("keyType and keyRoot must be defined")
 		return MusicalKey.fromRootAndType(keyRoot, keyType.value)
 	}, [keyRoot, keyType])
 
@@ -30,10 +30,10 @@ function AppState() {
 	const setDifferentMelodyKey = (newDifferentMelodyKey: boolean) => tempSetDifferentMelodyKey(newDifferentMelodyKey)
 	const [melodyKeyRoot, tempSetMelodyKeyRoot] = useState(Note.C)
 	const setMelodyKeyRoot = (newMelodyKeyRoot: Note) => tempSetMelodyKeyRoot(newMelodyKeyRoot)
-	const [melodyKeyType, tempSetMelodyKeyType] = useState({label: "Major", value: "major"} as SelectKeyTypeOption)
+	const [melodyKeyType, tempSetMelodyKeyType] = useState({ label: "Major", value: "major" } as SelectKeyTypeOption)
 	const setMelodyKeyType = (newMelodyKeyType: SelectKeyTypeOption) => tempSetMelodyKeyType(newMelodyKeyType)
 	const inferMelodyKey = useCallback(() => {
-		if(melodyKeyType === null) throw new Error("keyType and keyRoot must be defined")
+		if (melodyKeyType === null) throw new Error("keyType and keyRoot must be defined")
 		return MusicalKey.fromRootAndType(melodyKeyRoot, melodyKeyType.value)
 	}, [melodyKeyRoot, melodyKeyType])
 
@@ -61,7 +61,7 @@ function AppState() {
 	const removeChordConstraint = (index: number) => {
 		const newConstraintSet = [...chordConstraintSet]
 		newConstraintSet.splice(index, 1)
-		setChordConstraintSet(newConstraintSet)			
+		setChordConstraintSet(newConstraintSet)
 	}
 	const handleChordConstraintChange = (index: number, constraint: ChordConstraintIR) => {
 		const newConstraintSet = [...chordConstraintSet]
@@ -77,17 +77,17 @@ function AppState() {
 	const removeNoteConstraint = (index: number) => {
 		const newConstraintSet = [...noteConstraintSet]
 		newConstraintSet.splice(index, 1)
-		setNoteConstraintSet(newConstraintSet)			
+		setNoteConstraintSet(newConstraintSet)
 	}
 	const handleNoteConstraintChange = (index: number, constraint: NoteConstraintIR) => {
 		const newConstraintSet = [...noteConstraintSet]
 		newConstraintSet[index] = constraint
 		setNoteConstraintSet(newConstraintSet)
 	}
-	
+
 	//RHYTHM
 	const [useRhythm, setUseRhythm] = useState(false)
-	
+
 	const [minNumNotes, tempSetMinNumNotes] = useState(3)
 	const setMinNumNotes = (newMinNumNotes: number) => {
 		tempSetMinNumNotes(newMinNumNotes)
@@ -111,7 +111,7 @@ function AppState() {
 		const newPrototypes = [...chordPrototypes]
 		newPrototypes.splice(index, 1)
 		setChordPrototypes(newPrototypes)
-		if(newPrototypes.length === 0) {
+		if (newPrototypes.length === 0) {
 			setOnlyUseChordPrototypes(false)
 		}
 	}
@@ -126,7 +126,7 @@ function AppState() {
 		const id = nextChordPrototypeID
 		setNextChordPrototypeID(nextChordPrototypeID + 1)
 		return id
-	}  
+	}
 
 	const [chordPrototypeAllowedNeighbors, setChordPrototypeAllowedNeighbors] = useState([] as [number, number][])
 	const addChordPrototypeAllowedNeighbor = (neighborPair: [number, number]) => {
@@ -176,7 +176,7 @@ function AppState() {
 		addNoteConstraint,
 		removeNoteConstraint,
 		handleNoteConstraintChange,
-		
+
 		useRhythm,
 		setUseRhythm,
 		minNumNotes,
@@ -234,7 +234,7 @@ type ChordPrototypeEnvironment = {
 	setStartOnNote: (newStartOnNote: boolean) => void,
 	maxRestLength: number,
 	setMaxRestLength: (newMaxRestLength: number) => void,
-	
+
 	differentMelodyKey: boolean,
 	setDifferentMelodyKey: (newDifferentMelodyKey: boolean) => void,
 	melodyKeyRoot: Note,
@@ -245,6 +245,6 @@ type ChordPrototypeEnvironment = {
 
 export const ChordPrototypeProvider = ({ children, env }: { children: React.ReactNode, env: ChordPrototypeEnvironment }) => {
 	const appState = useAppContext()
-	const newState = {...appState, ...env}
+	const newState = { ...appState, ...env }
 	return <AppContext.Provider value={newState}>{children}</AppContext.Provider>
 }

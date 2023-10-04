@@ -11,11 +11,16 @@ export const MelodyAbsoluteStepSizeHardConstraintInit = {
 	validByDefault: false as const,
 }
 
-export type MelodyAbsoluteStepSizeHardConstraintIR = typeof MelodyAbsoluteStepSizeHardConstraintInit
+export type MelodyAbsoluteStepSizeHardConstraintIR =
+	typeof MelodyAbsoluteStepSizeHardConstraintInit
 
-export class MelodyAbsoluteStepSizeHardConstraint implements HardConstraint<OctavedNote> {
+export class MelodyAbsoluteStepSizeHardConstraint
+	implements HardConstraint<OctavedNote>
+{
 	private grabber: Grabber<Set<number>>
-	name = noteConstraintTypeToName.get(MelodyAbsoluteStepSizeHardConstraintInit.type) as string
+	name = noteConstraintTypeToName.get(
+		MelodyAbsoluteStepSizeHardConstraintInit.type,
+	) as string
 	constructor(grabber: Grabber<Set<number>>) {
 		this.grabber = grabber
 	}
@@ -26,12 +31,18 @@ export class MelodyAbsoluteStepSizeHardConstraint implements HardConstraint<Octa
 		const next = tile.getNext()
 
 		let out = true
-		if(prev.isCollapsed()) out = out && this.checkPair(prev.getValue(), note, higherValues)
-		if(next.isCollapsed()) out = out && this.checkPair(note, next.getValue(), higherValues)
+		if (prev.isCollapsed())
+			out = out && this.checkPair(prev.getValue(), note, higherValues)
+		if (next.isCollapsed())
+			out = out && this.checkPair(note, next.getValue(), higherValues)
 		return out
 	}
 
-	private checkPair(first: OctavedNote, second: OctavedNote, higherValues: HigherValues): boolean {
+	private checkPair(
+		first: OctavedNote,
+		second: OctavedNote,
+		higherValues: HigherValues,
+	): boolean {
 		const stepSizeSet = this.grabber(higherValues)
 		const stepSize = OctavedNote.getStepSizeAbs(first, second)
 		return stepSizeSet.has(stepSize)

@@ -9,8 +9,11 @@ export const RestMaximumLengthHardConstraintInit = {
 	validByDefault: true as const,
 }
 
-export type RestMaximumLengthHardConstraintIR = typeof RestMaximumLengthHardConstraintInit
-export class RestMaximumLengthHardConstraint implements HardConstraint<RhythmPattern>{
+export type RestMaximumLengthHardConstraintIR =
+	typeof RestMaximumLengthHardConstraintInit
+export class RestMaximumLengthHardConstraint
+	implements HardConstraint<RhythmPattern>
+{
 	name = "Rest Maximum Length"
 
 	private maximumLength: number
@@ -21,8 +24,8 @@ export class RestMaximumLengthHardConstraint implements HardConstraint<RhythmPat
 
 	check(tile: Tile<RhythmPattern>, _higherValues: HigherValues): boolean {
 		const rhythmPattern = tile.getValue()
-		return !rhythmPattern.some((note) => note.type == "rest" && note.duration > this.maximumLength)
+		return !rhythmPattern.some(
+			(note) => note.type == "rest" && note.duration > this.maximumLength,
+		)
 	}
-
 }
-    

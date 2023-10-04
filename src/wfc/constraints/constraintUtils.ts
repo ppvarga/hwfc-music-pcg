@@ -1,18 +1,65 @@
 import { OctavedNote } from "../../music_theory/Note"
 import { constantGrabber } from "../grabbers/constantGrabbers"
 import { Chordesque } from "../hierarchy/prototypes"
-import { AscendingMelodySoftConstraint, AscendingMelodySoftConstraintIR, AscendingMelodySoftConstraintInit } from "./AscendingMelodySoftConstraint"
-import { ChordInKeyHardConstraint, ChordInKeyHardConstraintIR, ChordInKeyHardConstraintInit } from "./ChordInKeyHardConstraint"
-import { ChordRootAbsoluteStepSizeHardConstraint, ChordRootAbsoluteStepSizeHardConstraintIR, ChordRootAbsoluteStepSizeHardConstraintInit } from "./ChordRootAbsoluteStepSizeHardConstraint"
-import { DescendingMelodySoftConstraint, DescendingMelodySoftConstraintIR, DescendingMelodySoftConstraintInit } from "./DescendingMelodySoftConstraint"
-import { MelodyAbsoluteStepSizeHardConstraint, MelodyAbsoluteStepSizeHardConstraintIR, MelodyAbsoluteStepSizeHardConstraintInit } from "./MelodyAbsoluteStepSizeHardConstraint"
-import { MelodyEndsOnNoteHardConstraint, MelodyEndsOnNoteHardConstraintIR, MelodyEndsOnNoteHardConstraintInit } from "./MelodyEndsOnNoteHardConstraint"
-import { MelodyInRangeHardConstraint, MelodyInRangeHardConstraintIR, MelodyInRangeHardConstraintInit } from "./MelodyInRangeHardConstraint"
-import { MelodyShapeHardConstraint, MelodyShapeHardConstraintIR, MelodyShapeHardConstraintInit } from "./MelodyShapeHardConstraint"
-import { MelodyStartsOnNoteHardConstraint, MelodyStartsOnNoteHardConstraintIR, MelodyStartsOnNoteHardConstraintInit } from "./MelodyStartsOnNoteHardConstraint"
-import { MelodyInKeyHardConstraint, MelodyInKeyHardConstraintIR, MelodyInKeyHardConstraintInit } from "./MelodyInKeyHardConstraint"
-import { PerfectCadenceSoftConstraintIR, PerfectCadenceSoftConstraintInit } from "./cadences/PerfectCadenceSoftConstraint"
-import { PlagalCadenceSoftConstraint, PlagalCadenceSoftConstraintIR, PlagalCadenceSoftConstraintInit } from "./cadences/PlagalCadenceSoftConstraint"
+import {
+	AscendingMelodySoftConstraint,
+	AscendingMelodySoftConstraintIR,
+	AscendingMelodySoftConstraintInit,
+} from "./AscendingMelodySoftConstraint"
+import {
+	ChordInKeyHardConstraint,
+	ChordInKeyHardConstraintIR,
+	ChordInKeyHardConstraintInit,
+} from "./ChordInKeyHardConstraint"
+import {
+	ChordRootAbsoluteStepSizeHardConstraint,
+	ChordRootAbsoluteStepSizeHardConstraintIR,
+	ChordRootAbsoluteStepSizeHardConstraintInit,
+} from "./ChordRootAbsoluteStepSizeHardConstraint"
+import {
+	DescendingMelodySoftConstraint,
+	DescendingMelodySoftConstraintIR,
+	DescendingMelodySoftConstraintInit,
+} from "./DescendingMelodySoftConstraint"
+import {
+	MelodyAbsoluteStepSizeHardConstraint,
+	MelodyAbsoluteStepSizeHardConstraintIR,
+	MelodyAbsoluteStepSizeHardConstraintInit,
+} from "./MelodyAbsoluteStepSizeHardConstraint"
+import {
+	MelodyEndsOnNoteHardConstraint,
+	MelodyEndsOnNoteHardConstraintIR,
+	MelodyEndsOnNoteHardConstraintInit,
+} from "./MelodyEndsOnNoteHardConstraint"
+import {
+	MelodyInRangeHardConstraint,
+	MelodyInRangeHardConstraintIR,
+	MelodyInRangeHardConstraintInit,
+} from "./MelodyInRangeHardConstraint"
+import {
+	MelodyShapeHardConstraint,
+	MelodyShapeHardConstraintIR,
+	MelodyShapeHardConstraintInit,
+} from "./MelodyShapeHardConstraint"
+import {
+	MelodyStartsOnNoteHardConstraint,
+	MelodyStartsOnNoteHardConstraintIR,
+	MelodyStartsOnNoteHardConstraintInit,
+} from "./MelodyStartsOnNoteHardConstraint"
+import {
+	MelodyInKeyHardConstraint,
+	MelodyInKeyHardConstraintIR,
+	MelodyInKeyHardConstraintInit,
+} from "./MelodyInKeyHardConstraint"
+import {
+	PerfectCadenceSoftConstraintIR,
+	PerfectCadenceSoftConstraintInit,
+} from "./cadences/PerfectCadenceSoftConstraint"
+import {
+	PlagalCadenceSoftConstraint,
+	PlagalCadenceSoftConstraintIR,
+	PlagalCadenceSoftConstraintInit,
+} from "./cadences/PlagalCadenceSoftConstraint"
 import { Constraint } from "./concepts/Constraint"
 import { HigherValues } from "../HigherValues"
 
@@ -31,22 +78,30 @@ export type NoteConstraintIR =
 	| MelodyInRangeHardConstraintIR
 	| MelodyShapeHardConstraintIR
 	| MelodyInKeyHardConstraintIR
-	
+
 export type ChordConstraintType = ChordConstraintIR["type"]
 export type NoteConstraintType = NoteConstraintIR["type"]
 
 const chordConstraintTypesAndNames = [
 	["ChordInKeyHardConstraint", "Chord in Key"],
-	["ChordRootAbsoluteStepSizeHardConstraint", "Chord root absolute step size"],
+	[
+		"ChordRootAbsoluteStepSizeHardConstraint",
+		"Chord root absolute step size",
+	],
 	["PlagalCadenceSoftConstraint", "Plagal Cadence"],
 	["PerfectCadenceSoftConstraint", "Perfect Cadence"],
 ] as const
 
-type ChordConstraintName = typeof chordConstraintTypesAndNames[number][1]
+type ChordConstraintName = (typeof chordConstraintTypesAndNames)[number][1]
 
-export const chordConstraintTypeToName = new Map<ChordConstraintType, ChordConstraintName>(chordConstraintTypesAndNames)
+export const chordConstraintTypeToName = new Map<
+	ChordConstraintType,
+	ChordConstraintName
+>(chordConstraintTypesAndNames)
 
-export const chordConstraintOptions = Array.from(chordConstraintTypeToName.entries()).map(([value, label]) => ({ value, label }))
+export const chordConstraintOptions = Array.from(
+	chordConstraintTypeToName.entries(),
+).map(([value, label]) => ({ value, label }))
 
 const noteConstraintTypesAndNames = [
 	["MelodyInKeyHardConstraint", "Melody in Key"],
@@ -59,53 +114,99 @@ const noteConstraintTypesAndNames = [
 	["MelodyShapeHardConstraint", "Melody shape"],
 ] as const
 
-type NoteConstraintName = typeof noteConstraintTypesAndNames[number][1]
+type NoteConstraintName = (typeof noteConstraintTypesAndNames)[number][1]
 
-export const noteConstraintTypeToName = new Map<NoteConstraintType, NoteConstraintName>(noteConstraintTypesAndNames)
+export const noteConstraintTypeToName = new Map<
+	NoteConstraintType,
+	NoteConstraintName
+>(noteConstraintTypesAndNames)
 
-export const noteConstraintOptions = Array.from(noteConstraintTypeToName.entries()).map(([value, label]) => ({ value, label }))
+export const noteConstraintOptions = Array.from(
+	noteConstraintTypeToName.entries(),
+).map(([value, label]) => ({ value, label }))
 
-export const convertIRToChordConstraint = (ir : ChordConstraintIR) : Constraint<Chordesque> => {
+export const convertIRToChordConstraint = (
+	ir: ChordConstraintIR,
+): Constraint<Chordesque> => {
 	const keyGrabber = (higherValues: HigherValues) => higherValues.getKey()
 	switch (ir.type) {
-		case "ChordInKeyHardConstraint": return new ChordInKeyHardConstraint(keyGrabber)
-		case "ChordRootAbsoluteStepSizeHardConstraint": return new ChordRootAbsoluteStepSizeHardConstraint(constantGrabber(new Set(ir.stepSizes)))
-		case "PlagalCadenceSoftConstraint": return new PlagalCadenceSoftConstraint(ir.bonus, keyGrabber)
-		case "PerfectCadenceSoftConstraint": return new PlagalCadenceSoftConstraint(ir.bonus, keyGrabber)
+		case "ChordInKeyHardConstraint":
+			return new ChordInKeyHardConstraint(keyGrabber)
+		case "ChordRootAbsoluteStepSizeHardConstraint":
+			return new ChordRootAbsoluteStepSizeHardConstraint(
+				constantGrabber(new Set(ir.stepSizes)),
+			)
+		case "PlagalCadenceSoftConstraint":
+			return new PlagalCadenceSoftConstraint(ir.bonus, keyGrabber)
+		case "PerfectCadenceSoftConstraint":
+			return new PlagalCadenceSoftConstraint(ir.bonus, keyGrabber)
 	}
 }
 
-export const convertIRToNoteConstraint = (ir: NoteConstraintIR) : Constraint<OctavedNote> => {
+export const convertIRToNoteConstraint = (
+	ir: NoteConstraintIR,
+): Constraint<OctavedNote> => {
 	switch (ir.type) {
-		case "MelodyInKeyHardConstraint": return new MelodyInKeyHardConstraint((higherValues: HigherValues) => higherValues.getKey())
-		case "MelodyAbsoluteStepSizeHardConstraint": return new MelodyAbsoluteStepSizeHardConstraint(constantGrabber(new Set(ir.stepSizes)))
-		case "AscendingMelodySoftConstraint": return new AscendingMelodySoftConstraint(ir.bonus)
-		case "DescendingMelodySoftConstraint": return new DescendingMelodySoftConstraint(ir.bonus)
-		case "MelodyEndsOnNoteHardConstraint": return new MelodyEndsOnNoteHardConstraint(ir.noteGrabber)
-		case "MelodyStartsOnNoteHardConstraint": return new MelodyStartsOnNoteHardConstraint(ir.noteGrabber)
-		case "MelodyInRangeHardConstraint": return new MelodyInRangeHardConstraint(constantGrabber(OctavedNote.fromIR(ir.lowerNoteIR)), constantGrabber(OctavedNote.fromIR(ir.higherNoteIR)))
-		case "MelodyShapeHardConstraint": return new MelodyShapeHardConstraint(constantGrabber(ir.shape))
+		case "MelodyInKeyHardConstraint":
+			return new MelodyInKeyHardConstraint((higherValues: HigherValues) =>
+				higherValues.getKey(),
+			)
+		case "MelodyAbsoluteStepSizeHardConstraint":
+			return new MelodyAbsoluteStepSizeHardConstraint(
+				constantGrabber(new Set(ir.stepSizes)),
+			)
+		case "AscendingMelodySoftConstraint":
+			return new AscendingMelodySoftConstraint(ir.bonus)
+		case "DescendingMelodySoftConstraint":
+			return new DescendingMelodySoftConstraint(ir.bonus)
+		case "MelodyEndsOnNoteHardConstraint":
+			return new MelodyEndsOnNoteHardConstraint(ir.noteGrabber)
+		case "MelodyStartsOnNoteHardConstraint":
+			return new MelodyStartsOnNoteHardConstraint(ir.noteGrabber)
+		case "MelodyInRangeHardConstraint":
+			return new MelodyInRangeHardConstraint(
+				constantGrabber(OctavedNote.fromIR(ir.lowerNoteIR)),
+				constantGrabber(OctavedNote.fromIR(ir.higherNoteIR)),
+			)
+		case "MelodyShapeHardConstraint":
+			return new MelodyShapeHardConstraint(constantGrabber(ir.shape))
 	}
 }
 
-export const initializeChordConstraint = (name: ChordConstraintType) : ChordConstraintIR => {
+export const initializeChordConstraint = (
+	name: ChordConstraintType,
+): ChordConstraintIR => {
 	switch (name) {
-		case "ChordInKeyHardConstraint": return ChordInKeyHardConstraintInit
-		case "ChordRootAbsoluteStepSizeHardConstraint": return ChordRootAbsoluteStepSizeHardConstraintInit
-		case "PlagalCadenceSoftConstraint": return PlagalCadenceSoftConstraintInit
-		case "PerfectCadenceSoftConstraint": return PerfectCadenceSoftConstraintInit
+		case "ChordInKeyHardConstraint":
+			return ChordInKeyHardConstraintInit
+		case "ChordRootAbsoluteStepSizeHardConstraint":
+			return ChordRootAbsoluteStepSizeHardConstraintInit
+		case "PlagalCadenceSoftConstraint":
+			return PlagalCadenceSoftConstraintInit
+		case "PerfectCadenceSoftConstraint":
+			return PerfectCadenceSoftConstraintInit
 	}
 }
 
-export const initializeNoteConstraint = (name: NoteConstraintType) : NoteConstraintIR => {
+export const initializeNoteConstraint = (
+	name: NoteConstraintType,
+): NoteConstraintIR => {
 	switch (name) {
-		case "MelodyInKeyHardConstraint": return MelodyInKeyHardConstraintInit
-		case "MelodyAbsoluteStepSizeHardConstraint": return MelodyAbsoluteStepSizeHardConstraintInit
-		case "AscendingMelodySoftConstraint": return AscendingMelodySoftConstraintInit
-		case "DescendingMelodySoftConstraint": return DescendingMelodySoftConstraintInit
-		case "MelodyEndsOnNoteHardConstraint": return MelodyEndsOnNoteHardConstraintInit
-		case "MelodyStartsOnNoteHardConstraint": return MelodyStartsOnNoteHardConstraintInit
-		case "MelodyInRangeHardConstraint": return MelodyInRangeHardConstraintInit
-		case "MelodyShapeHardConstraint": return MelodyShapeHardConstraintInit
+		case "MelodyInKeyHardConstraint":
+			return MelodyInKeyHardConstraintInit
+		case "MelodyAbsoluteStepSizeHardConstraint":
+			return MelodyAbsoluteStepSizeHardConstraintInit
+		case "AscendingMelodySoftConstraint":
+			return AscendingMelodySoftConstraintInit
+		case "DescendingMelodySoftConstraint":
+			return DescendingMelodySoftConstraintInit
+		case "MelodyEndsOnNoteHardConstraint":
+			return MelodyEndsOnNoteHardConstraintInit
+		case "MelodyStartsOnNoteHardConstraint":
+			return MelodyStartsOnNoteHardConstraintInit
+		case "MelodyInRangeHardConstraint":
+			return MelodyInRangeHardConstraintInit
+		case "MelodyShapeHardConstraint":
+			return MelodyShapeHardConstraintInit
 	}
 }

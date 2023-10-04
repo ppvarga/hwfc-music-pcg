@@ -16,26 +16,10 @@ interface NoteConstraintConfigProps {
 	setValid: (valid: boolean) => void
 }
 
-function NoteConstraintConfig({ constraintIR, onConstraintChange, setValid}: NoteConstraintConfigProps) {
+function NoteConstraintConfig({ constraintIR, onConstraintChange, setValid }: NoteConstraintConfigProps) {
 	switch (constraintIR.type) {
 		case "MelodyInKeyHardConstraint": return <></>
-		case "AscendingMelodySoftConstraint" : return <SimpleConstraintConfigDiv>
-			<input
-				type="number"
-				placeholder="Boost value"
-				min={1}
-				defaultValue={constraintIR.bonus}
-				onChange={(e) =>{
-					const bonus = parseInt(e.target.value)
-					if (bonus > 0) {
-						setValid(true)
-						onConstraintChange({...constraintIR, bonus})
-					}
-					else setValid(false)
-				}}
-			/>
-		</SimpleConstraintConfigDiv>
-		case "DescendingMelodySoftConstraint" : return <SimpleConstraintConfigDiv>
+		case "AscendingMelodySoftConstraint": return <SimpleConstraintConfigDiv>
 			<input
 				type="number"
 				placeholder="Boost value"
@@ -45,13 +29,29 @@ function NoteConstraintConfig({ constraintIR, onConstraintChange, setValid}: Not
 					const bonus = parseInt(e.target.value)
 					if (bonus > 0) {
 						setValid(true)
-						onConstraintChange({...constraintIR, bonus})
+						onConstraintChange({ ...constraintIR, bonus })
 					}
 					else setValid(false)
 				}}
 			/>
 		</SimpleConstraintConfigDiv>
-		case "MelodyAbsoluteStepSizeHardConstraint" :
+		case "DescendingMelodySoftConstraint": return <SimpleConstraintConfigDiv>
+			<input
+				type="number"
+				placeholder="Boost value"
+				min={1}
+				defaultValue={constraintIR.bonus}
+				onChange={(e) => {
+					const bonus = parseInt(e.target.value)
+					if (bonus > 0) {
+						setValid(true)
+						onConstraintChange({ ...constraintIR, bonus })
+					}
+					else setValid(false)
+				}}
+			/>
+		</SimpleConstraintConfigDiv>
+		case "MelodyAbsoluteStepSizeHardConstraint":
 			setValid(constraintIR.stepSizes.length > 0)
 			return <SimpleConstraintConfigDiv>
 				<input
@@ -60,12 +60,12 @@ function NoteConstraintConfig({ constraintIR, onConstraintChange, setValid}: Not
 					defaultValue={constraintIR.stepSizes.join(" ")}
 					onChange={(e) => {
 						const stepSizes = e.target.value.split(" ").map(str => parseInt(str)).filter(num => !isNaN(num))
-						onConstraintChange({...constraintIR, stepSizes})
+						onConstraintChange({ ...constraintIR, stepSizes })
 						setValid(stepSizes.length > 0)
 					}}
 				/>
 			</SimpleConstraintConfigDiv>
-		case "MelodyEndsOnNoteHardConstraint" : return <SimpleConstraintConfigDiv>
+		case "MelodyEndsOnNoteHardConstraint": return <SimpleConstraintConfigDiv>
 			<NoteSelector
 				startValue={constraintIR.noteGrabber}
 				setValue={(noteGrabber) => {
@@ -73,12 +73,12 @@ function NoteConstraintConfig({ constraintIR, onConstraintChange, setValid}: Not
 						return setValid(false)
 					} else {
 						setValid(true)
-						onConstraintChange({...constraintIR, noteGrabber})
+						onConstraintChange({ ...constraintIR, noteGrabber })
 					}
 				}}
 			/>
 		</SimpleConstraintConfigDiv>
-		case "MelodyStartsOnNoteHardConstraint" : return <SimpleConstraintConfigDiv>
+		case "MelodyStartsOnNoteHardConstraint": return <SimpleConstraintConfigDiv>
 			<NoteSelector
 				startValue={constraintIR.noteGrabber}
 				setValue={(result) => {
@@ -86,12 +86,12 @@ function NoteConstraintConfig({ constraintIR, onConstraintChange, setValid}: Not
 						return setValid(false)
 					} else {
 						setValid(true)
-						onConstraintChange({...constraintIR, noteGrabber: result})
+						onConstraintChange({ ...constraintIR, noteGrabber: result })
 					}
 				}}
 			/>
 		</SimpleConstraintConfigDiv>
-		case "MelodyInRangeHardConstraint" : {
+		case "MelodyInRangeHardConstraint": {
 			const [lowerNoteIR, setLowerNoteIR] = useState(constraintIR.lowerNoteIR)
 			const [higherNoteIR, setHigherNoteIR] = useState(constraintIR.higherNoteIR)
 
@@ -99,28 +99,28 @@ function NoteConstraintConfig({ constraintIR, onConstraintChange, setValid}: Not
 				if (lowerNoteIR === null || isNaN(lowerNoteIR.octave) || higherNoteIR === null || isNaN(higherNoteIR.octave)) return setValid(false)
 				if (OctavedNote.getStepSize(OctavedNote.fromIR(lowerNoteIR), OctavedNote.fromIR(higherNoteIR)) < 0) return setValid(false)
 				setValid(true)
-				onConstraintChange({...constraintIR, lowerNoteIR, higherNoteIR})
+				onConstraintChange({ ...constraintIR, lowerNoteIR, higherNoteIR })
 			}
 			return <>
 				<ConstantOctavedNoteSelector label={"Lower bound:"} defaultValue={lowerNoteIR} setResult={newLowerNote => {
 					setLowerNoteIR(newLowerNote)
 					checkValid(newLowerNote, higherNoteIR)
-				}}/>
+				}} />
 				<ConstantOctavedNoteSelector label={"Higher bound:"} defaultValue={higherNoteIR} setResult={newHigherNote => {
 					setHigherNoteIR(newHigherNote)
 					checkValid(lowerNoteIR, newHigherNote)
-				}}/>
+				}} />
 			</>
 		}
-		case "MelodyShapeHardConstraint" : {
-			const {melodyLength} = useAppContext()
+		case "MelodyShapeHardConstraint": {
+			const { melodyLength } = useAppContext()
 			const shapeSize = melodyLength - 1
 
 			const setShape = (shape: MelodyShape) => {
-				onConstraintChange({...constraintIR, shape})
+				onConstraintChange({ ...constraintIR, shape })
 			}
 
-			return <MelodyShapeSelector size={shapeSize} setResult={setShape} startValue={constraintIR.shape}/>
+			return <MelodyShapeSelector size={shapeSize} setResult={setShape} startValue={constraintIR.shape} />
 		}
 	}
 	throw new Error("Invalid constraint type")
@@ -136,11 +136,11 @@ function NoteConstraintDiv({ constraintIR, onConstraintChange, onRemove }: NoteC
 	const [valid, setValid] = useState(constraintIR.validByDefault)
 
 	return <div className="constraint-div">
-		<div style={{display: "flex", justifyContent: "end", gap: "0.5em", flexDirection:"row", alignItems:"center", fontSize: 8}}>
-			<button style={{width: "fit-content", height: "fit-content"}} onClick={onRemove}>X</button>
+		<div style={{ display: "flex", justifyContent: "end", gap: "0.5em", flexDirection: "row", alignItems: "center", fontSize: 8 }}>
+			<button style={{ width: "fit-content", height: "fit-content" }} onClick={onRemove}>X</button>
 		</div>
-		<h4 style={{color: valid ? "white" : "red", marginTop:0}}>{noteConstraintTypeToName.get(constraintIR.type)}</h4>
-		<NoteConstraintConfig constraintIR={constraintIR} onConstraintChange={onConstraintChange} setValid={setValid}/>
+		<h4 style={{ color: valid ? "white" : "red", marginTop: 0 }}>{noteConstraintTypeToName.get(constraintIR.type)}</h4>
+		<NoteConstraintConfig constraintIR={constraintIR} onConstraintChange={onConstraintChange} setValid={setValid} />
 	</div>
 }
 
@@ -172,16 +172,16 @@ function AddNoteConstraint({ onAddConstraint }: AddNoteConstraintProps) {
 				onChange={(option) => setSelectedType(option || null)}
 				styles={selectStyles}
 			/>
-			<button onClick={() => {handleAddButtonClick(); setSelectedType(null)}}>Add</button>
+			<button onClick={() => { handleAddButtonClick(); setSelectedType(null) }}>Add</button>
 		</div>
 	)
 }
 
 export function NoteConstraints() {
-	const {noteConstraintSet, addNoteConstraint, removeNoteConstraint, handleNoteConstraintChange} = useAppContext()
+	const { noteConstraintSet, addNoteConstraint, removeNoteConstraint, handleNoteConstraintChange } = useAppContext()
 
 	return (
-		<div style={{flex:1}}>
+		<div style={{ flex: 1 }}>
 			<h3>Melody constraints</h3>
 			<AddNoteConstraint onAddConstraint={addNoteConstraint} />
 			{noteConstraintSet.map((constraintIR, index) => (

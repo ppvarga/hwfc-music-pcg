@@ -4,13 +4,21 @@ import { HigherValues } from "../HigherValues"
 import { TileCanvas, TileCanvasProps } from "../TileCanvas"
 
 export class NoteLevelNode {
-	private canvas : TileCanvas<OctavedNote>
+	private canvas: TileCanvas<OctavedNote>
 
-	constructor(canvasProps: TileCanvasProps<OctavedNote>, higherValues: HigherValues, random: Random) {
-		this.canvas = new TileCanvas<OctavedNote>(canvasProps, higherValues, random) 
+	constructor(
+		canvasProps: TileCanvasProps<OctavedNote>,
+		higherValues: HigherValues,
+		random: Random,
+	) {
+		this.canvas = new TileCanvas<OctavedNote>(
+			canvasProps,
+			higherValues,
+			random,
+		)
 	}
 
-	public generate() : OctavedNote[] {
+	public generate(): OctavedNote[] {
 		return this.canvas.generate()
 	}
 }

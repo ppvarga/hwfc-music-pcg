@@ -14,14 +14,14 @@ interface ConstantNoteSelectorProps {
 
 export function ConstantNoteSelector({ placeholder, value, setValue, onChange, style }: ConstantNoteSelectorProps) {
 	const onChangeUsed = (onChange === undefined ?
-		((option: SelectNoteOption) => { 
-			if (option === null) throw new Error("option should not be null")
-			setValue(option.value) 
-		}) :
-		((option: SelectNoteOption) => { 
+		((option: SelectNoteOption) => {
 			if (option === null) throw new Error("option should not be null")
 			setValue(option.value)
-			onChange(option) 
+		}) :
+		((option: SelectNoteOption) => {
+			if (option === null) throw new Error("option should not be null")
+			setValue(option.value)
+			onChange(option)
 		}))
 
 	return <div style={style}>
@@ -29,7 +29,7 @@ export function ConstantNoteSelector({ placeholder, value, setValue, onChange, s
 			options={noteOptions}
 			placeholder={placeholder}
 			styles={selectStyles}
-			value={{value, label: value.toString()}}
+			value={{ value, label: value.toString() }}
 			onChange={onChangeUsed}
 			isClearable={false}
 		/>

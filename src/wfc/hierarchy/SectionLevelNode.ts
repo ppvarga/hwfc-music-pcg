@@ -8,13 +8,13 @@ import { Chordesque, Section } from "./prototypes"
 import { SectionResult, SectionResultWithRhythm } from "./results"
 
 interface SectionLevelNodeProps {
-  higherValues?: HigherValues;
-  noteCanvasProps: TileCanvasProps<OctavedNote>;
-  chordesqueCanvasProps: TileCanvasProps<Chordesque>;
-  sectionCanvasProps: TileCanvasProps<Section>;
+	higherValues?: HigherValues
+	noteCanvasProps: TileCanvasProps<OctavedNote>
+	chordesqueCanvasProps: TileCanvasProps<Chordesque>
+	sectionCanvasProps: TileCanvasProps<Section>
 	rhythmPatternOptions: RhythmPatternOptions
 	melodyLength: number
-  random: Random;
+	random: Random
 }
 
 export class SectionLevelNode {
@@ -26,12 +26,16 @@ export class SectionLevelNode {
 	private random: Random
 	private melodyLength: number
 
-	constructor(props: SectionLevelNodeProps){
+	constructor(props: SectionLevelNodeProps) {
 		this.higherValues = props.higherValues ?? new HigherValues()
 		this.noteCanvasProps = props.noteCanvasProps
 		this.chordesqueCanvasProps = props.chordesqueCanvasProps
 		this.rhythmPatternOptions = props.rhythmPatternOptions
-		this.sectionCanvas = new TileCanvas(props.sectionCanvasProps, this.higherValues, props.random)
+		this.sectionCanvas = new TileCanvas(
+			props.sectionCanvasProps,
+			this.higherValues,
+			props.random,
+		)
 		this.random = props.random
 		this.melodyLength = props.melodyLength
 	}
@@ -39,21 +43,32 @@ export class SectionLevelNode {
 	private createChordLevelNode(section: Section) {
 		return new ChordLevelNode({
 			higherValues: this.higherValues.copyWithSection(section),
-			noteCanvasProps: this.noteCanvasProps.union(section.getNoteCanvasProps()),
-			chordesqueCanvasProps: this.chordesqueCanvasProps.union(section.getChordesqueCanvasProps()), 
-			rhythmPatternOptions: {...this.rhythmPatternOptions, ...section.getRhythmPatternOptions()},
+			noteCanvasProps: this.noteCanvasProps.union(
+				section.getNoteCanvasProps(),
+			),
+			chordesqueCanvasProps: this.chordesqueCanvasProps.union(
+				section.getChordesqueCanvasProps(),
+			),
+			rhythmPatternOptions: {
+				...this.rhythmPatternOptions,
+				...section.getRhythmPatternOptions(),
+			},
 			random: this.random,
 			melodyLength: this.melodyLength,
 		})
 	}
 
-	public generateWithoutRhythm() : SectionResult[] {
+	public generateWithoutRhythm(): SectionResult[] {
 		const sections = this.sectionCanvas.generate()
-		return sections.map(section => this.createChordLevelNode(section).generateWithoutRhythm())
+		return sections.map((section) =>
+			this.createChordLevelNode(section).generateWithoutRhythm(),
+		)
 	}
 
-	public generateWithRhythm() : SectionResultWithRhythm[] {
+	public generateWithRhythm(): SectionResultWithRhythm[] {
 		const sections = this.sectionCanvas.generate()
-		return sections.map(section => this.createChordLevelNode(section).generateWithRhythm())
+		return sections.map((section) =>
+			this.createChordLevelNode(section).generateWithRhythm(),
+		)
 	}
 }

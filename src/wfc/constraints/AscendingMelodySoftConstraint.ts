@@ -9,9 +9,12 @@ export const AscendingMelodySoftConstraintInit = {
 	validByDefault: true as const,
 }
 
-export type AscendingMelodySoftConstraintIR = typeof AscendingMelodySoftConstraintInit
-export class AscendingMelodySoftConstraint extends SoftConstraint<OctavedNote>{
-	name = noteConstraintTypeToName.get(AscendingMelodySoftConstraintInit.type) as string
+export type AscendingMelodySoftConstraintIR =
+	typeof AscendingMelodySoftConstraintInit
+export class AscendingMelodySoftConstraint extends SoftConstraint<OctavedNote> {
+	name = noteConstraintTypeToName.get(
+		AscendingMelodySoftConstraintInit.type,
+	) as string
 
 	constructor(bonus: number) {
 		super(bonus)
@@ -24,8 +27,10 @@ export class AscendingMelodySoftConstraint extends SoftConstraint<OctavedNote>{
 
 		let out = 0
 
-		if(prev.isCollapsed() && this.isAscending(prev.getValue(), note)) out += this.bonus
-		if(next.isCollapsed() && this.isAscending(note, next.getValue())) out += this.bonus
+		if (prev.isCollapsed() && this.isAscending(prev.getValue(), note))
+			out += this.bonus
+		if (next.isCollapsed() && this.isAscending(note, next.getValue()))
+			out += this.bonus
 
 		return out
 	}
@@ -33,5 +38,4 @@ export class AscendingMelodySoftConstraint extends SoftConstraint<OctavedNote>{
 	private isAscending(first: OctavedNote, second: OctavedNote): boolean {
 		return first.toMIDIValue() < second.toMIDIValue()
 	}
-
 }

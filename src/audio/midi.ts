@@ -1,6 +1,11 @@
 import MidiWriter, { Pitch } from "midi-writer-js"
 import { OctavedNote } from "../music_theory/Note"
-import { ChordResult, ChordResultWithRhythm, SectionResult, SectionResultWithRhythm } from "../wfc/hierarchy/results"
+import {
+	ChordResult,
+	ChordResultWithRhythm,
+	SectionResult,
+	SectionResultWithRhythm,
+} from "../wfc/hierarchy/results"
 import { Chord } from "../music_theory/Chord"
 import { durationOfRhythmPattern } from "../music_theory/Rhythm"
 import { NoteOutput } from "../components/MidiPlayer"
@@ -11,59 +16,89 @@ function noteToPitch(note: OctavedNote): Pitch {
 	return `${note.getNote()}${note.getOctave()}`
 }
 
-function chordToMidi(chord: Chord, duration: number, in_track?: MidiWriter.Track): MidiWriter.Track {
+function chordToMidi(
+	chord: Chord,
+	duration: number,
+	in_track?: MidiWriter.Track,
+): MidiWriter.Track {
 	const track = in_track ?? new MidiWriter.Track()
 
-	track.addEvent(new MidiWriter.NoteEvent({
-		pitch: [noteToPitch(new OctavedNote(chord.getRoot(), 2)), ...chord.getNotes().map(note => noteToPitch(new OctavedNote(note, 3)))],
-		duration: `T${duration * 128}`,
-		sequential: false,
-	}))
+	track.addEvent(
+		new MidiWriter.NoteEvent({
+			pitch: [
+				noteToPitch(new OctavedNote(chord.getRoot(), 2)),
+				...chord
+					.getNotes()
+					.map((note) => noteToPitch(new OctavedNote(note, 3))),
+			],
+			duration: `T${duration * 128}`,
+			sequential: false,
+		}),
+	)
 
 	return track
 }
 
-function finishMidi(tracks: MidiWriter.Track[], setSrc: (url: string) => void): void {
+function finishMidi(
+	tracks: MidiWriter.Track[],
+	setSrc: (url: string) => void,
+): void {
 	const writer = new MidiWriter.Writer(tracks)
 	const file = writer.buildFile()
 
-	const blob = new Blob([file], {type: "octet/stream"})
+	const blob = new Blob([file], { type: "octet/stream" })
 	const url = window.URL.createObjectURL(blob)
 
 	setSrc(url)
 }
 
-export function chordResultToMidi(chordResult: ChordResult, setSrc: (url: string) => void): void {
+export function chordResultToMidi(
+	chordResult: ChordResult,
+	setSrc: (url: string) => void,
+): void {
 	const chordTrack = chordToMidi(chordResult.chord, chordResult.notes.length)
 
 	const noteTrack = new MidiWriter.Track()
 
-	noteTrack.addEvent(new MidiWriter.NoteEvent({
-		pitch: chordResult.notes.map(noteToPitch),
-		duration: "4",
-		sequential: true,
-	}))
+	noteTrack.addEvent(
+		new MidiWriter.NoteEvent({
+			pitch: chordResult.notes.map(noteToPitch),
+			duration: "4",
+			sequential: true,
+		}),
+	)
 
 	finishMidi([chordTrack, noteTrack], setSrc)
 }
 
-export function chordResultWithRhythmToMidi(chordResultWithRhythm: ChordResultWithRhythm, setSrc: (url: string) => void){
-	const chordTrack = chordToMidi(chordResultWithRhythm.chord, durationOfRhythmPattern(chordResultWithRhythm.rhythmPattern))
+export function chordResultWithRhythmToMidi(
+	chordResultWithRhythm: ChordResultWithRhythm,
+	setSrc: (url: string) => void,
+) {
+	const chordTrack = chordToMidi(
+		chordResultWithRhythm.chord,
+		durationOfRhythmPattern(chordResultWithRhythm.rhythmPattern),
+	)
 
 	const noteTrack = new MidiWriter.Track()
 
 	let wait = 0
 	let noteIndex = 0
 	chordResultWithRhythm.rhythmPattern.forEach((unit) => {
-		if(unit.type == "note"){
-			noteTrack.addEvent(new MidiWriter.NoteEvent({
-				pitch: noteToPitch(chordResultWithRhythm.notes[noteIndex++]),
-				duration: `T${unit.duration * 128}`,
-				sequential: true,
-				wait: `T${wait}`,
-			}))
+		if (unit.type == "note") {
+			noteTrack.addEvent(
+				new MidiWriter.NoteEvent({
+					pitch: noteToPitch(
+						chordResultWithRhythm.notes[noteIndex++],
+					),
+					duration: `T${unit.duration * 128}`,
+					sequential: true,
+					wait: `T${wait}`,
+				}),
+			)
 			wait = 0
-		} else { // unit.type == "rest"
+		} else {
+			// unit.type == "rest"
 			wait += unit.duration * 128
 		}
 	})
@@ -71,25 +106,37 @@ export function chordResultWithRhythmToMidi(chordResultWithRhythm: ChordResultWi
 	finishMidi([chordTrack, noteTrack], setSrc)
 }
 
-export function chordResultsWithRhythmToMidi(chordResultsWithRhythm: ChordResultWithRhythm[], setSrc: (url: string) => void){
+export function chordResultsWithRhythmToMidi(
+	chordResultsWithRhythm: ChordResultWithRhythm[],
+	setSrc: (url: string) => void,
+) {
 	const chordTrack = new MidiWriter.Track()
 	const noteTrack = new MidiWriter.Track()
-  
+
 	let wait = 0
 	chordResultsWithRhythm.forEach((chordResultWithRhythm) => {
-		chordToMidi(chordResultWithRhythm.chord, durationOfRhythmPattern(chordResultWithRhythm.rhythmPattern), chordTrack)
+		chordToMidi(
+			chordResultWithRhythm.chord,
+			durationOfRhythmPattern(chordResultWithRhythm.rhythmPattern),
+			chordTrack,
+		)
 
 		let noteIndex = 0
 		chordResultWithRhythm.rhythmPattern.forEach((unit) => {
-			if(unit.type == "note"){
-				noteTrack.addEvent(new MidiWriter.NoteEvent({
-					pitch: noteToPitch(chordResultWithRhythm.notes[noteIndex++]),
-					duration: `T${unit.duration * 128}`,
-					sequential: true,
-					wait: `T${wait}`,
-				}))
+			if (unit.type == "note") {
+				noteTrack.addEvent(
+					new MidiWriter.NoteEvent({
+						pitch: noteToPitch(
+							chordResultWithRhythm.notes[noteIndex++],
+						),
+						duration: `T${unit.duration * 128}`,
+						sequential: true,
+						wait: `T${wait}`,
+					}),
+				)
 				wait = 0
-			} else { // unit.type == "rest"
+			} else {
+				// unit.type == "rest"
 				wait += unit.duration * 128
 			}
 		})
@@ -98,79 +145,128 @@ export function chordResultsWithRhythmToMidi(chordResultsWithRhythm: ChordResult
 	finishMidi([chordTrack, noteTrack], setSrc)
 }
 
-export function sectionResultToMidi(sectionResult: SectionResult, setSrc: (url: string) => void) {
+export function sectionResultToMidi(
+	sectionResult: SectionResult,
+	setSrc: (url: string) => void,
+) {
 	const chordTrack = new MidiWriter.Track()
 	const noteTrack = new MidiWriter.Track()
 
 	sectionResult.forEach((chordResult) => {
 		chordToMidi(chordResult.chord, chordResult.notes.length, chordTrack)
 
-		noteTrack.addEvent(new MidiWriter.NoteEvent({
-			pitch: chordResult.notes.map(noteToPitch),
-			duration: "4",
-			sequential: true,
-		}))
+		noteTrack.addEvent(
+			new MidiWriter.NoteEvent({
+				pitch: chordResult.notes.map(noteToPitch),
+				duration: "4",
+				sequential: true,
+			}),
+		)
 	})
 
 	finishMidi([chordTrack, noteTrack], setSrc)
 }
 
-function chordToNoteOutput(chord: Chord, startTime: number, duration: number): NoteOutput[] {
+function chordToNoteOutput(
+	chord: Chord,
+	startTime: number,
+	duration: number,
+): NoteOutput[] {
 	const out: NoteOutput[] = []
 
-	out.push({octavedNote : new OctavedNote (chord.getRoot(), 2), startTime, duration})
+	out.push({
+		octavedNote: new OctavedNote(chord.getRoot(), 2),
+		startTime,
+		duration,
+	})
 
 	chord.getNotes().forEach((note) => {
-		out.push({octavedNote : new OctavedNote (note, 3), startTime, duration})
+		out.push({
+			octavedNote: new OctavedNote(note, 3),
+			startTime,
+			duration,
+		})
 	})
 
 	return out
 }
 
-export function chordResultToOutput(chordResult: ChordResult, offset = 0): [NoteOutput[], number]{
+export function chordResultToOutput(
+	chordResult: ChordResult,
+	offset = 0,
+): [NoteOutput[], number] {
 	let time = offset
-	const out : NoteOutput[] = [] 
+	const out: NoteOutput[] = []
 	chordResult.notes.forEach((octavedNote) => {
-		out.push({octavedNote, startTime : time, duration : NOTE_DURATION})
+		out.push({ octavedNote, startTime: time, duration: NOTE_DURATION })
 		time += NOTE_DURATION
 	})
 
-	out.push(...chordToNoteOutput(chordResult.chord, offset, chordResult.notes.length * NOTE_DURATION))
+	out.push(
+		...chordToNoteOutput(
+			chordResult.chord,
+			offset,
+			chordResult.notes.length * NOTE_DURATION,
+		),
+	)
 	return [out, time]
 }
 
-export function chordResultWithRhythmToOutput(chordResultWithRhythm: ChordResultWithRhythm, offset = 0): [NoteOutput[], number]{
+export function chordResultWithRhythmToOutput(
+	chordResultWithRhythm: ChordResultWithRhythm,
+	offset = 0,
+): [NoteOutput[], number] {
 	let time = offset
 	let noteIndex = 0
-	const out : NoteOutput[] = [] 
+	const out: NoteOutput[] = []
 	chordResultWithRhythm.rhythmPattern.forEach((unit) => {
-		if(unit.type == "note"){
-			out.push({octavedNote : chordResultWithRhythm.notes[noteIndex++], startTime : time, duration : unit.duration*NOTE_DURATION})
-		} 
-		time += unit.duration*NOTE_DURATION
+		if (unit.type == "note") {
+			out.push({
+				octavedNote: chordResultWithRhythm.notes[noteIndex++],
+				startTime: time,
+				duration: unit.duration * NOTE_DURATION,
+			})
+		}
+		time += unit.duration * NOTE_DURATION
 	})
 
-	out.push(...chordToNoteOutput(chordResultWithRhythm.chord, offset, durationOfRhythmPattern(chordResultWithRhythm.rhythmPattern) * NOTE_DURATION))
+	out.push(
+		...chordToNoteOutput(
+			chordResultWithRhythm.chord,
+			offset,
+			durationOfRhythmPattern(chordResultWithRhythm.rhythmPattern) *
+				NOTE_DURATION,
+		),
+	)
 	return [out, time]
 }
 
-export function sectionResultToOutput(sectionResult: SectionResult, offset = 0): [NoteOutput[], number]{
+export function sectionResultToOutput(
+	sectionResult: SectionResult,
+	offset = 0,
+): [NoteOutput[], number] {
 	let time = offset
-	const out : NoteOutput[] = []
+	const out: NoteOutput[] = []
 	sectionResult.forEach((chordResult) => {
 		const [noteOutputs, newTime] = chordResultToOutput(chordResult, time)
 		out.push(...noteOutputs)
 		time = newTime
 	})
-	
+
 	return [out, time]
 }
 
-export function sectionResultWithRhythmToOutput(sectionResultWithRhythm: SectionResultWithRhythm, offset = 0): [NoteOutput[], number]{
+export function sectionResultWithRhythmToOutput(
+	sectionResultWithRhythm: SectionResultWithRhythm,
+	offset = 0,
+): [NoteOutput[], number] {
 	let time = offset
-	const out : NoteOutput[] = [] 
+	const out: NoteOutput[] = []
 	sectionResultWithRhythm.forEach((chordResultWithRhythm) => {
-		const [noteOutputs, newTime] = chordResultWithRhythmToOutput(chordResultWithRhythm, time)
+		const [noteOutputs, newTime] = chordResultWithRhythmToOutput(
+			chordResultWithRhythm,
+			time,
+		)
 		out.push(...noteOutputs)
 		time = newTime
 	})

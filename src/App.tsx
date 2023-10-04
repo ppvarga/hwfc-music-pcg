@@ -1,5 +1,5 @@
 import "./App.css"
-import {  AppProvider } from "./AppState"
+import { AppProvider } from "./AppState"
 import { Output } from "./components/Output"
 import { GlobalSettings } from "./components/GlobalSettings"
 import { ChordConstraints } from "./components/ChordConstraints"
@@ -16,31 +16,31 @@ function App() {
 			title: "Main",
 			content: <>
 				<div className="main-div">
-					<GlobalSettings/>
+					<GlobalSettings />
 					<div className="main-column">
 						<h2>Chords</h2>
-						<ChordTiles/>
+						<ChordTiles />
 						<ChordConstraints />
 					</div>
 					<div className="main-column">
 						<h2>Melody</h2>
-						<NoteTiles/>
+						<NoteTiles />
 						<NoteConstraints />
 					</div>
-					<Output/>
+					<Output />
 				</div>
 			</>
 		},
 		{
 			title: "Chord prototypes",
-			content: <ChordPrototypesPage/>
+			content: <ChordPrototypesPage />
 		}
 	]
 
 	return (
 		<AppProvider>
-			<h1>WFC Music</h1>		
-			<TabComponent tabs={tabs}/>
+			<h1>WFC Music</h1>
+			<TabComponent tabs={tabs} />
 		</AppProvider>
 	)
 }

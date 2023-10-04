@@ -1,4 +1,7 @@
-import { RhythmPattern, numberOfNotesInRhythmPattern } from "../../music_theory/Rhythm"
+import {
+	RhythmPattern,
+	numberOfNotesInRhythmPattern,
+} from "../../music_theory/Rhythm"
 import { HigherValues } from "../HigherValues"
 import { Tile } from "../Tile"
 import { HardConstraint } from "./concepts/Constraint"
@@ -9,8 +12,11 @@ export const MinimumNumberOfNotesHardConstraintInit = {
 	validByDefault: true as const,
 }
 
-export type MinimumNumberOfNotesHardConstraintIR = typeof MinimumNumberOfNotesHardConstraintInit
-export class MinimumNumberOfNotesHardConstraint implements HardConstraint<RhythmPattern>{
+export type MinimumNumberOfNotesHardConstraintIR =
+	typeof MinimumNumberOfNotesHardConstraintInit
+export class MinimumNumberOfNotesHardConstraint
+	implements HardConstraint<RhythmPattern>
+{
 	name = "Rest Maximum Length"
 
 	private minimumNumber: number
@@ -23,6 +29,4 @@ export class MinimumNumberOfNotesHardConstraint implements HardConstraint<Rhythm
 		const rhythmPattern = tile.getValue()
 		return numberOfNotesInRhythmPattern(rhythmPattern) >= this.minimumNumber
 	}
-
 }
-    

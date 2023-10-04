@@ -15,9 +15,9 @@ import { ChordPrototypeOnlyFollowedByConstraint } from "../wfc/constraints/Chord
 import { constantGrabber } from "../wfc/grabbers/constantGrabbers"
 import { ChordPrototypeOnlyPrecededByConstraint } from "../wfc/constraints/ChordPrototypeOnlyPrecededByConstraint"
 
-export function Output(){
+export function Output() {
 	const [isPlaying, setIsPlaying] = useState(false)
-	const {output, setOutput, onlyUseChordPrototypes, chordPrototypes, inferKey, inferMelodyKey, differentMelodyKey, numChords, chordOptionsPerCell, chordConstraintSet, melodyLength, noteOptionsPerCell, noteConstraintSet, minNumNotes, startOnNote, maxRestLength, useRhythm, } = useAppContext()
+	const { output, setOutput, onlyUseChordPrototypes, chordPrototypes, inferKey, inferMelodyKey, differentMelodyKey, numChords, chordOptionsPerCell, chordConstraintSet, melodyLength, noteOptionsPerCell, noteConstraintSet, minNumNotes, startOnNote, maxRestLength, useRhythm, } = useAppContext()
 
 	const noteCanvasProps = new TileCanvasProps(
 		melodyLength,
@@ -26,38 +26,38 @@ export function Output(){
 	)
 
 	function updatePlayer() {
-		try{
+		try {
 			const parsedChordPrototypes = []
 			const chordPrototypeConstraints = []
 
 			const properlyNamedChordPrototypes = chordPrototypes.map(proto => {
-				if(proto.name !== "") return proto
+				if (proto.name !== "") return proto
 				const protoName = `ChordPrototype${proto.id}`
-				return {...proto, name: protoName}
+				return { ...proto, name: protoName }
 			})
 
-			for(const protoIR of properlyNamedChordPrototypes){
+			for (const protoIR of properlyNamedChordPrototypes) {
 				parsedChordPrototypes.push(chordPrototypeIRToChordPrototype(protoIR))
 
-				if(protoIR.restrictPrecedingChords){
-					if(protoIR.allowedPrecedingChords.every(chordName => {
-						if(properlyNamedChordPrototypes.some(proto => proto.name === chordName)) return true
+				if (protoIR.restrictPrecedingChords) {
+					if (protoIR.allowedPrecedingChords.every(chordName => {
+						if (properlyNamedChordPrototypes.some(proto => proto.name === chordName)) return true
 						return (Chord.parseChordString(chordName) !== undefined)
-					})){
+					})) {
 						chordPrototypeConstraints.push(new ChordPrototypeOnlyPrecededByConstraint(protoIR.name, constantGrabber(protoIR.allowedPrecedingChords)))
 					}
 				}
 
-				if(protoIR.restrictFollowingChords){
-					if(protoIR.allowedFollowingChords.every(chordName => {
-						if(properlyNamedChordPrototypes.some(proto => proto.name === chordName)) return true
+				if (protoIR.restrictFollowingChords) {
+					if (protoIR.allowedFollowingChords.every(chordName => {
+						if (properlyNamedChordPrototypes.some(proto => proto.name === chordName)) return true
 						return (Chord.parseChordString(chordName) !== undefined)
-					})){
+					})) {
 						chordPrototypeConstraints.push(new ChordPrototypeOnlyFollowedByConstraint(protoIR.name, constantGrabber(protoIR.allowedFollowingChords)))
 					}
 				}
 			}
-			
+
 			const chordesqueCanvasProps = new TileCanvasProps(
 				numChords,
 				new OptionsPerCell([
@@ -77,11 +77,11 @@ export function Output(){
 					maximumRestLength: maxRestLength,
 				},
 				random: new Random(),
-				higherValues: new HigherValues({key: inferKey(), melodyKey: differentMelodyKey ? inferMelodyKey() : undefined}),
+				higherValues: new HigherValues({ key: inferKey(), melodyKey: differentMelodyKey ? inferMelodyKey() : undefined }),
 			})
 
 			setOutput(node.generate(useRhythm))
-		} catch(e){
+		} catch (e) {
 			console.error(e)
 			alert(e)
 		}
@@ -90,9 +90,9 @@ export function Output(){
 	return <div className="main-column">
 		<h2>Output</h2>
 		<button onClick={updatePlayer} disabled={isPlaying}>
-        Generate
+			Generate
 		</button>
 		<br />
-		<MidiPlayer notes={output[0]} length={output[1]} isPlaying={isPlaying} setIsPlaying={setIsPlaying}/>
+		<MidiPlayer notes={output[0]} length={output[1]} isPlaying={isPlaying} setIsPlaying={setIsPlaying} />
 	</div>
 }
