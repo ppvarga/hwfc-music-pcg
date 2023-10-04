@@ -14,6 +14,7 @@ export function GlobalSettings() {
 		<NumberSelector value={numChords} setValue={setNumChords} min={1} max={16} label="Number of chords"/>
 		<MelodyLengthSelector/>
 		<GlobalKeySelector/>
+		<MelodyKeySelector/>
 		<RhythmSettings/>
 	</div>
 }
@@ -77,10 +78,16 @@ const melodyKeyTypeOptions = [
 	{label: "Whole Tone", value: "whole_tone" as const},
 ]
 
+export const melodyKeyTypeToOption = (keyType: MusicalKeyType | undefined) => {
+	const result = melodyKeyTypeOptions.find(option => option.value === keyType)
+	if(result === undefined) return null
+	return result
+}
+
 export type MusicalKeyType = typeof melodyKeyTypeOptions[number]["value"]
 
 function GlobalKeySelector() {
-	const {keyRoot, setKeyRoot, keyType, setKeyType, differentMelodyKey, setDifferentMelodyKey, melodyKeyRoot, melodyKeyType, setMelodyKeyRoot, setMelodyKeyType} = useAppContext()
+	const {keyRoot, setKeyRoot, keyType, setKeyType} = useAppContext()
 	return <>
 		<h3>Key</h3>
 		<div style={{display:"flex", flexDirection:"column"}}>
@@ -90,19 +97,25 @@ function GlobalKeySelector() {
 				</div>
 				<Select options={keyTypeOptions} placeholder={"Select a key type"} styles={selectStyles} value={keyType} onChange={(option: SelectOption) => {setKeyType(option as SelectKeyTypeOption)}}/>
 			</div>
-			<div>
-				<div style={{display: "flex", flexDirection:"row", gap:"1em", justifyContent:"center"}}>
-					<h4>Use different key for melody</h4>
-					<input type="checkbox" checked={differentMelodyKey} onChange={(e) => setDifferentMelodyKey(e.target.checked)}/>
-				</div>
-				{differentMelodyKey && <div style={{display:"flex", flexDirection:"row"}}>
-					<div style={{width:"6em"}}>
-						<ConstantNoteSelector placeholder={"Select a key root"} value={melodyKeyRoot} setValue={setMelodyKeyRoot} style={{flex: 1}}/>
-					</div>
-					<Select options={melodyKeyTypeOptions} placeholder={"Select a key type"} styles={selectStyles} value={melodyKeyType} onChange={(option: SelectOption) => {setMelodyKeyType(option as SelectKeyTypeOption)}}/>
-				</div>}													
-			</div>
+			
 		</div>
 	</>
+}
+
+export function MelodyKeySelector() {
+	const {melodyKeyRoot, setMelodyKeyRoot, melodyKeyType, setMelodyKeyType, differentMelodyKey, setDifferentMelodyKey} = useAppContext()
+
+	return <div>
+		<div style={{display: "flex", flexDirection:"row", gap:"1em", justifyContent:"center"}}>
+			<h4>Use different key for melody</h4>
+			<input type="checkbox" checked={differentMelodyKey} onChange={(e) => setDifferentMelodyKey(e.target.checked)}/>
+		</div>
+		{differentMelodyKey && <div style={{display:"flex", flexDirection:"row"}}>
+			<div style={{width:"6em"}}>
+				<ConstantNoteSelector placeholder={"Select a key root"} value={melodyKeyRoot} setValue={setMelodyKeyRoot} style={{flex: 1}}/>
+			</div>
+			<Select options={melodyKeyTypeOptions} placeholder={"Select a key type"} styles={selectStyles} value={melodyKeyType} onChange={(option: SelectOption) => {setMelodyKeyType(option as SelectKeyTypeOption)}}/>
+		</div>}													
+	</div>
 }
 

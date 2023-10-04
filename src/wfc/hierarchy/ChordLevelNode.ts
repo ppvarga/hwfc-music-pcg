@@ -94,7 +94,9 @@ export class ChordLevelNode {
 			const chordHasPreference = chord instanceof ChordPrototype && (chord.getRhythmStrategy() === "On" || chord.getRhythmStrategy() === "Off")
 			const useRhythm = chordHasPreference ? chord.getRhythmStrategy() === "On" : useRhythmByDefault
 
-			const noteLevelNode = new NoteLevelNode(actualNoteCanvasProps, this.higherValues.copyWithChord(chordValue), this.random)
+			const noteHigherValues = this.higherValues.copyWithChord(chordValue)
+			const noteHigherValuesWithKey = (chord instanceof ChordPrototype && chord.getUseDifferentMelodyKey()) ? noteHigherValues.copyWithKey(chord.getMelodyKey()) : noteHigherValues
+			const noteLevelNode = new NoteLevelNode(actualNoteCanvasProps, noteHigherValuesWithKey, this.random)
 			
 			if(useRhythm){
 				const rhythmPattern = getRandomRhythmPattern(actualMelodyLength, rhythmPatternOptions, this.random)

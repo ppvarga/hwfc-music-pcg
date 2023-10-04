@@ -17,12 +17,12 @@ import { ChordPrototypeOnlyPrecededByConstraint } from "../wfc/constraints/Chord
 
 export function Output(){
 	const [isPlaying, setIsPlaying] = useState(false)
-	const {output, setOutput, onlyUseChordPrototypes, chordPrototypes, inferKey, inferMelodyKey, differentMelodyKey, numChords, chordOptionsPerCell, chordConstraintSet, melodyLength, noteOptionsPerCell, noteConstraintSet, keyGrabber, melodyKeyGrabber, minNumNotes, startOnNote, maxRestLength, useRhythm, } = useAppContext()
+	const {output, setOutput, onlyUseChordPrototypes, chordPrototypes, inferKey, inferMelodyKey, differentMelodyKey, numChords, chordOptionsPerCell, chordConstraintSet, melodyLength, noteOptionsPerCell, noteConstraintSet, minNumNotes, startOnNote, maxRestLength, useRhythm, } = useAppContext()
 
 	const noteCanvasProps = new TileCanvasProps(
 		melodyLength,
 		new OptionsPerCell(OctavedNote.all(), noteOptionsPerCell),
-		new ConstraintSet(noteConstraintSet.map(noteConstraint => convertIRToNoteConstraint({ir: noteConstraint, keyGrabber: melodyKeyGrabber}))),
+		new ConstraintSet(noteConstraintSet.map(noteConstraint => convertIRToNoteConstraint(noteConstraint))),
 	)
 
 	function updatePlayer() {
@@ -37,7 +37,7 @@ export function Output(){
 			})
 
 			for(const protoIR of properlyNamedChordPrototypes){
-				parsedChordPrototypes.push(chordPrototypeIRToChordPrototype(protoIR, melodyKeyGrabber))
+				parsedChordPrototypes.push(chordPrototypeIRToChordPrototype(protoIR))
 
 				if(protoIR.restrictPrecedingChords){
 					if(protoIR.allowedPrecedingChords.every(chordName => {
@@ -63,8 +63,8 @@ export function Output(){
 				new OptionsPerCell([
 					...parsedChordPrototypes,
 					...(onlyUseChordPrototypes ? [] : Chord.allBasicChords()),
-				], chordesqueIRMapToChordesqueMap(chordOptionsPerCell, chordPrototypes, melodyKeyGrabber)),
-				new ConstraintSet([...chordConstraintSet.map(chordConstraint => convertIRToChordConstraint({ir: chordConstraint, keyGrabber})), ...chordPrototypeConstraints]),
+				], chordesqueIRMapToChordesqueMap(chordOptionsPerCell, chordPrototypes)),
+				new ConstraintSet([...chordConstraintSet.map(chordConstraint => convertIRToChordConstraint(chordConstraint)), ...chordPrototypeConstraints]),
 			)
 
 			const node = new ChordLevelNode({

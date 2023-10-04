@@ -6,11 +6,11 @@ import { ChordPrototypeProvider, useAppContext } from "../AppState"
 import { NoteTiles } from "./NoteTiles"
 import { NoteConstraints } from "./NoteConstraints"
 import { buttonStyles, selectStyles } from "../styles"
-import { MelodyLengthSelector } from "./GlobalSettings"
+import { MelodyKeySelector, MelodyLengthSelector, melodyKeyTypeToOption } from "./GlobalSettings"
 import { ChordIR, ChordQuality, chordIRToString, stringToChordIR } from "../music_theory/Chord"
 import Select from "react-select"
 import { ConstantNoteSelector } from "./ConstantNoteSelector"
-import { SelectOption } from "./utils"
+import { SelectKeyTypeOption, SelectOption } from "./utils"
 import { InheritedRhythmSettings } from "./RhythmSettings"
 
 interface ChordPrototypeConfigProps {
@@ -86,6 +86,25 @@ export function ChordPrototypeConfig({prototype, removePrototype, onUpdate}: Cho
 		setNoteConstraintSet(newConstraintSet)
 	}
 
+	const [differentMelodyKey, tempSetDifferentMelodyKey] = useState(prototype.useDifferentMelodyKey)
+	const setDifferentMelodyKey = (newDifferentMelodyKey: boolean) => {
+		tempSetDifferentMelodyKey(newDifferentMelodyKey)
+		onUpdate({useDifferentMelodyKey: newDifferentMelodyKey})
+	}
+
+	const [melodyKeyRoot, tempSetMelodyKeyRoot] = useState(prototype.melodyKeyRoot)
+	const setMelodyKeyRoot = (newMelodyKeyRoot: Note) => {
+		tempSetMelodyKeyRoot(newMelodyKeyRoot)
+		onUpdate({melodyKeyRoot: newMelodyKeyRoot})
+	}
+
+	const [melodyKeyType, tempSetMelodyKeyType] = useState(melodyKeyTypeToOption(prototype.melodyKeyType))
+	const setMelodyKeyType = (newMelodyKeyType: SelectKeyTypeOption) => {
+		if (newMelodyKeyType === null) return
+		tempSetMelodyKeyType(newMelodyKeyType)
+		onUpdate({melodyKeyType: newMelodyKeyType.value})
+	}
+
 	const env = {
 		noteOptionsPerCell,
 		handleNoteOptionsPerCellChange,
@@ -101,6 +120,13 @@ export function ChordPrototypeConfig({prototype, removePrototype, onUpdate}: Cho
 		setStartOnNote,
 		maxRestLength,
 		setMaxRestLength,
+
+		differentMelodyKey,
+		setDifferentMelodyKey,
+		melodyKeyRoot,
+		setMelodyKeyRoot,
+		melodyKeyType,
+		setMelodyKeyType,
 	}
 
 	return <ChordPrototypeProvider env={env}>
@@ -132,6 +158,7 @@ export function ChordPrototypeConfig({prototype, removePrototype, onUpdate}: Cho
 		</div>
 		<div style={{display: "flex", gap: "1em"}}>
 			<div style={{flex: 1}}>
+				<MelodyKeySelector/>
 				<MelodyLengthSelector/>
 				<NoteTiles/>
 				<InheritedRhythmSettings strategy={rhythmStrategy} setStrategy={setRhythmStrategy}/>

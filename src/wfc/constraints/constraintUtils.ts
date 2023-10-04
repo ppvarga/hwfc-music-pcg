@@ -1,6 +1,4 @@
-import { MusicalKey } from "../../music_theory/MusicalKey"
 import { OctavedNote } from "../../music_theory/Note"
-import { Grabber } from "../Grabber"
 import { constantGrabber } from "../grabbers/constantGrabbers"
 import { Chordesque } from "../hierarchy/prototypes"
 import { AscendingMelodySoftConstraint, AscendingMelodySoftConstraintIR, AscendingMelodySoftConstraintInit } from "./AscendingMelodySoftConstraint"
@@ -16,6 +14,7 @@ import { MelodyInKeyHardConstraint, MelodyInKeyHardConstraintIR, MelodyInKeyHard
 import { PerfectCadenceSoftConstraintIR, PerfectCadenceSoftConstraintInit } from "./cadences/PerfectCadenceSoftConstraint"
 import { PlagalCadenceSoftConstraint, PlagalCadenceSoftConstraintIR, PlagalCadenceSoftConstraintInit } from "./cadences/PlagalCadenceSoftConstraint"
 import { Constraint } from "./concepts/Constraint"
+import { HigherValues } from "../HigherValues"
 
 export type ChordConstraintIR =
 	| ChordInKeyHardConstraintIR
@@ -66,14 +65,8 @@ export const noteConstraintTypeToName = new Map<NoteConstraintType, NoteConstrai
 
 export const noteConstraintOptions = Array.from(noteConstraintTypeToName.entries()).map(([value, label]) => ({ value, label }))
 
-interface ConversionProps {
-	keyGrabber: Grabber<MusicalKey>
-}
-type ChordConversionProps = {
-	ir: ChordConstraintIR
-} & ConversionProps
-
-export const convertIRToChordConstraint = ({ir, keyGrabber}: ChordConversionProps) : Constraint<Chordesque> => {
+export const convertIRToChordConstraint = (ir : ChordConstraintIR) : Constraint<Chordesque> => {
+	const keyGrabber = (higherValues: HigherValues) => higherValues.getKey()
 	switch (ir.type) {
 		case "ChordInKeyHardConstraint": return new ChordInKeyHardConstraint(keyGrabber)
 		case "ChordRootAbsoluteStepSizeHardConstraint": return new ChordRootAbsoluteStepSizeHardConstraint(constantGrabber(new Set(ir.stepSizes)))
@@ -82,13 +75,9 @@ export const convertIRToChordConstraint = ({ir, keyGrabber}: ChordConversionProp
 	}
 }
 
-type NoteConversionProps = {
-	ir: NoteConstraintIR
-} & ConversionProps
-
-export const convertIRToNoteConstraint = ({ir, keyGrabber}: NoteConversionProps) : Constraint<OctavedNote> => {
+export const convertIRToNoteConstraint = (ir: NoteConstraintIR) : Constraint<OctavedNote> => {
 	switch (ir.type) {
-		case "MelodyInKeyHardConstraint": return new MelodyInKeyHardConstraint(keyGrabber)
+		case "MelodyInKeyHardConstraint": return new MelodyInKeyHardConstraint((higherValues: HigherValues) => higherValues.getKey())
 		case "MelodyAbsoluteStepSizeHardConstraint": return new MelodyAbsoluteStepSizeHardConstraint(constantGrabber(new Set(ir.stepSizes)))
 		case "AscendingMelodySoftConstraint": return new AscendingMelodySoftConstraint(ir.bonus)
 		case "DescendingMelodySoftConstraint": return new DescendingMelodySoftConstraint(ir.bonus)
