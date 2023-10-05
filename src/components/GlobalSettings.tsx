@@ -19,6 +19,24 @@ export function GlobalSettings() {
 	</div>
 }
 
+export type MelodyLengthStrategy = "Inherit" | "Custom"
+interface InheritedMelodyLengthSelectorProps {
+	strategy: MelodyLengthStrategy
+	setStrategy: (strategy: MelodyLengthStrategy) => void
+}
+export function InheritedMelodyLengthSelector({ strategy, setStrategy }: InheritedMelodyLengthSelectorProps) {
+	const { melodyLength, setMelodyLength } = useAppContext()
+	const toggleStrategy = () => {
+		if (strategy === "Inherit") setStrategy("Custom")
+		else setStrategy("Inherit")
+	}
+
+	return <div style={{ display: "flex", flexDirection: "row", padding: "1em", justifyContent: "center"}}>
+		<button onClick={toggleStrategy}>{strategy} melody length</button>
+		{strategy === "Custom" && <NumberSelector value={melodyLength} setValue={setMelodyLength} min={1} max={16} />}
+	</div>
+}
+
 export function MelodyLengthSelector() {
 	const { melodyLength, setMelodyLength } = useAppContext()
 	return <>
@@ -37,7 +55,7 @@ interface NumberSelectorProps {
 export function NumberSelector({ value, setValue, min, max, label }: NumberSelectorProps) {
 	return <div style={{ display: "flex", alignItems: "center", padding: "1em", }}>
 		{label && <h3 style={{ margin: 0 }}>{label}:</h3>}
-		<div style={{ display: "flex", gap: "0.5em", flexDirection: "row", marginLeft: "auto", alignItems: "center", paddingLeft: "0.5em" }}>
+		<div style={{ display: "flex", gap: "0.5em", flexDirection: "row", marginLeft: "auto", marginRight: label ? 0 : "auto", alignItems: "center", paddingLeft: "0.5em" }}>
 			<button onClick={() => setValue(Math.max(min, value - 1))}>-</button>
 			<h3 style={{ margin: 0 }}>{value}</h3>
 			<button onClick={() => setValue(Math.min(max, value + 1))}>+</button>

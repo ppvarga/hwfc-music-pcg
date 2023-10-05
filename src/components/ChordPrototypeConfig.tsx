@@ -6,7 +6,7 @@ import { ChordPrototypeProvider, useAppContext } from "../AppState"
 import { NoteTiles } from "./NoteTiles"
 import { NoteConstraints } from "./NoteConstraints"
 import { buttonStyles, selectStyles } from "../styles"
-import { MelodyKeySelector, MelodyLengthSelector, melodyKeyTypeToOption } from "./GlobalSettings"
+import { InheritedMelodyLengthSelector, MelodyKeySelector, MelodyLengthSelector, melodyKeyTypeToOption } from "./GlobalSettings"
 import { ChordIR, ChordQuality, chordIRToString, stringToChordIR } from "../music_theory/Chord"
 import Select from "react-select"
 import { ConstantNoteSelector } from "./ConstantNoteSelector"
@@ -37,7 +37,8 @@ export function ChordPrototypeConfig({ prototype, removePrototype, onUpdate }: C
 
 	const [chordValue, setChordValue] = useState(prototype.chord)
 
-	const [melodyLength, tempSetMelodyLength] = useState(prototype.noteCanvasProps.size)
+	const [
+		melodyLength, tempSetMelodyLength] = useState(prototype.melodyLength)
 	const setMelodyLength = (newMelodyLength: number) => {
 		tempSetMelodyLength(newMelodyLength)
 		onUpdate({ melodyLength: newMelodyLength })
@@ -47,6 +48,11 @@ export function ChordPrototypeConfig({ prototype, removePrototype, onUpdate }: C
 	const setRhythmStrategy = (newRhythmStrategy: ChordPrototypeIR["rhythmStrategy"]) => {
 		tempSetRhythmStrategy(newRhythmStrategy)
 		onUpdate({ rhythmStrategy: newRhythmStrategy })
+	}
+	const [melodyLengthStrategy, tempSetMelodyLengthStrategy] = useState(prototype.melodyLengthStrategy)
+	const setMelodyLengthStrategy = (newMelodyLengthStrategy: ChordPrototypeIR["melodyLengthStrategy"]) => {
+		tempSetMelodyLengthStrategy(newMelodyLengthStrategy)
+		onUpdate({ melodyLengthStrategy: newMelodyLengthStrategy })
 	}
 	const [minNumNotes, tempSetMinNumNotes] = useState(prototype.rhythmPatternOptions.minimumNumberOfNotes)
 	const setMinNumNotes = (newMinNumNotes: number) => {
@@ -159,7 +165,7 @@ export function ChordPrototypeConfig({ prototype, removePrototype, onUpdate }: C
 		<div style={{ display: "flex", gap: "1em" }}>
 			<div style={{ flex: 1 }}>
 				<MelodyKeySelector />
-				<MelodyLengthSelector />
+				<InheritedMelodyLengthSelector  strategy={melodyLengthStrategy} setStrategy={setMelodyLengthStrategy}/>
 				<NoteTiles />
 				<InheritedRhythmSettings strategy={rhythmStrategy} setStrategy={setRhythmStrategy} />
 			</div>

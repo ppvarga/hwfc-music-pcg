@@ -1,4 +1,4 @@
-import { MusicalKeyType } from "../../components/GlobalSettings"
+import { MelodyLengthStrategy, MusicalKeyType } from "../../components/GlobalSettings"
 import { RhythmStrategy } from "../../components/RhythmSettings"
 import {
 	Chord,
@@ -117,6 +117,7 @@ export const ChordPrototypeInit = (id: number) => {
 		restrictPrecedingChords: false,
 		restrictFollowingChords: false,
 		rhythmStrategy: "Inherit" as RhythmStrategy,
+		melodyLengthStrategy: "Inherit" as MelodyLengthStrategy,
 		melodyLength: 4,
 		rhythmPatternOptions: {
 			onlyStartOnNote: true,
