@@ -56,6 +56,8 @@ midi-visualizer {
 
 .constant-octaved-note-selector {
 	padding-bottom: 0.5em;
+	display: flex;
+	flex-direction: row;
 }
 
 input[type="number"],

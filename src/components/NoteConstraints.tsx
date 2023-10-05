@@ -106,6 +106,7 @@ function NoteConstraintConfig({ constraintIR, onConstraintChange, setValid }: No
 					setLowerNoteIR(newLowerNote)
 					checkValid(newLowerNote, higherNoteIR)
 				}} />
+				<div style={{height: "0.5em"}}/>
 				<ConstantOctavedNoteSelector label={"Higher bound:"} defaultValue={higherNoteIR} setResult={newHigherNote => {
 					setHigherNoteIR(newHigherNote)
 					checkValid(lowerNoteIR, newHigherNote)
