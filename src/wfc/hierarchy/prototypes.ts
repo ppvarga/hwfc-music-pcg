@@ -32,6 +32,7 @@ interface ChordPrototypeProps {
 	rhythmStrategy: RhythmStrategy
 	rhythmPatternOptions: RhythmPatternOptions
 	melodyLength: number
+	melodyLengthStrategy: MelodyLengthStrategy
 	useDifferentMelodyKey: boolean
 	melodyKey: MusicalKey
 }
@@ -45,6 +46,7 @@ export class ChordPrototype implements Chordesque {
 	private melodyLength: number
 	private useDifferentMelodyKey: boolean
 	private melodyKey: MusicalKey
+	private melodyLengthStrategy: MelodyLengthStrategy
 
 	constructor({
 		name,
@@ -55,6 +57,7 @@ export class ChordPrototype implements Chordesque {
 		melodyLength,
 		useDifferentMelodyKey,
 		melodyKey,
+		melodyLengthStrategy,
 	}: ChordPrototypeProps) {
 		this.name = name
 		this.noteCanvasProps = noteCanvasProps
@@ -64,6 +67,7 @@ export class ChordPrototype implements Chordesque {
 		this.melodyLength = melodyLength
 		this.useDifferentMelodyKey = useDifferentMelodyKey
 		this.melodyKey = melodyKey
+		this.melodyLengthStrategy = melodyLengthStrategy
 	}
 
 	getChord() {
@@ -96,6 +100,10 @@ export class ChordPrototype implements Chordesque {
 
 	getMelodyKey() {
 		return this.melodyKey
+	}
+
+	getMelodyLengthStrategy() {
+		return this.melodyLengthStrategy
 	}
 }
 

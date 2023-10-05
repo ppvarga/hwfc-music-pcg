@@ -6,7 +6,7 @@ import { ChordPrototypeProvider, useAppContext } from "../AppState"
 import { NoteTiles } from "./NoteTiles"
 import { NoteConstraints } from "./NoteConstraints"
 import { buttonStyles, selectStyles } from "../styles"
-import { InheritedMelodyLengthSelector, MelodyKeySelector, MelodyLengthSelector, melodyKeyTypeToOption } from "./GlobalSettings"
+import { InheritedMelodyLengthSelector, MelodyKeySelector, melodyKeyTypeToOption } from "./GlobalSettings"
 import { ChordIR, ChordQuality, chordIRToString, stringToChordIR } from "../music_theory/Chord"
 import Select from "react-select"
 import { ConstantNoteSelector } from "./ConstantNoteSelector"
@@ -37,23 +37,25 @@ export function ChordPrototypeConfig({ prototype, removePrototype, onUpdate }: C
 
 	const [chordValue, setChordValue] = useState(prototype.chord)
 
-	const [
-		melodyLength, tempSetMelodyLength] = useState(prototype.melodyLength)
-	const setMelodyLength = (newMelodyLength: number) => {
-		tempSetMelodyLength(newMelodyLength)
-		onUpdate({ melodyLength: newMelodyLength })
-	}
-
 	const [rhythmStrategy, tempSetRhythmStrategy] = useState(prototype.rhythmStrategy)
 	const setRhythmStrategy = (newRhythmStrategy: ChordPrototypeIR["rhythmStrategy"]) => {
 		tempSetRhythmStrategy(newRhythmStrategy)
 		onUpdate({ rhythmStrategy: newRhythmStrategy })
 	}
+
 	const [melodyLengthStrategy, tempSetMelodyLengthStrategy] = useState(prototype.melodyLengthStrategy)
 	const setMelodyLengthStrategy = (newMelodyLengthStrategy: ChordPrototypeIR["melodyLengthStrategy"]) => {
 		tempSetMelodyLengthStrategy(newMelodyLengthStrategy)
 		onUpdate({ melodyLengthStrategy: newMelodyLengthStrategy })
 	}
+
+	const [tempMelodyLength, tempSetMelodyLength] = useState(prototype.melodyLength)
+	const melodyLength = melodyLengthStrategy === "Inherit" ? useAppContext().melodyLength : tempMelodyLength
+	const setMelodyLength = (newMelodyLength: number) => {
+		tempSetMelodyLength(newMelodyLength)
+		onUpdate({ melodyLength: newMelodyLength })
+	}
+
 	const [minNumNotes, tempSetMinNumNotes] = useState(prototype.rhythmPatternOptions.minimumNumberOfNotes)
 	const setMinNumNotes = (newMinNumNotes: number) => {
 		tempSetMinNumNotes(newMinNumNotes)

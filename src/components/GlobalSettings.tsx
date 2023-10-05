@@ -123,11 +123,12 @@ function GlobalKeySelector() {
 export function MelodyKeySelector() {
 	const { melodyKeyRoot, setMelodyKeyRoot, melodyKeyType, setMelodyKeyType, differentMelodyKey, setDifferentMelodyKey } = useAppContext()
 
-	return <div>
-		<div style={{ display: "flex", flexDirection: "row", gap: "1em", justifyContent: "center" }}>
-			<h4>Use different key for melody</h4>
-			<input type="checkbox" checked={differentMelodyKey} onChange={(e) => setDifferentMelodyKey(e.target.checked)} />
-		</div>
+	const toggleDifferentMelodyKey = () => {
+		setDifferentMelodyKey(!differentMelodyKey)
+	}
+
+	return <div style={{marginTop:"1em"}}>
+		<button onClick={toggleDifferentMelodyKey}>{differentMelodyKey ? "Custom melody key" : "Inherit melody key"}</button>
 		{differentMelodyKey && <div style={{ display: "flex", flexDirection: "row" }}>
 			<div style={{ width: "6em" }}>
 				<ConstantNoteSelector placeholder={"Select a key root"} value={melodyKeyRoot} setValue={setMelodyKeyRoot} style={{ flex: 1 }} />
