@@ -1,5 +1,5 @@
 import { arrayEquals } from "../util/utils"
-import { Chordesque, ChordesqueIR } from "../wfc/hierarchy/prototypes"
+import { Chordesque, ChordesqueIR } from "../wfc/hierarchy/Chordesque"
 import { Note, relativeNote } from "./Note"
 import { NoteSet } from "./NoteSet"
 

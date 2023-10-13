@@ -1,16 +1,16 @@
 import { Grabber } from "../Grabber"
 import { HigherValues } from "../HigherValues"
 import { Tile } from "../Tile"
-import { Section } from "../hierarchy/prototypes"
+import { Section } from "../hierarchy/Section"
 import { HardConstraint } from "./concepts/Constraint"
 
 export class SectionOnlyPrecededByHardConstraint
 	implements HardConstraint<Section>
 {
 	private sectionName: string
-	private grabber: Grabber<Set<string>>
+	private grabber: Grabber<string[]>
 	name = "Section Only Preceded By"
-	constructor(sectionName: string, grabber: Grabber<Set<string>>) {
+	constructor(sectionName: string, grabber: Grabber<string[]>) {
 		this.sectionName = sectionName
 		this.grabber = grabber
 	}
@@ -32,6 +32,6 @@ export class SectionOnlyPrecededByHardConstraint
 	): boolean {
 		if (second.getName() != this.sectionName) return true
 		const sectionSet = this.grabber(higherValues)
-		return sectionSet.has(first.getName())
+		return sectionSet.some((sectionName) => sectionName === first.getName())
 	}
 }

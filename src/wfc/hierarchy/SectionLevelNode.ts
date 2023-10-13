@@ -1,10 +1,12 @@
+import { NoteOutput } from "../../components/MidiPlayer"
 import { OctavedNote } from "../../music_theory/Note"
 import { RhythmPatternOptions } from "../../music_theory/Rhythm"
 import { Random } from "../../util/Random"
 import { HigherValues } from "../HigherValues"
 import { TileCanvasProps, TileCanvas } from "../TileCanvas"
 import { ChordLevelNode } from "./ChordLevelNode"
-import { Chordesque, Section } from "./prototypes"
+import { Chordesque } from "./Chordesque"
+import { Section } from "./Section"
 import { SectionResult, SectionResultWithRhythm } from "./results"
 
 interface SectionLevelNodeProps {
@@ -54,7 +56,7 @@ export class SectionLevelNode {
 				...section.getRhythmPatternOptions(),
 			},
 			random: this.random,
-			melodyLength: this.melodyLength,
+			melodyLength: section.getMelodyLengthStrategy() === "Custom" ? section.getMelodyLength() : this.melodyLength,
 		})
 	}
 
@@ -70,5 +72,27 @@ export class SectionLevelNode {
 		return sections.map((section) =>
 			this.createChordLevelNode(section).generateWithRhythm(),
 		)
+	}
+
+	public generate(useRhythmByDefault: boolean): [NoteOutput[], number] {
+		const sections = this.sectionCanvas.generate()
+		const noteOutputs: NoteOutput[] = []
+		let totalDuration = 0
+		for (const section of sections) {
+			const useRhythm = section.getRhythmStrategy() === "On" || (section.getRhythmStrategy() === "Inherit" && useRhythmByDefault)
+
+			console.log(section.getName(), section.getMelodyLengthStrategy() === "Custom" ? section.getMelodyLength() : this.melodyLength)
+
+			const chordLevelNode = this.createChordLevelNode(section)
+			const [sectionNoteOutputs, sectionDuration] = chordLevelNode.generate(useRhythm)
+
+			noteOutputs.push(...(sectionNoteOutputs.map((noteOutput) => {
+				noteOutput.startTime += totalDuration
+				return noteOutput
+			})))
+
+			totalDuration += sectionDuration
+		}
+		return [noteOutputs, totalDuration]
 	}
 }

@@ -1,7 +1,7 @@
 import { Grabber } from "../Grabber"
 import { HigherValues } from "../HigherValues"
 import { Tile } from "../Tile"
-import { Chordesque, ChordPrototype } from "../hierarchy/prototypes"
+import { Chordesque, ChordPrototype } from "../hierarchy/Chordesque"
 import { HardConstraint } from "./concepts/Constraint"
 
 export class ChordPrototypeOnlyPrecededByConstraint

@@ -3,7 +3,7 @@ import { noteDistanceAbs } from "../../music_theory/Note"
 import { Grabber } from "../Grabber"
 import { HigherValues } from "../HigherValues"
 import { Tile } from "../Tile"
-import { Chordesque } from "../hierarchy/prototypes"
+import { Chordesque } from "../hierarchy/Chordesque"
 import { HardConstraint } from "./concepts/Constraint"
 import { chordConstraintTypeToName } from "./constraintUtils"
 

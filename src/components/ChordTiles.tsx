@@ -2,7 +2,7 @@ import { useState } from "react"
 import { useAppContext } from "../AppState"
 import Popup from "reactjs-popup"
 import { stringToChordIR } from "../music_theory/Chord"
-import { ChordPrototypeIR, ChordesqueIR, chordesqueIRToString } from "../wfc/hierarchy/prototypes"
+import { ChordPrototypeIR, ChordesqueIR, chordesqueIRToString } from "../wfc/hierarchy/Chordesque"
 
 interface ChordTileProps {
 	index: number;

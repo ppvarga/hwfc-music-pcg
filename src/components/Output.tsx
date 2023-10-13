@@ -10,14 +10,19 @@ import { TileCanvasProps } from "../wfc/TileCanvas"
 import { ChordLevelNode } from "../wfc/hierarchy/ChordLevelNode"
 import { HigherValues } from "../wfc/HigherValues"
 import { convertIRToChordConstraint, convertIRToNoteConstraint } from "../wfc/constraints/constraintUtils"
-import { chordPrototypeIRToChordPrototype, chordesqueIRMapToChordesqueMap } from "../wfc/hierarchy/prototypes"
+import { ChordPrototype, Chordesque, chordPrototypeIRToChordPrototype, chordesqueIRMapToChordesqueMap } from "../wfc/hierarchy/Chordesque"
 import { ChordPrototypeOnlyFollowedByConstraint } from "../wfc/constraints/ChordPrototypeOnlyFollowedByConstraint"
 import { constantGrabber } from "../wfc/grabbers/constantGrabbers"
 import { ChordPrototypeOnlyPrecededByConstraint } from "../wfc/constraints/ChordPrototypeOnlyPrecededByConstraint"
+import { Constraint } from "../wfc/constraints/concepts/Constraint"
+import { Section, sectionIRMapToSectionMap, sectionIRToSection } from "../wfc/hierarchy/Section"
+import { SectionOnlyPrecededByHardConstraint } from "../wfc/constraints/SectionOnlyPrecededByHardConstraint"
+import { SectionOnlyFollowedByHardConstraint } from "../wfc/constraints/SectionOnlyFollowedByHardConstraint"
+import { SectionLevelNode } from "../wfc/hierarchy/SectionLevelNode"
 
 export function Output() {
 	const [isPlaying, setIsPlaying] = useState(false)
-	const { output, setOutput, onlyUseChordPrototypes, chordPrototypes, inferKey, inferMelodyKey, differentMelodyKey, numChords, chordOptionsPerCell, chordConstraintSet, melodyLength, noteOptionsPerCell, noteConstraintSet, minNumNotes, startOnNote, maxRestLength, useRhythm, } = useAppContext()
+	const { output, setOutput, onlyUseChordPrototypes, chordPrototypes, inferKey, inferMelodyKey, differentMelodyKey, numChords, chordOptionsPerCell, chordConstraintSet, melodyLength, noteOptionsPerCell, noteConstraintSet, minNumNotes, startOnNote, maxRestLength, useRhythm, sections, sectionOptionsPerCell} = useAppContext()
 
 	const noteCanvasProps = new TileCanvasProps(
 		melodyLength,
@@ -25,38 +30,74 @@ export function Output() {
 		new ConstraintSet(noteConstraintSet.map(noteConstraint => convertIRToNoteConstraint(noteConstraint))),
 	)
 
-	function updatePlayer() {
-		try {
-			const parsedChordPrototypes = []
-			const chordPrototypeConstraints = []
+	function parseChordPrototypes(): [ChordPrototype[], Constraint<Chordesque>[]] {
+		const parsedChordPrototypes = []
+		const chordPrototypeConstraints = []
 
-			const properlyNamedChordPrototypes = chordPrototypes.map(proto => {
-				if (proto.name !== "") return proto
-				const protoName = `ChordPrototype${proto.id}`
-				return { ...proto, name: protoName }
-			})
+		const properlyNamedChordPrototypes = chordPrototypes.map(proto => {
+			if (proto.name !== "") return proto
+			const protoName = `ChordPrototype${proto.id}`
+			return { ...proto, name: protoName }
+		})
 
-			for (const protoIR of properlyNamedChordPrototypes) {
-				parsedChordPrototypes.push(chordPrototypeIRToChordPrototype(protoIR))
+		for (const protoIR of properlyNamedChordPrototypes) {
+			parsedChordPrototypes.push(chordPrototypeIRToChordPrototype(protoIR))
 
-				if (protoIR.restrictPrecedingChords) {
-					if (protoIR.allowedPrecedingChords.every(chordName => {
-						if (properlyNamedChordPrototypes.some(proto => proto.name === chordName)) return true
-						return (Chord.parseChordString(chordName) !== undefined)
-					})) {
-						chordPrototypeConstraints.push(new ChordPrototypeOnlyPrecededByConstraint(protoIR.name, constantGrabber(protoIR.allowedPrecedingChords)))
-					}
-				}
-
-				if (protoIR.restrictFollowingChords) {
-					if (protoIR.allowedFollowingChords.every(chordName => {
-						if (properlyNamedChordPrototypes.some(proto => proto.name === chordName)) return true
-						return (Chord.parseChordString(chordName) !== undefined)
-					})) {
-						chordPrototypeConstraints.push(new ChordPrototypeOnlyFollowedByConstraint(protoIR.name, constantGrabber(protoIR.allowedFollowingChords)))
-					}
+			if (protoIR.restrictPrecedingChords) {
+				if (protoIR.allowedPrecedingChords.every(chordName => {
+					if (properlyNamedChordPrototypes.some(proto => proto.name === chordName)) return true
+					return (Chord.parseChordString(chordName) !== undefined)
+				})) {
+					chordPrototypeConstraints.push(new ChordPrototypeOnlyPrecededByConstraint(protoIR.name, constantGrabber(protoIR.allowedPrecedingChords)))
 				}
 			}
+
+			if (protoIR.restrictFollowingChords) {
+				if (protoIR.allowedFollowingChords.every(chordName => {
+					if (properlyNamedChordPrototypes.some(proto => proto.name === chordName)) return true
+					return (Chord.parseChordString(chordName) !== undefined)
+				})) {
+					chordPrototypeConstraints.push(new ChordPrototypeOnlyFollowedByConstraint(protoIR.name, constantGrabber(protoIR.allowedFollowingChords)))
+				}
+			}
+		}
+
+		return [parsedChordPrototypes, chordPrototypeConstraints]
+	}
+
+	function parseSections(): [Section[], Constraint<Section>[]] {
+		const parsedSections = []
+		const sectionConstraints = []
+
+		for (const sectionIR of sections) {
+			parsedSections.push(sectionIRToSection(sectionIR, chordPrototypes))
+
+			if (sectionIR.restrictPrecedingSections) {
+				if (sectionIR.allowedPrecedingSections.every(sectionName => {
+					if (sections.some(section => section.name === sectionName)) return true
+					return (Chord.parseChordString(sectionName) !== undefined)
+				})) {
+					sectionConstraints.push(new SectionOnlyPrecededByHardConstraint(sectionIR.name, constantGrabber(sectionIR.allowedPrecedingSections)))
+				}
+			}
+
+			if (sectionIR.restrictFollowingSections) {
+				if (sectionIR.allowedFollowingSections.every(sectionName => {
+					if (sections.some(section => section.name === sectionName)) return true
+					return (Chord.parseChordString(sectionName) !== undefined)
+				})) {
+					sectionConstraints.push(new SectionOnlyFollowedByHardConstraint(sectionIR.name, constantGrabber(sectionIR.allowedFollowingSections)))
+				}
+			}
+		}
+
+		return [parsedSections, sectionConstraints]
+	}
+
+	function updatePlayer() {
+		try {
+			const [parsedChordPrototypes, chordPrototypeConstraints] = parseChordPrototypes()
+			const [parsedSections, sectionConstraints] = parseSections()
 
 			const chordesqueCanvasProps = new TileCanvasProps(
 				numChords,
@@ -67,9 +108,16 @@ export function Output() {
 				new ConstraintSet([...chordConstraintSet.map(chordConstraint => convertIRToChordConstraint(chordConstraint)), ...chordPrototypeConstraints]),
 			)
 
-			const node = new ChordLevelNode({
+			const sectionCanvasProps = new TileCanvasProps(
+				4, //TODO
+				new OptionsPerCell(parsedSections, sectionIRMapToSectionMap(sectionOptionsPerCell, sections, chordPrototypes)),
+				new ConstraintSet(sectionConstraints),
+			)
+
+			const node = new SectionLevelNode({
 				noteCanvasProps,
 				chordesqueCanvasProps,
+				sectionCanvasProps,
 				melodyLength,
 				rhythmPatternOptions: {
 					minimumNumberOfNotes: minNumNotes,

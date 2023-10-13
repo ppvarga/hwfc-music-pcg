@@ -1,6 +1,6 @@
 import { OctavedNote } from "../../music_theory/Note"
 import { constantGrabber } from "../grabbers/constantGrabbers"
-import { Chordesque } from "../hierarchy/prototypes"
+import { Chordesque } from "../hierarchy/Chordesque"
 import {
 	AscendingMelodySoftConstraint,
 	AscendingMelodySoftConstraintIR,

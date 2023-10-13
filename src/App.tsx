@@ -8,6 +8,7 @@ import { NoteConstraints } from "./components/NoteConstraints"
 import { NoteTiles } from "./components/NoteTiles"
 import TabComponent from "./components/TabComponent"
 import { ChordPrototypesPage } from "./components/ChordPrototypesPage"
+import { SectionsPage } from "./components/SectionsPage"
 
 function App() {
 
@@ -30,6 +31,10 @@ function App() {
 					<Output />
 				</div>
 			</>
+		},
+		{
+			title: "Sections",
+			content: <SectionsPage />
 		},
 		{
 			title: "Chord prototypes",

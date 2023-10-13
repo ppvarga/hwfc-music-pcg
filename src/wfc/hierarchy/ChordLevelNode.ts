@@ -13,7 +13,7 @@ import { Random } from "../../util/Random"
 import { HigherValues } from "../HigherValues"
 import { TileCanvasProps, TileCanvas } from "../TileCanvas"
 import { NoteLevelNode } from "./NoteLevelNode"
-import { ChordPrototype, Chordesque } from "./prototypes"
+import { ChordPrototype, Chordesque } from "./Chordesque"
 import { ChordResult, ChordResultWithRhythm } from "./results"
 
 interface ChordLevelNodeProps {
@@ -141,7 +141,9 @@ export class ChordLevelNode {
 				noteHigherValuesWithKey,
 				this.random,
 			)
-
+			
+			console.log(actualMelodyLength)
+			
 			if (useRhythm) {
 				const rhythmPattern = getRandomRhythmPattern(
 					actualMelodyLength,

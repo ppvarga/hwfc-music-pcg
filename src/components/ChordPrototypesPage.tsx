@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useAppContext } from "../AppState"
-import { ChordPrototypeIR, ChordPrototypeInit } from "../wfc/hierarchy/prototypes"
+import { ChordPrototypeIR, ChordPrototypeInit } from "../wfc/hierarchy/Chordesque"
 import { ChordPrototypeConfig } from "./ChordPrototypeConfig"
 import { buttonStyles } from "../styles"
 
