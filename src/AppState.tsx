@@ -10,19 +10,21 @@ import { ChordRootAbsoluteStepSizeHardConstraintInit } from "./wfc/constraints/C
 import { ChordPrototypeIR, ChordesqueIR } from "./wfc/hierarchy/Chordesque"
 import { NoteOutput } from "./components/MidiPlayer"
 import { SectionIR } from "./wfc/hierarchy/Section"
-import { Chord } from "./music_theory/Chord"
 
 function AppState() {
 	//GLOBAL LENGTHS
 	const [numChords, setNumChords] = useState(4)
 	const [melodyLength, tempSetMelodyLength] = useState(4)
+	const [numSections, setNumSections] = useState(4)
 	const setMelodyLength = (newLength: number) => {
 		tempSetMelodyLength(newLength)
 	}
 
 	//GLOBAL KEY
-	const [keyRoot, setKeyRoot] = useState(Note.C)
-	const [keyType, setKeyType] = useState({ label: "Major", value: "major" } as SelectKeyTypeOption)
+	const [keyRoot, tempSetKeyRoot] = useState(Note.C)
+	const setKeyRoot = (newKeyRoot: Note) => tempSetKeyRoot(newKeyRoot)
+	const [keyType, tempSetKeyType] = useState({ label: "Major", value: "major" } as SelectKeyTypeOption)
+	const setKeyType = (newKeyType: SelectKeyTypeOption) => tempSetKeyType(newKeyType)
 	const inferKey = useCallback(() => {
 		if (keyType === null) throw new Error("keyType and keyRoot must be defined")
 		return MusicalKey.fromRootAndType(keyRoot, keyType.value)
@@ -160,13 +162,14 @@ function AppState() {
 		return id
 	}
 
-
 	//OUTPUT
 	const [output, setOutput] = useState<[NoteOutput[], number]>([[], 0])
 
 	return {
 		numChords,
 		setNumChords,
+		numSections,
+		setNumSections,
 
 		melodyLength,
 		setMelodyLength,
@@ -273,6 +276,10 @@ type ChordPrototypeEnvironment = {
 }
 
 type SectionEnvironment = ChordPrototypeEnvironment & {
+	keyRoot: Note,
+	setKeyRoot: (newKeyRoot: Note) => void,
+	keyType: SelectKeyTypeOption,
+	setKeyType: (newKeyType: SelectKeyTypeOption) => void,
 	chordOptionsPerCell: Map<number, ChordesqueIR[]>,
 	handleChordOptionsPerCellChange: (index: number, chordOptions: ChordesqueIR[]) => void,
 	chordConstraintSet: ChordConstraintIR[],

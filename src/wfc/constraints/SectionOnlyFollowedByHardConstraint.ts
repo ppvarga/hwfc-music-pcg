@@ -17,12 +17,17 @@ export class SectionOnlyFollowedByHardConstraint
 
 	check(tile: Tile<Section>, higherValues: HigherValues): boolean {
 		const section = tile.getValue()
-		const prevSection = tile.getPrev().getValue()
-		const nextSection = tile.getNext().getValue()
-		return (
-			this.checkPair(prevSection, section, higherValues) &&
-			this.checkPair(section, nextSection, higherValues)
-		)
+		const prev = tile.getPrev()
+		const next = tile.getNext()
+		
+		let out = true
+		if(prev.isCollapsed()){
+			out &&= this.checkPair(prev.getValue(), section, higherValues)
+		}
+		if(next.isCollapsed()){
+			out &&= this.checkPair(section, next.getValue(), higherValues)
+		}
+		return out
 	}
 
 	checkPair(

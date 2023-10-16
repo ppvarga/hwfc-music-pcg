@@ -5,14 +5,13 @@ import { SectionProvider } from "../AppState"
 import { NoteTiles } from "./NoteTiles"
 import { NoteConstraints } from "./NoteConstraints"
 import { buttonStyles,} from "../styles"
-import { InheritedMelodyLengthSelector, MelodyKeySelector, melodyKeyTypeToOption } from "./GlobalSettings"
+import { InheritedMelodyLengthSelector, KeySelector, MelodyKeySelector, melodyKeyTypeToOption } from "./GlobalSettings"
 import { SelectKeyTypeOption,} from "./utils"
 import { InheritedRhythmSettings } from "./RhythmSettings"
 import { SectionIR } from "../wfc/hierarchy/Section"
 import { ChordesqueIR } from "../wfc/hierarchy/Chordesque"
-import { NeighborRules } from "./NeighborRules"
+import { NeighborRulesSection } from "./NeighborRules"
 import { ChordTiles } from "./ChordTiles"
-import { Chord } from "../music_theory/Chord"
 import { ChordConstraints } from "./ChordConstraints"
 
 interface SectionConfigProps {
@@ -138,6 +137,23 @@ export function SectionConfig({ section, removeSection, onUpdate }: SectionConfi
 		onUpdate({ melodyKeyType: newMelodyKeyType.value })
 	}
 
+	const [useDifferentKey, tempSetUseDifferentKey] = useState(section.useDifferentKey)
+	const setUseDifferentKey = (newUseDifferentKey: boolean) => {
+		tempSetUseDifferentKey(newUseDifferentKey)
+		onUpdate({ useDifferentKey: newUseDifferentKey })
+	}
+	const [keyRoot, tempSetKeyRoot] = useState(section.keyRoot)
+	const setKeyRoot = (newKeyRoot: Note) => {
+		tempSetKeyRoot(newKeyRoot)
+		onUpdate({ keyRoot: newKeyRoot })
+	}
+	const [keyType, tempSetKeyType] = useState(melodyKeyTypeToOption(section.keyType))
+	const setKeyType = (newKeyType: SelectKeyTypeOption) => {
+		if (newKeyType === null) return
+		tempSetKeyType(newKeyType)
+		onUpdate({ keyType: newKeyType.value })
+	}
+
 	const env = {
 		noteOptionsPerCell,
 		handleNoteOptionsPerCellChange,
@@ -154,6 +170,10 @@ export function SectionConfig({ section, removeSection, onUpdate }: SectionConfi
 		maxRestLength,
 		setMaxRestLength,
 
+		keyRoot,
+		setKeyRoot,
+		keyType,
+		setKeyType,
 		differentMelodyKey,
 		setDifferentMelodyKey,
 		melodyKeyRoot,
@@ -191,10 +211,11 @@ export function SectionConfig({ section, removeSection, onUpdate }: SectionConfi
 		</div>
 		<div style={{ display: "flex", gap: "1em" }}>
 			<div style={{ flex: 1 }}>
+				<KeySelector useDifferentKey={useDifferentKey} setUseDifferentKey={setUseDifferentKey}/>
 				<MelodyKeySelector />
 				<InheritedMelodyLengthSelector  strategy={melodyLengthStrategy} setStrategy={setMelodyLengthStrategy}/>
 				<InheritedRhythmSettings strategy={rhythmStrategy} setStrategy={setRhythmStrategy} />
-				<NeighborRules
+				<NeighborRulesSection
 					inputLabel="Allowed preceding sections"
 					checkboxLabel="Restrict preceding sections"
 					restrict={section.restrictPrecedingSections}
@@ -202,7 +223,7 @@ export function SectionConfig({ section, removeSection, onUpdate }: SectionConfi
 					allowedSet={section.allowedPrecedingSections}
 					setAllowedSet={(s) => onUpdate({ allowedPrecedingSections: s })}
 				/>
-				<NeighborRules
+				<NeighborRulesSection
 					inputLabel="Allowed following sections"
 					checkboxLabel="Restrict following sections"
 					restrict={section.restrictFollowingSections}

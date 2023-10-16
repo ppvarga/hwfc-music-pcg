@@ -29,6 +29,7 @@ export function MidiPlayer({ notes, length, isPlaying, setIsPlaying }: MidiPlaye
 	const [volume, setVolume] = useState(-25)
 	synthRef.current.volume.setValueAtTime(volume, audioContext.currentTime)
 
+	console.log(notes)
 	const yPositions = notes.map(note => note.octavedNote.toY())
 	const normalizedYPositions = normalizeYPositions(yPositions)
 	const canvasHeight = Math.max(...normalizedYPositions) + 20

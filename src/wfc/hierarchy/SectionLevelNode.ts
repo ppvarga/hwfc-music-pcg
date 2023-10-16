@@ -51,10 +51,7 @@ export class SectionLevelNode {
 			chordesqueCanvasProps: this.chordesqueCanvasProps.union(
 				section.getChordesqueCanvasProps(),
 			),
-			rhythmPatternOptions: {
-				...this.rhythmPatternOptions,
-				...section.getRhythmPatternOptions(),
-			},
+			rhythmPatternOptions: section.getRhythmStrategy() === "On" ? section.getRhythmPatternOptions() : this.rhythmPatternOptions,
 			random: this.random,
 			melodyLength: section.getMelodyLengthStrategy() === "Custom" ? section.getMelodyLength() : this.melodyLength,
 		})

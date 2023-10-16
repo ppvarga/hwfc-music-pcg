@@ -20,12 +20,12 @@ export class ChordPrototypeOnlyFollowedByConstraint
 		const next = tile.getNext()
 
 		let out = true
-		if (prev.isCollapsed())
-			out =
-				out && this.checkPair(prev.getValue(), chordesque, higherValues)
-		if (next.isCollapsed())
-			out =
-				out && this.checkPair(chordesque, next.getValue(), higherValues)
+		if (prev.isCollapsed()){
+			out &&= this.checkPair(prev.getValue(), chordesque, higherValues)
+		}
+		if (next.isCollapsed()){
+			out &&= this.checkPair(chordesque, next.getValue(), higherValues)
+		}
 		return out
 	}
 

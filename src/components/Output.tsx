@@ -7,7 +7,6 @@ import { Random } from "../util/Random"
 import { ConstraintSet } from "../wfc/ConstraintSet"
 import { OptionsPerCell } from "../wfc/OptionsPerCell"
 import { TileCanvasProps } from "../wfc/TileCanvas"
-import { ChordLevelNode } from "../wfc/hierarchy/ChordLevelNode"
 import { HigherValues } from "../wfc/HigherValues"
 import { convertIRToChordConstraint, convertIRToNoteConstraint } from "../wfc/constraints/constraintUtils"
 import { ChordPrototype, Chordesque, chordPrototypeIRToChordPrototype, chordesqueIRMapToChordesqueMap } from "../wfc/hierarchy/Chordesque"
@@ -22,7 +21,7 @@ import { SectionLevelNode } from "../wfc/hierarchy/SectionLevelNode"
 
 export function Output() {
 	const [isPlaying, setIsPlaying] = useState(false)
-	const { output, setOutput, onlyUseChordPrototypes, chordPrototypes, inferKey, inferMelodyKey, differentMelodyKey, numChords, chordOptionsPerCell, chordConstraintSet, melodyLength, noteOptionsPerCell, noteConstraintSet, minNumNotes, startOnNote, maxRestLength, useRhythm, sections, sectionOptionsPerCell} = useAppContext()
+	const { output, setOutput, onlyUseChordPrototypes, chordPrototypes, inferKey, inferMelodyKey, differentMelodyKey, numChords, chordOptionsPerCell, chordConstraintSet, melodyLength, noteOptionsPerCell, noteConstraintSet, minNumNotes, startOnNote, maxRestLength, useRhythm, sections, sectionOptionsPerCell, numSections} = useAppContext()
 
 	const noteCanvasProps = new TileCanvasProps(
 		melodyLength,
@@ -69,12 +68,18 @@ export function Output() {
 		const parsedSections = []
 		const sectionConstraints = []
 
-		for (const sectionIR of sections) {
+		const properlyNamedSections = sections.map(section => {
+			if (section.name !== "") return section
+			const sectionName = `Section${section.id}`
+			return { ...section, name: sectionName }
+		})
+
+		for (const sectionIR of properlyNamedSections) {
 			parsedSections.push(sectionIRToSection(sectionIR, chordPrototypes))
 
 			if (sectionIR.restrictPrecedingSections) {
 				if (sectionIR.allowedPrecedingSections.every(sectionName => {
-					if (sections.some(section => section.name === sectionName)) return true
+					if (properlyNamedSections.some(section => section.name === sectionName)) return true
 					return (Chord.parseChordString(sectionName) !== undefined)
 				})) {
 					sectionConstraints.push(new SectionOnlyPrecededByHardConstraint(sectionIR.name, constantGrabber(sectionIR.allowedPrecedingSections)))
@@ -83,7 +88,7 @@ export function Output() {
 
 			if (sectionIR.restrictFollowingSections) {
 				if (sectionIR.allowedFollowingSections.every(sectionName => {
-					if (sections.some(section => section.name === sectionName)) return true
+					if (properlyNamedSections.some(section => section.name === sectionName)) return true
 					return (Chord.parseChordString(sectionName) !== undefined)
 				})) {
 					sectionConstraints.push(new SectionOnlyFollowedByHardConstraint(sectionIR.name, constantGrabber(sectionIR.allowedFollowingSections)))
@@ -109,7 +114,7 @@ export function Output() {
 			)
 
 			const sectionCanvasProps = new TileCanvasProps(
-				4, //TODO
+				numSections,
 				new OptionsPerCell(parsedSections, sectionIRMapToSectionMap(sectionOptionsPerCell, sections, chordPrototypes)),
 				new ConstraintSet(sectionConstraints),
 			)

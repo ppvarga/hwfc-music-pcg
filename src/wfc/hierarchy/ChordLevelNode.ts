@@ -150,9 +150,6 @@ export class ChordLevelNode {
 					rhythmPatternOptions,
 					this.random,
 				)
-				actualNoteCanvasProps.setSize(
-					numberOfNotesInRhythmPattern(rhythmPattern),
-				)
 				const abstractResult = {
 					chord: chordValue,
 					notes: noteLevelNode.generate(),

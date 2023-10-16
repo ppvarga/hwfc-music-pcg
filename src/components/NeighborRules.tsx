@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { useAppContext } from "../AppState"
 import { ChordIR, chordIRToString, stringToChordIR } from "../music_theory/Chord"
+import { SectionIR } from "../wfc/hierarchy/Section"
 
 interface NeighborRulesProps {
 	inputLabel: string
@@ -10,7 +11,7 @@ interface NeighborRulesProps {
 	allowedSet: string[]
 	setAllowedSet: (c: string[]) => void
 }
-export function NeighborRules({ inputLabel, checkboxLabel, restrict, setRestrict, allowedSet, setAllowedSet }: NeighborRulesProps) {
+export function NeighborRulesChordPrototype({ inputLabel, checkboxLabel, restrict, setRestrict, allowedSet, setAllowedSet }: NeighborRulesProps) {
 	const { chordPrototypes } = useAppContext()
 
 	const createString = (chord: ChordIR | string) => {
@@ -42,6 +43,40 @@ export function NeighborRules({ inputLabel, checkboxLabel, restrict, setRestrict
 		</div>
 		{restrict && <>
 			<input type="text" value={allowedSet.map(createString).join(" ")}
+				placeholder={inputLabel} onChange={(e) => {
+					setAllowedSet(e.target.value === "" ? [] : e.target.value.split(" "))
+				}} />
+		</>}
+	</div>
+}
+
+export function NeighborRulesSection({ inputLabel, checkboxLabel, restrict, setRestrict, allowedSet, setAllowedSet }: NeighborRulesProps) {
+	const { sections } = useAppContext()
+
+	const isValid = (allowedSet: (string)[]) => {
+		if (restrict && allowedSet.length === 0) return false
+		let out = true
+		allowedSet.forEach(s => {
+			if (sections.some(p => p.name === s || p.name === "" && s === `Section${p.id}`)) return
+			const chordIR = stringToChordIR(s)
+			if (chordIR) return
+			out = false
+		})
+		return out
+	}
+	const [valid, setValid] = useState(isValid(allowedSet))
+
+	useEffect(() => {
+		setValid(isValid(allowedSet))
+	}, [restrict, allowedSet])
+
+	return <div style={{ display: "flex", flexDirection: "column", gap: "1em" }}>
+		<div style={{ display: "flex", justifyContent: "center", gap: "0.5em", marginTop: "2em" }}>
+			<h3 style={{ marginBottom: 0, marginTop: 0, color: valid ? "white" : "red" }}>{checkboxLabel}</h3>
+			<input type="checkbox" checked={restrict} onChange={(e) => setRestrict(e.target.checked)} />
+		</div>
+		{restrict && <>
+			<input type="text" value={allowedSet.join(" ")}
 				placeholder={inputLabel} onChange={(e) => {
 					setAllowedSet(e.target.value === "" ? [] : e.target.value.split(" "))
 				}} />

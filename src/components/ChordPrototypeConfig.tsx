@@ -12,7 +12,7 @@ import Select from "react-select"
 import { ConstantNoteSelector } from "./ConstantNoteSelector"
 import { SelectKeyTypeOption, SelectOption } from "./utils"
 import { InheritedRhythmSettings } from "./RhythmSettings"
-import { NeighborRules } from "./NeighborRules"
+import { NeighborRulesChordPrototype } from "./NeighborRules"
 
 interface ChordPrototypeConfigProps {
 	prototype: ChordPrototypeIR,
@@ -172,7 +172,7 @@ export function ChordPrototypeConfig({ prototype, removePrototype, onUpdate }: C
 			</div>
 			<NoteConstraints />
 			<div style={{ flex: 1 }}>
-				<NeighborRules
+				<NeighborRulesChordPrototype
 					inputLabel="Allowed preceding chords"
 					checkboxLabel="Restrict preceding chords"
 					restrict={prototype.restrictPrecedingChords}
@@ -180,7 +180,7 @@ export function ChordPrototypeConfig({ prototype, removePrototype, onUpdate }: C
 					allowedSet={prototype.allowedPrecedingChords}
 					setAllowedSet={(c) => onUpdate({ allowedPrecedingChords: c })}
 				/>
-				<NeighborRules
+				<NeighborRulesChordPrototype
 					inputLabel="Allowed following chords"
 					checkboxLabel="Restrict following chords"
 					restrict={prototype.restrictFollowingChords}
