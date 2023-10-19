@@ -132,6 +132,10 @@ export const ChordPrototypeInit = (id: number) => {
 
 export type ChordPrototypeIR = ReturnType<typeof ChordPrototypeInit>
 
+export function nameOfChordPrototypeIR(protoIR: ChordPrototypeIR): string {
+	return protoIR.name === "" ? `ChordPrototype${protoIR.id}` : protoIR.name
+} 
+
 export function chordPrototypeIRToChordPrototype(
 	protoIR: ChordPrototypeIR,
 ): ChordPrototype {
@@ -171,7 +175,7 @@ export function chordesqueIRMapToChordesqueMap(
 					return Chord.fromIR(chordesqueIR)
 				} else {
 					const proto = chordPrototypes.find(
-						(proto) => proto.name === chordesqueIR,
+						(proto) => nameOfChordPrototypeIR(proto) === chordesqueIR,
 					)
 					if (proto === undefined)
 						throw new Error(

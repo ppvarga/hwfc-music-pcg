@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useAppContext } from "../AppState"
-import { ChordPrototypeIR, ChordPrototypeInit } from "../wfc/hierarchy/Chordesque"
+import { ChordPrototypeIR, ChordPrototypeInit, nameOfChordPrototypeIR } from "../wfc/hierarchy/Chordesque"
 import { ChordPrototypeConfig } from "./ChordPrototypeConfig"
 import { buttonStyles } from "../styles"
 
@@ -29,7 +29,7 @@ export function ChordPrototypesPage() {
 				}} />
 			</div>
 			{chordPrototypes.map((prototype, index) => {
-				const effectiveName = prototype.name === "" ? `ChordPrototype${prototype.id}` : prototype.name
+				const effectiveName = nameOfChordPrototypeIR(prototype)
 				const chosen = chosenPrototypeIndex === index
 				const multipleWithSameName = chordPrototypes.filter((proto2) => proto2.name === effectiveName).length > 1
 				return <div key={index}

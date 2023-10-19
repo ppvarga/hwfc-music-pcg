@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react"
 import { useAppContext } from "../AppState"
 import { ChordIR, chordIRToString, stringToChordIR } from "../music_theory/Chord"
-import { SectionIR } from "../wfc/hierarchy/Section"
+import { SectionIR, nameOfSectionIR } from "../wfc/hierarchy/Section"
+import { nameOfChordPrototypeIR } from "../wfc/hierarchy/Chordesque"
 
 interface NeighborRulesProps {
 	inputLabel: string
@@ -23,7 +24,7 @@ export function NeighborRulesChordPrototype({ inputLabel, checkboxLabel, restric
 		if (restrict && allowedSet.length === 0) return false
 		let out = true
 		allowedSet.forEach(s => {
-			if (chordPrototypes.some(p => p.name === s || p.name === "" && s === `ChordPrototype${p.id}`)) return
+			if (chordPrototypes.some(p => nameOfChordPrototypeIR(p) === s)) return
 			const chordIR = stringToChordIR(s)
 			if (chordIR) return
 			out = false
@@ -57,7 +58,7 @@ export function NeighborRulesSection({ inputLabel, checkboxLabel, restrict, setR
 		if (restrict && allowedSet.length === 0) return false
 		let out = true
 		allowedSet.forEach(s => {
-			if (sections.some(p => p.name === s || p.name === "" && s === `Section${p.id}`)) return
+			if (sections.some(p => nameOfSectionIR(p) === s)) return
 			const chordIR = stringToChordIR(s)
 			if (chordIR) return
 			out = false

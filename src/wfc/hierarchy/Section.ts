@@ -129,6 +129,10 @@ export const SectionInit = (id: number) => {
 
 export type SectionIR = ReturnType<typeof SectionInit>
 
+export function nameOfSectionIR(sectionIR: SectionIR) {
+    return sectionIR.name === "" ? `Section${sectionIR.id}` : sectionIR.name
+}
+
 export function sectionIRToSection(
     sectionIR: SectionIR,
     chordPrototypes: ChordPrototypeIR[],

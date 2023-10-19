@@ -2,7 +2,7 @@ import { useState } from "react"
 import { useAppContext } from "../AppState"
 import Popup from "reactjs-popup"
 import { stringToChordIR } from "../music_theory/Chord"
-import { ChordPrototypeIR, ChordesqueIR, chordesqueIRToString } from "../wfc/hierarchy/Chordesque"
+import { ChordPrototypeIR, ChordesqueIR, chordesqueIRToString, nameOfChordPrototypeIR } from "../wfc/hierarchy/Chordesque"
 
 interface ChordTileProps {
 	index: number;
@@ -37,7 +37,7 @@ const parseChordsAndPrototypes = (input: string, chordPrototypes: ChordPrototype
 	const items = input.split(" ").filter(item => item !== "")
 	const out = [] as ChordesqueIR[]
 	for (const item of items) {
-		if (chordPrototypes.some(proto => proto.name === item)) {
+		if (chordPrototypes.some(proto => nameOfChordPrototypeIR(proto) === item)) {
 			out.push(item)
 		} else {
 			const chord = stringToChordIR(item)

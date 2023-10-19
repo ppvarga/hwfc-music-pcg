@@ -140,7 +140,7 @@ export function Output() {
 		}
 	}
 
-	return <div className="main-column">
+	return <div>
 		<h2>Output</h2>
 		<button onClick={updatePlayer} disabled={isPlaying}>
 			Generate

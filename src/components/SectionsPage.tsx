@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { useAppContext } from "../AppState"
 import { buttonStyles } from "../styles"
-import { SectionIR , SectionInit} from "../wfc/hierarchy/Section"
+import { SectionIR , SectionInit, nameOfSectionIR} from "../wfc/hierarchy/Section"
 import { SectionConfig } from "./SectionConfig"
 
 export function SectionsPage() {
@@ -21,7 +21,7 @@ export function SectionsPage() {
 			height: "70vh",
 		}}>
 			{sections.map((section, index) => {
-				const effectiveName = section.name === "" ? `Section${section.id}` : section.name
+				const effectiveName = nameOfSectionIR(section)
 				const chosen = chosenSectionIndex === index
 				const multipleWithSameName = sections.filter((proto2) => proto2.name === effectiveName).length > 1
 				return <div key={index}

@@ -9,6 +9,7 @@ import { NoteTiles } from "./components/NoteTiles"
 import TabComponent from "./components/TabComponent"
 import { ChordPrototypesPage } from "./components/ChordPrototypesPage"
 import { SectionsPage } from "./components/SectionsPage"
+import { SectionTiles } from "./components/SectionTiles"
 
 function App() {
 
@@ -19,6 +20,9 @@ function App() {
 				<div className="main-div">
 					<GlobalSettings />
 					<div className="main-column">
+						<SectionTiles />
+					</div>
+					<div className="main-column">
 						<h2>Chords</h2>
 						<ChordTiles />
 						<ChordConstraints />
@@ -28,7 +32,6 @@ function App() {
 						<NoteTiles />
 						<NoteConstraints />
 					</div>
-					<Output />
 				</div>
 			</>
 		},
@@ -39,6 +42,10 @@ function App() {
 		{
 			title: "Chord prototypes",
 			content: <ChordPrototypesPage />
+		},
+		{
+			title: "Output",
+			content: <Output />
 		}
 	]
 
