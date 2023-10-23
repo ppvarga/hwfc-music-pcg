@@ -111,15 +111,11 @@ export class ChordLevelNode {
 			let actualNoteCanvasProps = this.noteCanvasProps
 			let actualMelodyLength = this.melodyLength
 			let rhythmPatternOptions = this.rhythmPatternOptions
-
+			
 			if (chord instanceof ChordPrototype) {
-				actualNoteCanvasProps = this.noteCanvasProps.union(
-					chord.getNoteCanvasProps(),
-				)
-				actualMelodyLength = chord.getMelodyLength()
-				if (chord.getRhythmStrategy() === "On") {
-					rhythmPatternOptions = chord.getRhythmPatternOptions()
-				}
+				actualNoteCanvasProps = this.noteCanvasProps.union(chord.getNoteCanvasProps())
+				if (chord.getMelodyLengthStrategy() === "Custom") actualMelodyLength = chord.getMelodyLength()
+				if (chord.getRhythmStrategy() === "On") rhythmPatternOptions = chord.getRhythmPatternOptions()
 			}
 
 			const chordHasPreference =
@@ -136,18 +132,18 @@ export class ChordLevelNode {
 				chord.getUseDifferentMelodyKey()
 					? noteHigherValues.copyWithKey(chord.getMelodyKey())
 					: noteHigherValues
-			const noteLevelNode = new NoteLevelNode(
-				actualNoteCanvasProps,
-				noteHigherValuesWithKey,
-				this.random,
-			)
-			
-			console.log(actualMelodyLength)
-			
 			if (useRhythm) {
 				const rhythmPattern = getRandomRhythmPattern(
 					actualMelodyLength,
 					rhythmPatternOptions,
+					this.random,
+				)
+				actualNoteCanvasProps.setSize(
+					numberOfNotesInRhythmPattern(rhythmPattern),
+				)
+				const noteLevelNode = new NoteLevelNode(
+					actualNoteCanvasProps,
+					noteHigherValuesWithKey,
 					this.random,
 				)
 				const abstractResult = {
@@ -162,6 +158,12 @@ export class ChordLevelNode {
 				out.push(...subResult)
 				offset = newOffset
 			} else {
+				actualNoteCanvasProps.setSize(actualMelodyLength)
+				const noteLevelNode = new NoteLevelNode(
+					actualNoteCanvasProps,
+					noteHigherValuesWithKey,
+					this.random,
+				)
 				const abstractResult = {
 					chord: chordValue,
 					notes: noteLevelNode.generate(),
