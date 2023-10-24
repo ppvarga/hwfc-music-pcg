@@ -8,9 +8,10 @@ import { RhythmSettings } from "./RhythmSettings"
 
 export function GlobalSettings() {
 
-	const { numChords, setNumChords, } = useAppContext()
+	const { numChords, setNumChords, numSections, setNumSections} = useAppContext()
 	return <div className="main-column">
 		<h2>Global settings</h2>
+		<NumberSelector value={numSections} setValue={setNumSections} min={1} max={16} label="Number of sections" />
 		<NumberSelector value={numChords} setValue={setNumChords} min={1} max={16} label="Number of chords" />
 		<MelodyLengthSelector />
 		<GlobalKeySelector />
@@ -118,6 +119,21 @@ function GlobalKeySelector() {
 
 		</div>
 	</>
+}
+
+interface KeySelectorProps {
+	useDifferentKey: boolean
+	setUseDifferentKey: (useDifferentKey: boolean) => void
+}
+
+export function KeySelector({useDifferentKey, setUseDifferentKey}: KeySelectorProps) {
+	return <div>
+		<div style={{ display: "flex", flexDirection: "row", gap: "1em", justifyContent: "center" }}>
+			<h4>Use different key (for chords)</h4>
+			<input type="checkbox" checked={useDifferentKey} onChange={(e) => setUseDifferentKey(e.target.checked)} />
+		</div>
+		{useDifferentKey && <GlobalKeySelector />}
+	</div>
 }
 
 export function MelodyKeySelector() {

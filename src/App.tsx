@@ -8,6 +8,8 @@ import { NoteConstraints } from "./components/NoteConstraints"
 import { NoteTiles } from "./components/NoteTiles"
 import TabComponent from "./components/TabComponent"
 import { ChordPrototypesPage } from "./components/ChordPrototypesPage"
+import { SectionsPage } from "./components/SectionsPage"
+import { SectionTiles } from "./components/SectionTiles"
 
 function App() {
 
@@ -18,6 +20,9 @@ function App() {
 				<div className="main-div">
 					<GlobalSettings />
 					<div className="main-column">
+						<SectionTiles />
+					</div>
+					<div className="main-column">
 						<h2>Chords</h2>
 						<ChordTiles />
 						<ChordConstraints />
@@ -27,9 +32,12 @@ function App() {
 						<NoteTiles />
 						<NoteConstraints />
 					</div>
-					<Output />
 				</div>
 			</>
+		},
+		{
+			title: "Sections",
+			content: <SectionsPage />
 		},
 		{
 			title: "Chord prototypes",
@@ -39,8 +47,8 @@ function App() {
 
 	return (
 		<AppProvider>
-			<h1>WFC Music</h1>
 			<TabComponent tabs={tabs} />
+			<Output/>
 		</AppProvider>
 	)
 }

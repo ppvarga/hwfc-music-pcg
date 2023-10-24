@@ -140,40 +140,9 @@ export const ChordPrototypeInit = (id: number) => {
 
 export type ChordPrototypeIR = ReturnType<typeof ChordPrototypeInit>
 
-export class Section {
-	private noteCanvasProps: TileCanvasProps<OctavedNote>
-	private chordesqueCanvasProps: TileCanvasProps<Chordesque>
-	private rhythmPatternOptions: RhythmPatternOptions
-	private name: string
-
-	constructor(
-		noteCanvasProps: TileCanvasProps<OctavedNote>,
-		chordesqueCanvasProps: TileCanvasProps<Chordesque>,
-		rhythmPatternOptions: RhythmPatternOptions,
-		name: string,
-	) {
-		this.noteCanvasProps = noteCanvasProps
-		this.chordesqueCanvasProps = chordesqueCanvasProps
-		this.rhythmPatternOptions = rhythmPatternOptions
-		this.name = name
-	}
-
-	getNoteCanvasProps() {
-		return this.noteCanvasProps
-	}
-
-	getChordesqueCanvasProps() {
-		return this.chordesqueCanvasProps
-	}
-
-	getRhythmPatternOptions() {
-		return this.rhythmPatternOptions
-	}
-
-	getName() {
-		return this.name
-	}
-}
+export function nameOfChordPrototypeIR(protoIR: ChordPrototypeIR): string {
+	return protoIR.name === "" ? `ChordPrototype${protoIR.id}` : protoIR.name
+} 
 
 export function chordPrototypeIRToChordPrototype(
 	protoIR: ChordPrototypeIR,
@@ -214,7 +183,7 @@ export function chordesqueIRMapToChordesqueMap(
 					return Chord.fromIR(chordesqueIR)
 				} else {
 					const proto = chordPrototypes.find(
-						(proto) => proto.name === chordesqueIR,
+						(proto) => nameOfChordPrototypeIR(proto) === chordesqueIR,
 					)
 					if (proto === undefined)
 						throw new Error(

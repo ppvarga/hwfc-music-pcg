@@ -1,7 +1,7 @@
 import { Chord } from "../music_theory/Chord"
 import { MusicalKey } from "../music_theory/MusicalKey"
 import { RhythmPattern } from "../music_theory/Rhythm"
-import { Section } from "./hierarchy/prototypes"
+import { Section } from "../wfc/hierarchy/Section"
 
 interface HigherValuesProps {
 	key?: MusicalKey

@@ -1,28 +1,33 @@
 import { Grabber } from "../Grabber"
 import { HigherValues } from "../HigherValues"
 import { Tile } from "../Tile"
-import { Section } from "../hierarchy/prototypes"
+import { Section } from "../hierarchy/Section"
 import { HardConstraint } from "./concepts/Constraint"
 
 export class SectionOnlyPrecededByHardConstraint
 	implements HardConstraint<Section>
 {
 	private sectionName: string
-	private grabber: Grabber<Set<string>>
+	private grabber: Grabber<string[]>
 	name = "Section Only Preceded By"
-	constructor(sectionName: string, grabber: Grabber<Set<string>>) {
+	constructor(sectionName: string, grabber: Grabber<string[]>) {
 		this.sectionName = sectionName
 		this.grabber = grabber
 	}
 
 	check(tile: Tile<Section>, higherValues: HigherValues): boolean {
 		const section = tile.getValue()
-		const prevSection = tile.getPrev().getValue()
-		const nextSection = tile.getNext().getValue()
-		return (
-			this.checkPair(prevSection, section, higherValues) &&
-			this.checkPair(section, nextSection, higherValues)
-		)
+		const prev = tile.getPrev()
+		const next = tile.getNext()
+		
+		let out = true
+		if(prev.isCollapsed()){
+			out &&= this.checkPair(prev.getValue(), section, higherValues)
+		}
+		if(next.isCollapsed()){
+			out &&= this.checkPair(section, next.getValue(), higherValues)
+		}
+		return out
 	}
 
 	checkPair(
@@ -32,6 +37,6 @@ export class SectionOnlyPrecededByHardConstraint
 	): boolean {
 		if (second.getName() != this.sectionName) return true
 		const sectionSet = this.grabber(higherValues)
-		return sectionSet.has(first.getName())
+		return sectionSet.some((sectionName) => sectionName === first.getName())
 	}
 }

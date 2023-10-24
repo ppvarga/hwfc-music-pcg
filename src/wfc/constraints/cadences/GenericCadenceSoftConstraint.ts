@@ -4,7 +4,7 @@ import { relativeNote } from "../../../music_theory/Note"
 import { Grabber } from "../../Grabber"
 import { HigherValues } from "../../HigherValues"
 import { Tile } from "../../Tile"
-import { Chordesque } from "../../hierarchy/prototypes"
+import { Chordesque } from "../../hierarchy/Chordesque"
 import { SoftConstraint } from "../concepts/Constraint"
 
 export abstract class GenericCadenceSoftConstraint extends SoftConstraint<Chordesque> {

@@ -1,6 +1,6 @@
 import { HigherValues } from "../HigherValues"
 import { Tile } from "../Tile"
-import { Chordesque, ChordPrototype } from "../hierarchy/prototypes"
+import { Chordesque, ChordPrototype } from "../hierarchy/Chordesque"
 import { Grabber } from "../Grabber"
 import { HardConstraint } from "./concepts/Constraint"
 
@@ -20,12 +20,12 @@ export class ChordPrototypeOnlyFollowedByConstraint
 		const next = tile.getNext()
 
 		let out = true
-		if (prev.isCollapsed())
-			out =
-				out && this.checkPair(prev.getValue(), chordesque, higherValues)
-		if (next.isCollapsed())
-			out =
-				out && this.checkPair(chordesque, next.getValue(), higherValues)
+		if (prev.isCollapsed()){
+			out &&= this.checkPair(prev.getValue(), chordesque, higherValues)
+		}
+		if (next.isCollapsed()){
+			out &&= this.checkPair(chordesque, next.getValue(), higherValues)
+		}
 		return out
 	}
 

@@ -7,20 +7,24 @@ import { MelodyInKeyHardConstraintInit } from "./wfc/constraints/MelodyInKeyHard
 import { MelodyInRangeHardConstraintInit } from "./wfc/constraints/MelodyInRangeHardConstraint"
 import { ChordConstraintIR, NoteConstraintIR } from "./wfc/constraints/constraintUtils"
 import { ChordRootAbsoluteStepSizeHardConstraintInit } from "./wfc/constraints/ChordRootAbsoluteStepSizeHardConstraint"
-import { ChordPrototypeIR, ChordesqueIR } from "./wfc/hierarchy/prototypes"
+import { ChordPrototypeIR, ChordesqueIR } from "./wfc/hierarchy/Chordesque"
 import { NoteOutput } from "./components/MidiPlayer"
+import { SectionIR, SectionInit } from "./wfc/hierarchy/Section"
 
 function AppState() {
 	//GLOBAL LENGTHS
 	const [numChords, setNumChords] = useState(4)
 	const [melodyLength, tempSetMelodyLength] = useState(4)
+	const [numSections, setNumSections] = useState(4)
 	const setMelodyLength = (newLength: number) => {
 		tempSetMelodyLength(newLength)
 	}
 
 	//GLOBAL KEY
-	const [keyRoot, setKeyRoot] = useState(Note.C)
-	const [keyType, setKeyType] = useState({ label: "Major", value: "major" } as SelectKeyTypeOption)
+	const [keyRoot, tempSetKeyRoot] = useState(Note.C)
+	const setKeyRoot = (newKeyRoot: Note) => tempSetKeyRoot(newKeyRoot)
+	const [keyType, tempSetKeyType] = useState({ label: "Major", value: "major" } as SelectKeyTypeOption)
+	const setKeyType = (newKeyType: SelectKeyTypeOption) => tempSetKeyType(newKeyType)
 	const inferKey = useCallback(() => {
 		if (keyType === null) throw new Error("keyType and keyRoot must be defined")
 		return MusicalKey.fromRootAndType(keyRoot, keyType.value)
@@ -38,6 +42,13 @@ function AppState() {
 	}, [melodyKeyRoot, melodyKeyType])
 
 	//OPTIONS PER CELL
+	const [sectionOptionsPerCell, setSectionOptionsPerCell] = useState(new Map<number, SectionIR[]>())
+	const handleSectionOptionsPerCellChange = (index: number, sectionOptions: SectionIR[]) => {
+		const newOptionsPerCell = new Map(sectionOptionsPerCell)
+		newOptionsPerCell.set(index, sectionOptions)
+		setSectionOptionsPerCell(newOptionsPerCell)
+	}
+
 	const [chordOptionsPerCell, setChordOptionsPerCell] = useState(new Map<number, ChordesqueIR[]>())
 	const handleChordOptionsPerCellChange = (index: number, chordOptions: ChordesqueIR[]) => {
 		const newOptionsPerCell = new Map(chordOptionsPerCell)
@@ -101,7 +112,7 @@ function AppState() {
 		tempSetStartOnNote(newStartOnNote)
 	}
 
-	//PROTOTYPES
+	//CHORD PROTOTYPES
 	const [onlyUseChordPrototypes, setOnlyUseChordPrototypes] = useState(false)
 	const [chordPrototypes, setChordPrototypes] = useState<ChordPrototypeIR[]>([])
 	const addChordPrototype = (prototype: ChordPrototypeIR) => {
@@ -128,13 +139,27 @@ function AppState() {
 		return id
 	}
 
-	const [chordPrototypeAllowedNeighbors, setChordPrototypeAllowedNeighbors] = useState([] as [number, number][])
-	const addChordPrototypeAllowedNeighbor = (neighborPair: [number, number]) => {
-		setChordPrototypeAllowedNeighbors([...chordPrototypeAllowedNeighbors, neighborPair])
+	//SECTIONS
+	const [sections, setSections] = useState<SectionIR[]>([SectionInit(1)])
+	const addSection = (section: SectionIR) => {
+		setSections([...sections, section])
 	}
-	const removeChordPrototypeAllowedNeighbor = (neighborPair: [number, number]) => {
-		const newNeighbors = [...(chordPrototypeAllowedNeighbors.filter(pair => pair !== neighborPair))]
-		setChordPrototypeAllowedNeighbors(newNeighbors)
+	const removeSection = (index: number) => {
+		const newSections = [...sections]
+		newSections.splice(index, 1)
+		setSections(newSections)
+	}
+	const handleSectionChange = (index: number, section: SectionIR) => {
+		const newSections = [...sections]
+		newSections[index] = section
+		setSections(newSections)
+	}
+
+	const [nextSectionID, setNextSectionID] = useState(2)
+	const getNextSectionID = () => {
+		const id = nextSectionID
+		setNextSectionID(nextSectionID + 1)
+		return id
 	}
 
 	//OUTPUT
@@ -143,6 +168,8 @@ function AppState() {
 	return {
 		numChords,
 		setNumChords,
+		numSections,
+		setNumSections,
 
 		melodyLength,
 		setMelodyLength,
@@ -161,9 +188,10 @@ function AppState() {
 		setMelodyKeyType,
 		inferMelodyKey,
 
+		sectionOptionsPerCell,
+		handleSectionOptionsPerCellChange,
 		chordOptionsPerCell,
 		handleChordOptionsPerCellChange,
-
 		noteOptionsPerCell,
 		handleNoteOptionsPerCellChange,
 
@@ -191,10 +219,14 @@ function AppState() {
 		removeChordPrototype,
 		handleChordPrototypeChange,
 		getNextChordPrototypeID,
-		addChordPrototypeAllowedNeighbor,
-		removeChordPrototypeAllowedNeighbor,
 		onlyUseChordPrototypes,
 		setOnlyUseChordPrototypes,
+
+		sections,
+		addSection,
+		removeSection,
+		handleSectionChange,
+		getNextSectionID,
 
 		output,
 		setOutput,
@@ -243,7 +275,26 @@ type ChordPrototypeEnvironment = {
 	setMelodyKeyType: (newMelodyKeyType: SelectKeyTypeOption) => void,
 }
 
+type SectionEnvironment = ChordPrototypeEnvironment & {
+	keyRoot: Note,
+	setKeyRoot: (newKeyRoot: Note) => void,
+	keyType: SelectKeyTypeOption,
+	setKeyType: (newKeyType: SelectKeyTypeOption) => void,
+	chordOptionsPerCell: Map<number, ChordesqueIR[]>,
+	handleChordOptionsPerCellChange: (index: number, chordOptions: ChordesqueIR[]) => void,
+	chordConstraintSet: ChordConstraintIR[],
+	addChordConstraint: (constraint: ChordConstraintIR) => void,
+	removeChordConstraint: (index: number) => void,
+	handleChordConstraintChange: (index: number, constraint: ChordConstraintIR) => void,
+}
+
 export const ChordPrototypeProvider = ({ children, env }: { children: React.ReactNode, env: ChordPrototypeEnvironment }) => {
+	const appState = useAppContext()
+	const newState = { ...appState, ...env }
+	return <AppContext.Provider value={newState}>{children}</AppContext.Provider>
+}
+
+export const SectionProvider = ({ children, env }: { children: React.ReactNode, env: SectionEnvironment }) => {
 	const appState = useAppContext()
 	const newState = { ...appState, ...env }
 	return <AppContext.Provider value={newState}>{children}</AppContext.Provider>
