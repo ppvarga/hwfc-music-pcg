@@ -140,12 +140,21 @@ export function Output() {
 		}
 	}
 
-	return <div>
-		<h2>Output</h2>
-		<button onClick={updatePlayer} disabled={isPlaying}>
-			Generate
-		</button>
-		<br />
-		<MidiPlayer notes={output[0]} length={output[1]} isPlaying={isPlaying} setIsPlaying={setIsPlaying} />
+	return <div style={{
+			display: "flex",
+			flexDirection:"row", 
+			justifyContent:"center", 
+			position: "fixed", 
+			bottom:0,
+			left:"50%",
+			transform: "translateX(-50%)",
+			height:"20vh", 
+			border:"white 1px solid", 
+			borderRadius:5, 
+			padding:10, 
+			backgroundColor: "rgba(0,0,0,0.75)",
+			maxWidth:"90vw",
+		}}>
+		<MidiPlayer notes={output[0]} length={output[1]} isPlaying={isPlaying} setIsPlaying={setIsPlaying} updatePlayer={updatePlayer}/>
 	</div>
 }

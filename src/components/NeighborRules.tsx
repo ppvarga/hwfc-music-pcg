@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useAppContext } from "../AppState"
 import { ChordIR, chordIRToString, stringToChordIR } from "../music_theory/Chord"
-import { SectionIR, nameOfSectionIR } from "../wfc/hierarchy/Section"
+import { nameOfSectionIR } from "../wfc/hierarchy/Section"
 import { nameOfChordPrototypeIR } from "../wfc/hierarchy/Chordesque"
 
 interface NeighborRulesProps {

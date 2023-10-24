@@ -1,8 +1,6 @@
 import { useState } from "react"
 import { useAppContext } from "../AppState"
 import Popup from "reactjs-popup"
-import { stringToChordIR } from "../music_theory/Chord"
-import { ChordPrototypeIR, ChordesqueIR, chordesqueIRToString } from "../wfc/hierarchy/Chordesque"
 import { SectionIR, nameOfSectionIR } from "../wfc/hierarchy/Section"
 
 interface SectionTileProps {

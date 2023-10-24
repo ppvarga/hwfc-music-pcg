@@ -139,7 +139,7 @@ export class OctavedNote {
 		return new OctavedNote(ir.note, ir.octave)
 	}
 
-	public toY(): number {
-		return this.toMIDIValue() * 10
+	public toY(unit: number): number {
+		return this.toMIDIValue() * unit
 	}
 }

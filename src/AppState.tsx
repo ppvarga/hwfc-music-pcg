@@ -9,7 +9,7 @@ import { ChordConstraintIR, NoteConstraintIR } from "./wfc/constraints/constrain
 import { ChordRootAbsoluteStepSizeHardConstraintInit } from "./wfc/constraints/ChordRootAbsoluteStepSizeHardConstraint"
 import { ChordPrototypeIR, ChordesqueIR } from "./wfc/hierarchy/Chordesque"
 import { NoteOutput } from "./components/MidiPlayer"
-import { SectionIR } from "./wfc/hierarchy/Section"
+import { SectionIR, SectionInit } from "./wfc/hierarchy/Section"
 
 function AppState() {
 	//GLOBAL LENGTHS
@@ -140,7 +140,7 @@ function AppState() {
 	}
 
 	//SECTIONS
-	const [sections, setSections] = useState<SectionIR[]>([])
+	const [sections, setSections] = useState<SectionIR[]>([SectionInit(1)])
 	const addSection = (section: SectionIR) => {
 		setSections([...sections, section])
 	}
@@ -155,7 +155,7 @@ function AppState() {
 		setSections(newSections)
 	}
 
-	const [nextSectionID, setNextSectionID] = useState(1)
+	const [nextSectionID, setNextSectionID] = useState(2)
 	const getNextSectionID = () => {
 		const id = nextSectionID
 		setNextSectionID(nextSectionID + 1)

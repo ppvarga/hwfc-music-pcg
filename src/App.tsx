@@ -42,17 +42,13 @@ function App() {
 		{
 			title: "Chord prototypes",
 			content: <ChordPrototypesPage />
-		},
-		{
-			title: "Output",
-			content: <Output />
 		}
 	]
 
 	return (
 		<AppProvider>
-			<h1>WFC Music</h1>
 			<TabComponent tabs={tabs} />
+			<Output/>
 		</AppProvider>
 	)
 }

@@ -31,7 +31,7 @@ export function ChordPrototypesPage() {
 			{chordPrototypes.map((prototype, index) => {
 				const effectiveName = nameOfChordPrototypeIR(prototype)
 				const chosen = chosenPrototypeIndex === index
-				const multipleWithSameName = chordPrototypes.filter((proto2) => proto2.name === effectiveName).length > 1
+				const multipleWithSameName = chordPrototypes.filter((proto2) => nameOfChordPrototypeIR(proto2) === effectiveName).length > 1
 				return <div key={index}
 					style={{
 						...buttonStyles,
