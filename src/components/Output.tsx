@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useAppContext } from "../AppState"
+import { errorsInAppState, useAppContext } from "../AppState"
 import { MidiPlayer } from "./MidiPlayer"
 import { Chord } from "../music_theory/Chord"
 import { OctavedNote } from "../music_theory/Note"
@@ -21,7 +21,8 @@ import { SectionLevelNode } from "../wfc/hierarchy/SectionLevelNode"
 
 export function Output() {
 	const [isPlaying, setIsPlaying] = useState(false)
-	const { output, setOutput, onlyUseChordPrototypes, chordPrototypes, inferKey, inferMelodyKey, differentMelodyKey, numChords, chordOptionsPerCell, chordConstraintSet, melodyLength, noteOptionsPerCell, noteConstraintSet, minNumNotes, startOnNote, maxRestLength, useRhythm, sections, sectionOptionsPerCell, numSections} = useAppContext()
+	const appState = useAppContext()
+	const { output, setOutput, onlyUseChordPrototypes, chordPrototypes, inferKey, inferMelodyKey, differentMelodyKey, numChords, chordOptionsPerCell, chordConstraintSet, melodyLength, noteOptionsPerCell, noteConstraintSet, minNumNotes, startOnNote, maxRestLength, useRhythm, sections, sectionOptionsPerCell, numSections} = appState
 
 	const noteCanvasProps = new TileCanvasProps(
 		melodyLength,
@@ -100,6 +101,12 @@ export function Output() {
 	}
 
 	function updatePlayer() {
+		const errors = errorsInAppState(appState)
+		if (errors.length > 0) {
+			alert(errors.join("\n"))
+			return
+		}
+		
 		try {
 			const [parsedChordPrototypes, chordPrototypeConstraints] = parseChordPrototypes()
 			const [parsedSections, sectionConstraints] = parseSections()

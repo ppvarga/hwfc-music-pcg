@@ -7,9 +7,9 @@ import { MelodyInKeyHardConstraintInit } from "./wfc/constraints/MelodyInKeyHard
 import { MelodyInRangeHardConstraintInit } from "./wfc/constraints/MelodyInRangeHardConstraint"
 import { ChordConstraintIR, NoteConstraintIR } from "./wfc/constraints/constraintUtils"
 import { ChordRootAbsoluteStepSizeHardConstraintInit } from "./wfc/constraints/ChordRootAbsoluteStepSizeHardConstraint"
-import { ChordPrototypeIR, ChordesqueIR } from "./wfc/hierarchy/Chordesque"
+import { ChordPrototypeIR, ChordesqueIR, nameOfChordPrototypeIR } from "./wfc/hierarchy/Chordesque"
 import { NoteOutput } from "./components/MidiPlayer"
-import { SectionIR, SectionInit } from "./wfc/hierarchy/Section"
+import { SectionIR, SectionInit, nameOfSectionIR } from "./wfc/hierarchy/Section"
 import { InfiniteArray } from "./wfc/InfiniteArray"
 
 export interface PassiveAppState {
@@ -359,4 +359,33 @@ export const SectionProvider = ({ children, env }: { children: React.ReactNode, 
 	const appState = useAppContext()
 	const newState = { ...appState, ...env }
 	return <AppContext.Provider value={newState}>{children}</AppContext.Provider>
+}
+
+export const errorsInAppState = (appState: AppContextType): string[] => {
+	const errors: string[] = []
+	const hasDuplicates = (arr: any[]): boolean => {
+		return (new Set(arr)).size !== arr.length
+	}
+
+	if (hasDuplicates(appState.sections.map(nameOfSectionIR))) {
+		errors.push("Section names must be unique.")
+	}
+
+	if (hasDuplicates(appState.chordPrototypes.map(nameOfChordPrototypeIR))) {
+		errors.push("Chord prototype names must be unique.")
+	}
+
+	if (appState.onlyUseChordPrototypes && appState.chordPrototypes.length === 0) {
+		errors.push("Must have at least one chord prototype if only using chord prototypes.")
+	}
+
+	if (appState.sections.length === 0) {
+		errors.push("Must have at least one section.")
+	}
+
+	if (appState.onlyUseChordPrototypes && (new Set(appState.chordPrototypes.map(p => p.chord))).size == 1 && appState.chordConstraintSet.some(c => c.type === "ChordRootAbsoluteStepSizeHardConstraint" && !c.stepSizes.includes(0))){
+		errors.push("Only one chord value is allowed (from prototypes), but the chord root absolute step size constraint does not allow staying on the same chord.")						
+	}
+
+	return errors
 }
