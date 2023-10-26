@@ -20,21 +20,23 @@ export function GlobalSettings() {
 	</div>
 }
 
-export type MelodyLengthStrategy = "Inherit" | "Custom"
-interface InheritedMelodyLengthSelectorProps {
-	strategy: MelodyLengthStrategy
-	setStrategy: (strategy: MelodyLengthStrategy) => void
+export type LengthStrategy = "Inherit" | "Custom"
+interface InheritedLengthSelectorProps {
+	strategy: LengthStrategy
+	setStrategy: (strategy: LengthStrategy) => void
+	name: string
+	value: number
+	setValue: (value: number) => void
 }
-export function InheritedMelodyLengthSelector({ strategy, setStrategy }: InheritedMelodyLengthSelectorProps) {
-	const { melodyLength, setMelodyLength } = useAppContext()
+export function InheritedLengthSelector({ strategy, setStrategy, name, value, setValue}: InheritedLengthSelectorProps) {
 	const toggleStrategy = () => {
 		if (strategy === "Inherit") setStrategy("Custom")
 		else setStrategy("Inherit")
 	}
 
-	return <div style={{ display: "flex", flexDirection: "row", padding: "1em", justifyContent: "center"}}>
-		<button onClick={toggleStrategy}>{strategy} melody length</button>
-		{strategy === "Custom" && <NumberSelector value={melodyLength} setValue={setMelodyLength} min={1} max={16} />}
+	return <div style={{ display: "flex", flexDirection: "row", margin: "1em", justifyContent: "center"}}>
+		<button onClick={toggleStrategy}>{strategy} {name}</button>
+		{strategy === "Custom" && <NumberSelector value={value} setValue={setValue} min={1} max={16} />}
 	</div>
 }
 

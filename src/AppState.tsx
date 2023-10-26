@@ -38,12 +38,15 @@ export interface PassiveAppState {
 
 function AppState() {
 	//GLOBAL LENGTHS
-	const [numChords, setNumChords] = useState(4)
+	const [numChords, tempSetNumChords] = useState(4)
+	const setNumChords = (newNumChords: number) => {
+		tempSetNumChords(newNumChords)
+	}
 	const [melodyLength, tempSetMelodyLength] = useState(4)
-	const [numSections, setNumSections] = useState(4)
 	const setMelodyLength = (newLength: number) => {
 		tempSetMelodyLength(newLength)
 	}
+	const [numSections, setNumSections] = useState(4)
 
 	//GLOBAL KEY
 	const [keyRoot, tempSetKeyRoot] = useState(Note.C)
@@ -341,6 +344,8 @@ type SectionEnvironment = ChordPrototypeEnvironment & {
 	setKeyRoot: (newKeyRoot: Note) => void,
 	keyType: SelectKeyTypeOption,
 	setKeyType: (newKeyType: SelectKeyTypeOption) => void,
+	numChords: number,
+	setNumChords: (newNumChords: number) => void,
 	chordOptionsPerCell: InfiniteArray<ChordesqueIR[]>,
 	handleChordOptionsPerCellChange: (index: number, chordOptions: ChordesqueIR[]) => void,
 	chordConstraintSet: ChordConstraintIR[],

@@ -7,7 +7,7 @@ import { InfiniteArray } from "../wfc/InfiniteArray"
 import { NoteTiles } from "./NoteTiles"
 import { NoteConstraints } from "./NoteConstraints"
 import { buttonStyles, selectStyles } from "../styles"
-import { InheritedMelodyLengthSelector, MelodyKeySelector, melodyKeyTypeToOption } from "./GlobalSettings"
+import { InheritedLengthSelector, MelodyKeySelector, melodyKeyTypeToOption } from "./GlobalSettings"
 import { ChordIR, ChordQuality} from "../music_theory/Chord"
 import Select from "react-select"
 import { ConstantNoteSelector } from "./ConstantNoteSelector"
@@ -169,7 +169,7 @@ export function ChordPrototypeConfig({ prototype, removePrototype, onUpdate }: C
 		<div style={{ display: "flex", gap: "1em" }}>
 			<div style={{ flex: 1 }}>
 				<MelodyKeySelector />
-				<InheritedMelodyLengthSelector  strategy={melodyLengthStrategy} setStrategy={setMelodyLengthStrategy}/>
+				<InheritedLengthSelector  strategy={melodyLengthStrategy} setStrategy={setMelodyLengthStrategy} name="melody length" value={melodyLength} setValue={setMelodyLength}/>
 				<NoteTiles />
 				<InheritedRhythmSettings strategy={rhythmStrategy} setStrategy={setRhythmStrategy} />
 			</div>

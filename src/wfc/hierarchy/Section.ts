@@ -1,5 +1,5 @@
 import { InfiniteArray } from "../InfiniteArray"
-import { MelodyLengthStrategy, MusicalKeyType } from "../../components/GlobalSettings"
+import { LengthStrategy, MusicalKeyType } from "../../components/GlobalSettings"
 import { RhythmStrategy } from "../../components/RhythmSettings"
 import { Chord } from "../../music_theory/Chord"
 import { MusicalKey } from "../../music_theory/MusicalKey"
@@ -17,10 +17,12 @@ interface SectionProps {
     chordesqueCanvasProps: TileCanvasProps<Chordesque>
     rhythmPatternOptions: RhythmPatternOptions
     melodyLength: number
-    melodyLengthStrategy: MelodyLengthStrategy
+    melodyLengthStrategy: LengthStrategy
     rhythmStrategy: RhythmStrategy
     useDifferentMelodyKey: boolean
     melodyKey: MusicalKey
+    numChordsStrategy: LengthStrategy
+    numChords: number
 }
 
 export class Section {
@@ -29,10 +31,12 @@ export class Section {
 	private chordesqueCanvasProps: TileCanvasProps<Chordesque>
 	private rhythmPatternOptions: RhythmPatternOptions
     private melodyLength: number
-    private melodyLengthStrategy: MelodyLengthStrategy
+    private melodyLengthStrategy: LengthStrategy
     private rhythmStrategy: RhythmStrategy
     private useDifferentMelodyKey: boolean
     private melodyKey: MusicalKey
+    private numChordsStrategy: LengthStrategy
+    private numChords: number
 
 	constructor({
         name,
@@ -44,6 +48,8 @@ export class Section {
         rhythmStrategy,
         useDifferentMelodyKey,
         melodyKey,
+        numChordsStrategy,
+        numChords,
     }: SectionProps) {
         this.name = name
         this.noteCanvasProps = noteCanvasProps
@@ -54,6 +60,8 @@ export class Section {
         this.rhythmStrategy = rhythmStrategy
         this.useDifferentMelodyKey = useDifferentMelodyKey
         this.melodyKey = melodyKey
+        this.numChordsStrategy = numChordsStrategy
+        this.numChords = numChords
     }
 
 	getNoteCanvasProps() {
@@ -91,6 +99,14 @@ export class Section {
     getMelodyKey() {
         return this.melodyKey
     }
+
+    getNumChordsStrategy() {
+        return this.numChordsStrategy
+    }
+
+    getNumChords() {
+        return this.numChords
+    }
 }
 
 export const SectionInit = (id: number) => {
@@ -112,8 +128,10 @@ export const SectionInit = (id: number) => {
 		restrictPrecedingSections: false,
 		restrictFollowingSections: false,
 		rhythmStrategy: "Inherit" as RhythmStrategy,
-		melodyLengthStrategy: "Inherit" as MelodyLengthStrategy,
+		melodyLengthStrategy: "Inherit" as LengthStrategy,
 		melodyLength: 4,
+        numChordsStrategy: "Inherit" as LengthStrategy,
+        numChords: 4,
 		rhythmPatternOptions: {
 			onlyStartOnNote: true,
 			minimumNumberOfNotes: 3,

@@ -43,14 +43,18 @@ export class SectionLevelNode {
 	}
 
 	private createChordLevelNode(section: Section) {
+		const chordesqueCanvasProps = this.chordesqueCanvasProps.union(
+			section.getChordesqueCanvasProps(),
+		)
+		if(section.getNumChordsStrategy() == "Custom") chordesqueCanvasProps.setSize(section.getNumChords())
+		console.log(chordesqueCanvasProps)
+		console.log(section)
 		return new ChordLevelNode({
 			higherValues: this.higherValues.copyWithSection(section),
 			noteCanvasProps: this.noteCanvasProps.union(
 				section.getNoteCanvasProps(),
 			),
-			chordesqueCanvasProps: this.chordesqueCanvasProps.union(
-				section.getChordesqueCanvasProps(),
-			),
+			chordesqueCanvasProps,
 			rhythmPatternOptions: section.getRhythmStrategy() === "On" ? section.getRhythmPatternOptions() : this.rhythmPatternOptions,
 			random: this.random,
 			melodyLength: section.getMelodyLengthStrategy() === "Custom" ? section.getMelodyLength() : this.melodyLength,

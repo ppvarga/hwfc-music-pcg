@@ -1,5 +1,5 @@
 import { InfiniteArray } from "../InfiniteArray"
-import { MelodyLengthStrategy, MusicalKeyType } from "../../components/GlobalSettings"
+import { LengthStrategy, MusicalKeyType } from "../../components/GlobalSettings"
 import { RhythmStrategy } from "../../components/RhythmSettings"
 import {
 	Chord,
@@ -33,7 +33,7 @@ interface ChordPrototypeProps {
 	rhythmStrategy: RhythmStrategy
 	rhythmPatternOptions: RhythmPatternOptions
 	melodyLength: number
-	melodyLengthStrategy: MelodyLengthStrategy
+	melodyLengthStrategy: LengthStrategy
 	useDifferentMelodyKey: boolean
 	melodyKey: MusicalKey
 }
@@ -47,7 +47,7 @@ export class ChordPrototype implements Chordesque {
 	private melodyLength: number
 	private useDifferentMelodyKey: boolean
 	private melodyKey: MusicalKey
-	private melodyLengthStrategy: MelodyLengthStrategy
+	private melodyLengthStrategy: LengthStrategy
 
 	constructor({
 		name,
@@ -126,7 +126,7 @@ export const ChordPrototypeInit = (id: number) => {
 		restrictPrecedingChords: false,
 		restrictFollowingChords: false,
 		rhythmStrategy: "Inherit" as RhythmStrategy,
-		melodyLengthStrategy: "Inherit" as MelodyLengthStrategy,
+		melodyLengthStrategy: "Inherit" as LengthStrategy,
 		melodyLength: 4,
 		rhythmPatternOptions: {
 			onlyStartOnNote: true,
