@@ -1,7 +1,7 @@
 import { useState } from "react"
 import Popup from "reactjs-popup"
 import { useAppContext } from "../AppState"
-import { OctavedNote } from "../music_theory/Note"
+import { OctavedNote, OctavedNoteIR, parseOctavedNoteIRs } from "../music_theory/Note"
 
 interface NoteValuesPopupProps {
 	popupOpen: boolean
@@ -14,7 +14,7 @@ function NoteValuesPopup({ popupOpen, index, setPopupOpen, initialOptions }: Not
 	const [input, setInput] = useState(initialOptions?.join(" ") || "")
 	const { handleNoteOptionsPerCellChange } = useAppContext()
 
-	const notes = OctavedNote.parseMultiple(input)
+	const notes = parseOctavedNoteIRs(input)
 
 	return <Popup open={popupOpen} closeOnDocumentClick={false}>
 		<div className='modal'>
@@ -27,7 +27,7 @@ function NoteValuesPopup({ popupOpen, index, setPopupOpen, initialOptions }: Not
 			<p>Leaving this empty means allowing all notes</p>
 			<button disabled={notes === undefined}
 				onClick={() => {
-					handleNoteOptionsPerCellChange(index, notes as OctavedNote[])
+					handleNoteOptionsPerCellChange(index, notes as OctavedNoteIR[])
 					setPopupOpen(false)
 				}}>Save</button>
 			<button onClick={() => {
@@ -59,6 +59,6 @@ export function NoteTiles() {
 
 	return <div>
 		<h3>Notes</h3>
-		{arr.map((_, i) => <NoteTile key={i} index={i} initialOptions={noteOptionsPerCell.get(i)?.map(note => note.toString())} />)}
+		{arr.map((_, i) => <NoteTile key={i} index={i} initialOptions={noteOptionsPerCell.get(i)?.map(OctavedNote.IRtoString)} />)}
 	</div>
 }

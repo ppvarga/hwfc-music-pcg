@@ -1,8 +1,9 @@
 import { useState } from "react"
-import { Note, OctavedNote } from "../music_theory/Note"
+import { Note, OctavedNoteIR } from "../music_theory/Note"
 import { ChordPrototypeIR } from "../wfc/hierarchy/Chordesque"
 import { NoteConstraintIR } from "../wfc/constraints/constraintUtils"
 import { ChordPrototypeProvider, useAppContext } from "../AppState"
+import { InfiniteArray } from "../wfc/InfiniteArray"
 import { NoteTiles } from "./NoteTiles"
 import { NoteConstraints } from "./NoteConstraints"
 import { buttonStyles, selectStyles } from "../styles"
@@ -29,8 +30,8 @@ export function ChordPrototypeConfig({ prototype, removePrototype, onUpdate }: C
 	}
 
 	const [noteOptionsPerCell, setNoteOptionsPerCell] = useState(prototype.noteCanvasProps.optionsPerCell)
-	const handleNoteOptionsPerCellChange = (index: number, newNoteOptions: OctavedNote[]) => {
-		const newNoteOptionsPerCell = new Map([...noteOptionsPerCell.entries()])
+	const handleNoteOptionsPerCellChange = (index: number, newNoteOptions: OctavedNoteIR[]) => {
+		const newNoteOptionsPerCell = new InfiniteArray(noteOptionsPerCell)
 		newNoteOptionsPerCell.set(index, newNoteOptions)
 		setNoteOptionsPerCell(newNoteOptionsPerCell)
 		updateNoteCanvasProps({ optionsPerCell: newNoteOptionsPerCell })

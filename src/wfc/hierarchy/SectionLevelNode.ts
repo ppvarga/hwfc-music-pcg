@@ -78,8 +78,6 @@ export class SectionLevelNode {
 		for (const section of sections) {
 			const useRhythm = section.getRhythmStrategy() === "On" || (section.getRhythmStrategy() === "Inherit" && useRhythmByDefault)
 
-			console.log(section.getName(), section.getMelodyLengthStrategy() === "Custom" ? section.getMelodyLength() : this.melodyLength)
-
 			const chordLevelNode = this.createChordLevelNode(section)
 			const [sectionNoteOutputs, sectionDuration] = chordLevelNode.generate(useRhythm)
 

@@ -1,7 +1,8 @@
 import { useState } from "react"
-import { Note, OctavedNote } from "../music_theory/Note"
+import { Note, OctavedNoteIR } from "../music_theory/Note"
 import { ChordConstraintIR, NoteConstraintIR } from "../wfc/constraints/constraintUtils"
 import { SectionProvider } from "../AppState"
+import { InfiniteArray } from "../wfc/InfiniteArray"
 import { NoteTiles } from "./NoteTiles"
 import { NoteConstraints } from "./NoteConstraints"
 import { buttonStyles,} from "../styles"
@@ -33,8 +34,8 @@ export function SectionConfig({ section, removeSection, onUpdate }: SectionConfi
 	}
 
 	const [noteOptionsPerCell, setNoteOptionsPerCell] = useState(section.noteCanvasProps.optionsPerCell)
-	const handleNoteOptionsPerCellChange = (index: number, newNoteOptions: OctavedNote[]) => {
-		const newNoteOptionsPerCell = new Map([...noteOptionsPerCell.entries()])
+	const handleNoteOptionsPerCellChange = (index: number, newNoteOptions: OctavedNoteIR[]) => {
+		const newNoteOptionsPerCell = new InfiniteArray(noteOptionsPerCell)
 		newNoteOptionsPerCell.set(index, newNoteOptions)
 		setNoteOptionsPerCell(newNoteOptionsPerCell)
 		updateNoteCanvasProps({ optionsPerCell: newNoteOptionsPerCell })
@@ -42,7 +43,7 @@ export function SectionConfig({ section, removeSection, onUpdate }: SectionConfi
 
 	const [chordOptionsPerCell, setChordOptionsPerCell] = useState(section.chordesqueCanvasProps.optionsPerCell)
 	const handleChordOptionsPerCellChange = (index: number, newChordOptions: ChordesqueIR[]) => {
-		const newChordOptionsPerCell = new Map([...chordOptionsPerCell.entries()])
+		const newChordOptionsPerCell = new InfiniteArray(chordOptionsPerCell)
 		newChordOptionsPerCell.set(index, newChordOptions)
 		setChordOptionsPerCell(newChordOptionsPerCell)
 		updateChordCanvasProps({ optionsPerCell: newChordOptionsPerCell })

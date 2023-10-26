@@ -25,7 +25,7 @@ export function Output() {
 
 	const noteCanvasProps = new TileCanvasProps(
 		melodyLength,
-		new OptionsPerCell(OctavedNote.all(), noteOptionsPerCell),
+		new OptionsPerCell(OctavedNote.all(), noteOptionsPerCell.transform(OctavedNote.multipleFromIRs)),
 		new ConstraintSet(noteConstraintSet.map(noteConstraint => convertIRToNoteConstraint(noteConstraint))),
 	)
 

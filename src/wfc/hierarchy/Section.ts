@@ -1,8 +1,9 @@
+import { InfiniteArray } from "../InfiniteArray"
 import { MelodyLengthStrategy, MusicalKeyType } from "../../components/GlobalSettings"
 import { RhythmStrategy } from "../../components/RhythmSettings"
 import { Chord } from "../../music_theory/Chord"
 import { MusicalKey } from "../../music_theory/MusicalKey"
-import { Note, OctavedNote } from "../../music_theory/Note"
+import { Note, OctavedNote, OctavedNoteIR } from "../../music_theory/Note"
 import { RhythmPatternOptions } from "../../music_theory/Rhythm"
 import { ConstraintSet } from "../ConstraintSet"
 import { OptionsPerCell } from "../OptionsPerCell"
@@ -98,12 +99,12 @@ export const SectionInit = (id: number) => {
 		id: id,
 		noteCanvasProps: {
 			size: 4,
-			optionsPerCell: new Map<number, OctavedNote[]>(),
+			optionsPerCell: new InfiniteArray<OctavedNoteIR[]>(),
 			constraints: [] as NoteConstraintIR[],
 		},
 		chordesqueCanvasProps: {
 			size: 4,
-			optionsPerCell: new Map<number, ChordesqueIR[]>(),
+			optionsPerCell: new InfiniteArray<ChordesqueIR[]>(),
 			constraints: [] as ChordConstraintIR[],
 		},
 		allowedPrecedingSections: [] as string[],
@@ -141,7 +142,7 @@ export function sectionIRToSection(
         sectionIR.noteCanvasProps.size,
         new OptionsPerCell(
             OctavedNote.all(),
-            sectionIR.noteCanvasProps.optionsPerCell,
+            sectionIR.noteCanvasProps.optionsPerCell.transform(OctavedNote.multipleFromIRs),
         ),
         new ConstraintSet(
             sectionIR.noteCanvasProps.constraints.map((noteConstraint) =>
@@ -174,11 +175,11 @@ export function sectionIRToSection(
 }
 
 export function sectionIRMapToSectionMap(
-	sectionIRMap: Map<number, SectionIR[]>,
+	sectionIRMap: InfiniteArray<SectionIR[]>,
     sections: SectionIR[],
 	chordPrototypes: ChordPrototypeIR[],
-): Map<number, Section[]> {
-	const sectionMap = new Map<number, Section[]>()
+): InfiniteArray<Section[]> {
+	const sectionMap = new InfiniteArray<Section[]>()
 
 	for (const [position, sectionIRs] of sectionIRMap.entries()) {
 		const sectionList: Section[] = sectionIRs.map(

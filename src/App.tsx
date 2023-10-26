@@ -10,6 +10,7 @@ import TabComponent from "./components/TabComponent"
 import { ChordPrototypesPage } from "./components/ChordPrototypesPage"
 import { SectionsPage } from "./components/SectionsPage"
 import { SectionTiles } from "./components/SectionTiles"
+import { Configs } from "./components/Configs"
 
 function App() {
 
@@ -42,6 +43,10 @@ function App() {
 		{
 			title: "Chord prototypes",
 			content: <ChordPrototypesPage />
+		},
+		{
+			title: "Configs",
+			content: <Configs />
 		}
 	]
 

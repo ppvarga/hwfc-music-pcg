@@ -1,9 +1,11 @@
+import { InfiniteArray } from "./InfiniteArray"
+
 export class OptionsPerCell<T> {
-	cells: Map<number, T[]>
+	cells: InfiniteArray<T[]>
 	allOptions: T[]
 
-	constructor(allOptions: T[], map?: Map<number, T[]>) {
-		this.cells = map ?? new Map<number, T[]>()
+	constructor(allOptions: T[], map?: InfiniteArray<T[]>) {
+		this.cells = map ?? new InfiniteArray<T[]>()
 		this.allOptions = allOptions
 	}
 
@@ -36,10 +38,10 @@ export class OptionsPerCell<T> {
 
 		const newOptionsPerCell = new OptionsPerCell<T>(newAllOptions)
 
-		for (const [position, options] of this.cells) {
+		for (const [position, options] of this.cells.entries()) {
 			newOptionsPerCell.setOptions(position, options)
 		}
-		for (const [position, options] of other.cells) {
+		for (const [position, options] of other.cells.entries()) {
 			newOptionsPerCell.setOptions(position, options)
 		}
 
