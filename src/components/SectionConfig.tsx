@@ -1,11 +1,12 @@
 import { useState } from "react"
-import { Note, OctavedNote } from "../music_theory/Note"
+import { Note, OctavedNoteIR } from "../music_theory/Note"
 import { ChordConstraintIR, NoteConstraintIR } from "../wfc/constraints/constraintUtils"
 import { SectionProvider } from "../AppState"
+import { InfiniteArray } from "../wfc/InfiniteArray"
 import { NoteTiles } from "./NoteTiles"
 import { NoteConstraints } from "./NoteConstraints"
 import { buttonStyles,} from "../styles"
-import { InheritedMelodyLengthSelector, KeySelector, MelodyKeySelector, melodyKeyTypeToOption } from "./GlobalSettings"
+import { InheritedLengthSelector, KeySelector, MelodyKeySelector, melodyKeyTypeToOption } from "./GlobalSettings"
 import { SelectKeyTypeOption,} from "./utils"
 import { InheritedRhythmSettings } from "./RhythmSettings"
 import { SectionIR } from "../wfc/hierarchy/Section"
@@ -33,8 +34,8 @@ export function SectionConfig({ section, removeSection, onUpdate }: SectionConfi
 	}
 
 	const [noteOptionsPerCell, setNoteOptionsPerCell] = useState(section.noteCanvasProps.optionsPerCell)
-	const handleNoteOptionsPerCellChange = (index: number, newNoteOptions: OctavedNote[]) => {
-		const newNoteOptionsPerCell = new Map([...noteOptionsPerCell.entries()])
+	const handleNoteOptionsPerCellChange = (index: number, newNoteOptions: OctavedNoteIR[]) => {
+		const newNoteOptionsPerCell = new InfiniteArray(noteOptionsPerCell)
 		newNoteOptionsPerCell.set(index, newNoteOptions)
 		setNoteOptionsPerCell(newNoteOptionsPerCell)
 		updateNoteCanvasProps({ optionsPerCell: newNoteOptionsPerCell })
@@ -42,7 +43,7 @@ export function SectionConfig({ section, removeSection, onUpdate }: SectionConfi
 
 	const [chordOptionsPerCell, setChordOptionsPerCell] = useState(section.chordesqueCanvasProps.optionsPerCell)
 	const handleChordOptionsPerCellChange = (index: number, newChordOptions: ChordesqueIR[]) => {
-		const newChordOptionsPerCell = new Map([...chordOptionsPerCell.entries()])
+		const newChordOptionsPerCell = new InfiniteArray(chordOptionsPerCell)
 		newChordOptionsPerCell.set(index, newChordOptions)
 		setChordOptionsPerCell(newChordOptionsPerCell)
 		updateChordCanvasProps({ optionsPerCell: newChordOptionsPerCell })
@@ -52,6 +53,11 @@ export function SectionConfig({ section, removeSection, onUpdate }: SectionConfi
 	const setMelodyLength = (newMelodyLength: number) => {
 		tempSetMelodyLength(newMelodyLength)
 		onUpdate({ melodyLength: newMelodyLength })
+	}
+	const [numChords, tempSetNumChords] = useState(section.numChords)
+	const setNumChords = (newNumChords: number) => {
+		tempSetNumChords(newNumChords)
+		onUpdate({ numChords: newNumChords })
 	}
 
 	const [rhythmStrategy, tempSetRhythmStrategy] = useState(section.rhythmStrategy)
@@ -63,6 +69,11 @@ export function SectionConfig({ section, removeSection, onUpdate }: SectionConfi
 	const setMelodyLengthStrategy = (newMelodyLengthStrategy: SectionIR["melodyLengthStrategy"]) => {
 		tempSetMelodyLengthStrategy(newMelodyLengthStrategy)
 		onUpdate({ melodyLengthStrategy: newMelodyLengthStrategy })
+	}
+	const [numChordsStrategy, tempSetNumChordsStrategy] = useState(section.numChordsStrategy)
+	const setNumChordsStrategy = (newNumChordsStrategy: SectionIR["numChordsStrategy"]) => {
+		tempSetNumChordsStrategy(newNumChordsStrategy)
+		onUpdate({ numChordsStrategy: newNumChordsStrategy })
 	}
 	const [minNumNotes, tempSetMinNumNotes] = useState(section.rhythmPatternOptions.minimumNumberOfNotes)
 	const setMinNumNotes = (newMinNumNotes: number) => {
@@ -159,6 +170,8 @@ export function SectionConfig({ section, removeSection, onUpdate }: SectionConfi
 		handleNoteOptionsPerCellChange,
 		melodyLength,
 		setMelodyLength,
+		numChords,
+		setNumChords,
 		noteConstraintSet,
 		addNoteConstraint,
 		removeNoteConstraint,
@@ -213,7 +226,8 @@ export function SectionConfig({ section, removeSection, onUpdate }: SectionConfi
 			<div style={{ flex: 1 }}>
 				<KeySelector useDifferentKey={useDifferentKey} setUseDifferentKey={setUseDifferentKey}/>
 				<MelodyKeySelector />
-				<InheritedMelodyLengthSelector  strategy={melodyLengthStrategy} setStrategy={setMelodyLengthStrategy}/>
+				<InheritedLengthSelector strategy={numChordsStrategy} setStrategy={setNumChordsStrategy} name="number of chords" value={numChords} setValue={setNumChords}/>
+				<InheritedLengthSelector  strategy={melodyLengthStrategy} setStrategy={setMelodyLengthStrategy} name="melody length" value={melodyLength} setValue={setMelodyLength}/>
 				<InheritedRhythmSettings strategy={rhythmStrategy} setStrategy={setRhythmStrategy} />
 				<NeighborRulesSection
 					inputLabel="Allowed preceding sections"

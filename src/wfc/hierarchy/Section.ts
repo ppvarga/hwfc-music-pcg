@@ -1,8 +1,9 @@
-import { MelodyLengthStrategy, MusicalKeyType } from "../../components/GlobalSettings"
+import { InfiniteArray } from "../InfiniteArray"
+import { LengthStrategy, MusicalKeyType } from "../../components/GlobalSettings"
 import { RhythmStrategy } from "../../components/RhythmSettings"
 import { Chord } from "../../music_theory/Chord"
 import { MusicalKey } from "../../music_theory/MusicalKey"
-import { Note, OctavedNote } from "../../music_theory/Note"
+import { Note, OctavedNote, OctavedNoteIR } from "../../music_theory/Note"
 import { RhythmPatternOptions } from "../../music_theory/Rhythm"
 import { ConstraintSet } from "../ConstraintSet"
 import { OptionsPerCell } from "../OptionsPerCell"
@@ -16,10 +17,12 @@ interface SectionProps {
     chordesqueCanvasProps: TileCanvasProps<Chordesque>
     rhythmPatternOptions: RhythmPatternOptions
     melodyLength: number
-    melodyLengthStrategy: MelodyLengthStrategy
+    melodyLengthStrategy: LengthStrategy
     rhythmStrategy: RhythmStrategy
     useDifferentMelodyKey: boolean
     melodyKey: MusicalKey
+    numChordsStrategy: LengthStrategy
+    numChords: number
 }
 
 export class Section {
@@ -28,10 +31,12 @@ export class Section {
 	private chordesqueCanvasProps: TileCanvasProps<Chordesque>
 	private rhythmPatternOptions: RhythmPatternOptions
     private melodyLength: number
-    private melodyLengthStrategy: MelodyLengthStrategy
+    private melodyLengthStrategy: LengthStrategy
     private rhythmStrategy: RhythmStrategy
     private useDifferentMelodyKey: boolean
     private melodyKey: MusicalKey
+    private numChordsStrategy: LengthStrategy
+    private numChords: number
 
 	constructor({
         name,
@@ -43,6 +48,8 @@ export class Section {
         rhythmStrategy,
         useDifferentMelodyKey,
         melodyKey,
+        numChordsStrategy,
+        numChords,
     }: SectionProps) {
         this.name = name
         this.noteCanvasProps = noteCanvasProps
@@ -53,6 +60,8 @@ export class Section {
         this.rhythmStrategy = rhythmStrategy
         this.useDifferentMelodyKey = useDifferentMelodyKey
         this.melodyKey = melodyKey
+        this.numChordsStrategy = numChordsStrategy
+        this.numChords = numChords
     }
 
 	getNoteCanvasProps() {
@@ -90,6 +99,14 @@ export class Section {
     getMelodyKey() {
         return this.melodyKey
     }
+
+    getNumChordsStrategy() {
+        return this.numChordsStrategy
+    }
+
+    getNumChords() {
+        return this.numChords
+    }
 }
 
 export const SectionInit = (id: number) => {
@@ -98,12 +115,12 @@ export const SectionInit = (id: number) => {
 		id: id,
 		noteCanvasProps: {
 			size: 4,
-			optionsPerCell: new Map<number, OctavedNote[]>(),
+			optionsPerCell: new InfiniteArray<OctavedNoteIR[]>(),
 			constraints: [] as NoteConstraintIR[],
 		},
 		chordesqueCanvasProps: {
 			size: 4,
-			optionsPerCell: new Map<number, ChordesqueIR[]>(),
+			optionsPerCell: new InfiniteArray<ChordesqueIR[]>(),
 			constraints: [] as ChordConstraintIR[],
 		},
 		allowedPrecedingSections: [] as string[],
@@ -111,8 +128,10 @@ export const SectionInit = (id: number) => {
 		restrictPrecedingSections: false,
 		restrictFollowingSections: false,
 		rhythmStrategy: "Inherit" as RhythmStrategy,
-		melodyLengthStrategy: "Inherit" as MelodyLengthStrategy,
+		melodyLengthStrategy: "Inherit" as LengthStrategy,
 		melodyLength: 4,
+        numChordsStrategy: "Inherit" as LengthStrategy,
+        numChords: 4,
 		rhythmPatternOptions: {
 			onlyStartOnNote: true,
 			minimumNumberOfNotes: 3,
@@ -141,7 +160,7 @@ export function sectionIRToSection(
         sectionIR.noteCanvasProps.size,
         new OptionsPerCell(
             OctavedNote.all(),
-            sectionIR.noteCanvasProps.optionsPerCell,
+            sectionIR.noteCanvasProps.optionsPerCell.transform(OctavedNote.multipleFromIRs),
         ),
         new ConstraintSet(
             sectionIR.noteCanvasProps.constraints.map((noteConstraint) =>
@@ -174,11 +193,11 @@ export function sectionIRToSection(
 }
 
 export function sectionIRMapToSectionMap(
-	sectionIRMap: Map<number, SectionIR[]>,
+	sectionIRMap: InfiniteArray<SectionIR[]>,
     sections: SectionIR[],
 	chordPrototypes: ChordPrototypeIR[],
-): Map<number, Section[]> {
-	const sectionMap = new Map<number, Section[]>()
+): InfiniteArray<Section[]> {
+	const sectionMap = new InfiniteArray<Section[]>()
 
 	for (const [position, sectionIRs] of sectionIRMap.entries()) {
 		const sectionList: Section[] = sectionIRs.map(

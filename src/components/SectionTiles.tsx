@@ -59,10 +59,10 @@ function SectionValuesPopup({ popupOpen, index, setPopupOpen, initialOptions }: 
 
 	return <Popup open={popupOpen} closeOnDocumentClick={false}>
 		<div className='modal'>
-			<h3>Set options for chord at position {index}</h3>
+			<h3>Set options for section at position {index}</h3>
 			<SectionValuesInput value={input} setValue={setInput} />
 			<br />
-			<p>Leaving this empty means allowing all chords</p>
+			<p>Leaving this empty means allowing all sections</p>
 			<button disabled={parsedSections === undefined}
 				onClick={() => {
 					handleSectionOptionsPerCellChange(index, parsedSections as SectionIR[])

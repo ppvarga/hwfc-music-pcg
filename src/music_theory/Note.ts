@@ -102,44 +102,52 @@ export class OctavedNote {
 		return Math.abs(OctavedNote.getStepSize(first, second))
 	}
 
-	public static parse(note: string): OctavedNote | undefined {
-		if (!["A", "B", "C", "D", "E", "F", "G"].includes(note[0]))
-			return undefined
-
-		const endOfRoot = note[1] == "#" ? 2 : 1
-		const root = note.slice(0, endOfRoot) as Note
-
-		const octave = parseInt(note.slice(endOfRoot))
-		if (isNaN(octave)) return undefined
-
-		try {
-			return new OctavedNote(root, octave)
-		} catch (e) {
-			return undefined
-		}
-	}
-
-	public static parseMultiple(notes: string): OctavedNote[] | undefined {
-		if (notes === "") return []
-		const items = notes.split(" ").filter((item) => item !== "")
-		const octavedNotes: OctavedNote[] = []
-		for (const item of items) {
-			const octavedNote = OctavedNote.parse(item)
-			if (octavedNote === undefined) return undefined
-			octavedNotes.push(octavedNote)
-		}
-		return octavedNotes
-	}
-
 	public toString(): string {
 		return `${this.note}${this.octave}`
+	}
+
+	public static IRtoString(ir: OctavedNoteIR): string {
+		return `${ir.note}${ir.octave}`
 	}
 
 	public static fromIR(ir: OctavedNoteIR): OctavedNote {
 		return new OctavedNote(ir.note, ir.octave)
 	}
 
+	public static multipleFromIRs(irs: OctavedNoteIR[]): OctavedNote[] {
+		return irs.map((ir) => OctavedNote.fromIR(ir))
+	}
+
 	public toY(unit: number): number {
 		return this.toMIDIValue() * unit
 	}
+}
+
+export function parseOctavedNoteIR(note: string): OctavedNoteIR | undefined {
+	if (!["A", "B", "C", "D", "E", "F", "G"].includes(note[0]))
+		return undefined
+
+	const endOfRoot = note[1] == "#" ? 2 : 1
+	const root = note.slice(0, endOfRoot) as Note
+
+	const octave = parseInt(note.slice(endOfRoot))
+	if (isNaN(octave)) return undefined
+
+	try {
+		return {note: root, octave}
+	} catch (e) {
+		return undefined
+	}
+}
+
+export function parseOctavedNoteIRs(notes: string): OctavedNoteIR[] | undefined {
+	if (notes === "") return []
+	const items = notes.split(" ").filter((item) => item !== "")
+	const octavedNotes: OctavedNoteIR[] = []
+	for (const item of items) {
+		const octavedNote = parseOctavedNoteIR(item)
+		if (octavedNote === undefined) return undefined
+		octavedNotes.push(octavedNote)
+	}
+	return octavedNotes
 }

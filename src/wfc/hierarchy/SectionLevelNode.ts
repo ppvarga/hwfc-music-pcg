@@ -43,14 +43,19 @@ export class SectionLevelNode {
 	}
 
 	private createChordLevelNode(section: Section) {
+		const chordesqueCanvasProps = this.chordesqueCanvasProps.union(
+			section.getChordesqueCanvasProps(),
+		)
+		if(section.getNumChordsStrategy() == "Custom") {chordesqueCanvasProps.setSize(section.getNumChords())}
+		else {chordesqueCanvasProps.setSize(this.chordesqueCanvasProps.getSize())}
+		console.log(chordesqueCanvasProps)
+		console.log(section)
 		return new ChordLevelNode({
 			higherValues: this.higherValues.copyWithSection(section),
 			noteCanvasProps: this.noteCanvasProps.union(
 				section.getNoteCanvasProps(),
 			),
-			chordesqueCanvasProps: this.chordesqueCanvasProps.union(
-				section.getChordesqueCanvasProps(),
-			),
+			chordesqueCanvasProps,
 			rhythmPatternOptions: section.getRhythmStrategy() === "On" ? section.getRhythmPatternOptions() : this.rhythmPatternOptions,
 			random: this.random,
 			melodyLength: section.getMelodyLengthStrategy() === "Custom" ? section.getMelodyLength() : this.melodyLength,
@@ -75,10 +80,9 @@ export class SectionLevelNode {
 		const sections = this.sectionCanvas.generate()
 		const noteOutputs: NoteOutput[] = []
 		let totalDuration = 0
+		console.log(this.chordesqueCanvasProps)
 		for (const section of sections) {
 			const useRhythm = section.getRhythmStrategy() === "On" || (section.getRhythmStrategy() === "Inherit" && useRhythmByDefault)
-
-			console.log(section.getName(), section.getMelodyLengthStrategy() === "Custom" ? section.getMelodyLength() : this.melodyLength)
 
 			const chordLevelNode = this.createChordLevelNode(section)
 			const [sectionNoteOutputs, sectionDuration] = chordLevelNode.generate(useRhythm)

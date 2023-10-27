@@ -1,24 +1,52 @@
 import { createContext, useCallback, useContext, useState } from "react"
 import { MusicalKey } from "./music_theory/MusicalKey"
-import { Note, OctavedNote } from "./music_theory/Note"
+import { Note, OctavedNoteIR } from "./music_theory/Note"
 import { SelectKeyTypeOption } from "./components/utils"
 import { ChordInKeyHardConstraintInit } from "./wfc/constraints/ChordInKeyHardConstraint"
 import { MelodyInKeyHardConstraintInit } from "./wfc/constraints/MelodyInKeyHardConstraint"
 import { MelodyInRangeHardConstraintInit } from "./wfc/constraints/MelodyInRangeHardConstraint"
 import { ChordConstraintIR, NoteConstraintIR } from "./wfc/constraints/constraintUtils"
 import { ChordRootAbsoluteStepSizeHardConstraintInit } from "./wfc/constraints/ChordRootAbsoluteStepSizeHardConstraint"
-import { ChordPrototypeIR, ChordesqueIR } from "./wfc/hierarchy/Chordesque"
+import { ChordPrototypeIR, ChordesqueIR, nameOfChordPrototypeIR } from "./wfc/hierarchy/Chordesque"
 import { NoteOutput } from "./components/MidiPlayer"
-import { SectionIR, SectionInit } from "./wfc/hierarchy/Section"
+import { SectionIR, SectionInit, nameOfSectionIR } from "./wfc/hierarchy/Section"
+import { InfiniteArray } from "./wfc/InfiniteArray"
+
+export interface PassiveAppState {
+    numChords: number;
+    numSections: number;
+    melodyLength: number;
+    keyRoot: Note;
+    keyType: SelectKeyTypeOption;
+    differentMelodyKey: boolean;
+    melodyKeyRoot: Note;
+    melodyKeyType: SelectKeyTypeOption;
+    sectionOptionsPerCell: InfiniteArray<SectionIR[]>;
+    chordOptionsPerCell: InfiniteArray<ChordesqueIR[]>;
+    noteOptionsPerCell: InfiniteArray<OctavedNoteIR[]>; 
+    chordConstraintSet: ChordConstraintIR[]; 
+    noteConstraintSet: NoteConstraintIR[];  
+    useRhythm: boolean;
+    minNumNotes: number;
+    startOnNote: boolean;
+    maxRestLength: number;
+    chordPrototypes: ChordPrototypeIR[];  
+    onlyUseChordPrototypes: boolean;
+    sections: SectionIR[];         
+};
+
 
 function AppState() {
 	//GLOBAL LENGTHS
-	const [numChords, setNumChords] = useState(4)
+	const [numChords, tempSetNumChords] = useState(4)
+	const setNumChords = (newNumChords: number) => {
+		tempSetNumChords(newNumChords)
+	}
 	const [melodyLength, tempSetMelodyLength] = useState(4)
-	const [numSections, setNumSections] = useState(4)
 	const setMelodyLength = (newLength: number) => {
 		tempSetMelodyLength(newLength)
 	}
+	const [numSections, setNumSections] = useState(4)
 
 	//GLOBAL KEY
 	const [keyRoot, tempSetKeyRoot] = useState(Note.C)
@@ -42,23 +70,23 @@ function AppState() {
 	}, [melodyKeyRoot, melodyKeyType])
 
 	//OPTIONS PER CELL
-	const [sectionOptionsPerCell, setSectionOptionsPerCell] = useState(new Map<number, SectionIR[]>())
+	const [sectionOptionsPerCell, setSectionOptionsPerCell] = useState(new InfiniteArray<SectionIR[]>())
 	const handleSectionOptionsPerCellChange = (index: number, sectionOptions: SectionIR[]) => {
-		const newOptionsPerCell = new Map(sectionOptionsPerCell)
+		const newOptionsPerCell = new InfiniteArray(sectionOptionsPerCell)
 		newOptionsPerCell.set(index, sectionOptions)
 		setSectionOptionsPerCell(newOptionsPerCell)
 	}
 
-	const [chordOptionsPerCell, setChordOptionsPerCell] = useState(new Map<number, ChordesqueIR[]>())
+	const [chordOptionsPerCell, setChordOptionsPerCell] = useState(new InfiniteArray<ChordesqueIR[]>())
 	const handleChordOptionsPerCellChange = (index: number, chordOptions: ChordesqueIR[]) => {
-		const newOptionsPerCell = new Map(chordOptionsPerCell)
+		const newOptionsPerCell = new InfiniteArray(chordOptionsPerCell)
 		newOptionsPerCell.set(index, chordOptions)
 		setChordOptionsPerCell(newOptionsPerCell)
 	}
 
-	const [noteOptionsPerCell, setNoteOptionsPerCell] = useState(new Map<number, OctavedNote[]>())
-	const handleNoteOptionsPerCellChange = (index: number, noteOptions: OctavedNote[]) => {
-		const newOptionsPerCell = new Map(noteOptionsPerCell)
+	const [noteOptionsPerCell, setNoteOptionsPerCell] = useState(new InfiniteArray<OctavedNoteIR[]>())
+	const handleNoteOptionsPerCellChange = (index: number, noteOptions: OctavedNoteIR[]) => {
+		const newOptionsPerCell = new InfiniteArray(noteOptionsPerCell)
 		newOptionsPerCell.set(index, noteOptions)
 		setNoteOptionsPerCell(newOptionsPerCell)
 	}
@@ -165,6 +193,41 @@ function AppState() {
 	//OUTPUT
 	const [output, setOutput] = useState<[NoteOutput[], number]>([[], 0])
 
+	//STATE
+	const updateState = (newState: PassiveAppState): void => {
+
+		setNumChords(newState.numChords)
+		setNumSections(newState.numSections)
+
+		setMelodyLength(newState.melodyLength)
+
+		setKeyRoot(newState.keyRoot)
+		setKeyType(newState.keyType)
+
+		setDifferentMelodyKey(newState.differentMelodyKey)
+		setMelodyKeyRoot(newState.melodyKeyRoot)
+		setMelodyKeyType(newState.melodyKeyType)
+
+		setSectionOptionsPerCell(new InfiniteArray(newState.sectionOptionsPerCell))
+		setChordOptionsPerCell(new InfiniteArray(newState.chordOptionsPerCell))
+		setNoteOptionsPerCell(new InfiniteArray(newState.noteOptionsPerCell))
+
+		setChordConstraintSet(newState.chordConstraintSet)
+		setNoteConstraintSet(newState.noteConstraintSet)
+
+		setUseRhythm(newState.useRhythm)
+		setMinNumNotes(newState.minNumNotes)
+		setStartOnNote(newState.startOnNote)
+		setMaxRestLength(newState.maxRestLength)
+
+		setChordPrototypes(newState.chordPrototypes)
+		setOnlyUseChordPrototypes(newState.onlyUseChordPrototypes)
+
+		setSections(newState.sections)
+
+		setOutput([[], 0])
+	}
+
 	return {
 		numChords,
 		setNumChords,
@@ -231,10 +294,11 @@ function AppState() {
 		output,
 		setOutput,
 
+		updateState,
 	}
 }
 
-type AppContextType = ReturnType<typeof AppState>
+export type AppContextType = ReturnType<typeof AppState>
 
 const AppContext = createContext<AppContextType | undefined>(undefined)
 
@@ -252,8 +316,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 }
 
 type ChordPrototypeEnvironment = {
-	noteOptionsPerCell: Map<number, OctavedNote[]>,
-	handleNoteOptionsPerCellChange: (index: number, noteOptions: OctavedNote[]) => void,
+	noteOptionsPerCell: InfiniteArray<OctavedNoteIR[]>,
+	handleNoteOptionsPerCellChange: (index: number, noteOptions: OctavedNoteIR[]) => void,
 	melodyLength: number,
 	setMelodyLength: (newLength: number) => void,
 	noteConstraintSet: NoteConstraintIR[],
@@ -280,7 +344,9 @@ type SectionEnvironment = ChordPrototypeEnvironment & {
 	setKeyRoot: (newKeyRoot: Note) => void,
 	keyType: SelectKeyTypeOption,
 	setKeyType: (newKeyType: SelectKeyTypeOption) => void,
-	chordOptionsPerCell: Map<number, ChordesqueIR[]>,
+	numChords: number,
+	setNumChords: (newNumChords: number) => void,
+	chordOptionsPerCell: InfiniteArray<ChordesqueIR[]>,
 	handleChordOptionsPerCellChange: (index: number, chordOptions: ChordesqueIR[]) => void,
 	chordConstraintSet: ChordConstraintIR[],
 	addChordConstraint: (constraint: ChordConstraintIR) => void,
@@ -298,4 +364,33 @@ export const SectionProvider = ({ children, env }: { children: React.ReactNode, 
 	const appState = useAppContext()
 	const newState = { ...appState, ...env }
 	return <AppContext.Provider value={newState}>{children}</AppContext.Provider>
+}
+
+export const errorsInAppState = (appState: AppContextType): string[] => {
+	const errors: string[] = []
+	const hasDuplicates = (arr: any[]): boolean => {
+		return (new Set(arr)).size !== arr.length
+	}
+
+	if (hasDuplicates(appState.sections.map(nameOfSectionIR))) {
+		errors.push("Section names must be unique.")
+	}
+
+	if (hasDuplicates(appState.chordPrototypes.map(nameOfChordPrototypeIR))) {
+		errors.push("Chord prototype names must be unique.")
+	}
+
+	if (appState.onlyUseChordPrototypes && appState.chordPrototypes.length === 0) {
+		errors.push("Must have at least one chord prototype if only using chord prototypes.")
+	}
+
+	if (appState.sections.length === 0) {
+		errors.push("Must have at least one section.")
+	}
+
+	if (appState.onlyUseChordPrototypes && (new Set(appState.chordPrototypes.map(p => p.chord))).size == 1 && appState.chordConstraintSet.some(c => c.type === "ChordRootAbsoluteStepSizeHardConstraint" && !c.stepSizes.includes(0))){
+		errors.push("Only one chord value is allowed (from prototypes), but the chord root absolute step size constraint does not allow staying on the same chord.")						
+	}
+
+	return errors
 }

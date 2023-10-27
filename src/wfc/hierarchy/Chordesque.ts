@@ -1,4 +1,5 @@
-import { MelodyLengthStrategy, MusicalKeyType } from "../../components/GlobalSettings"
+import { InfiniteArray } from "../InfiniteArray"
+import { LengthStrategy, MusicalKeyType } from "../../components/GlobalSettings"
 import { RhythmStrategy } from "../../components/RhythmSettings"
 import {
 	Chord,
@@ -8,7 +9,7 @@ import {
 	isChordIR,
 } from "../../music_theory/Chord"
 import { MusicalKey } from "../../music_theory/MusicalKey"
-import { Note, OctavedNote } from "../../music_theory/Note"
+import { Note, OctavedNote, OctavedNoteIR } from "../../music_theory/Note"
 import { RhythmPatternOptions } from "../../music_theory/Rhythm"
 import { ConstraintSet } from "../ConstraintSet"
 import { OptionsPerCell } from "../OptionsPerCell"
@@ -32,7 +33,7 @@ interface ChordPrototypeProps {
 	rhythmStrategy: RhythmStrategy
 	rhythmPatternOptions: RhythmPatternOptions
 	melodyLength: number
-	melodyLengthStrategy: MelodyLengthStrategy
+	melodyLengthStrategy: LengthStrategy
 	useDifferentMelodyKey: boolean
 	melodyKey: MusicalKey
 }
@@ -46,7 +47,7 @@ export class ChordPrototype implements Chordesque {
 	private melodyLength: number
 	private useDifferentMelodyKey: boolean
 	private melodyKey: MusicalKey
-	private melodyLengthStrategy: MelodyLengthStrategy
+	private melodyLengthStrategy: LengthStrategy
 
 	constructor({
 		name,
@@ -113,7 +114,7 @@ export const ChordPrototypeInit = (id: number) => {
 		id: id,
 		noteCanvasProps: {
 			size: 4,
-			optionsPerCell: new Map<number, OctavedNote[]>(),
+			optionsPerCell: new InfiniteArray<OctavedNoteIR[]>(),
 			constraints: [] as NoteConstraintIR[],
 		},
 		chord: {
@@ -125,7 +126,7 @@ export const ChordPrototypeInit = (id: number) => {
 		restrictPrecedingChords: false,
 		restrictFollowingChords: false,
 		rhythmStrategy: "Inherit" as RhythmStrategy,
-		melodyLengthStrategy: "Inherit" as MelodyLengthStrategy,
+		melodyLengthStrategy: "Inherit" as LengthStrategy,
 		melodyLength: 4,
 		rhythmPatternOptions: {
 			onlyStartOnNote: true,
@@ -151,7 +152,7 @@ export function chordPrototypeIRToChordPrototype(
 		protoIR.noteCanvasProps.size,
 		new OptionsPerCell(
 			OctavedNote.all(),
-			protoIR.noteCanvasProps.optionsPerCell,
+			protoIR.noteCanvasProps.optionsPerCell.transform(OctavedNote.multipleFromIRs),
 		),
 		new ConstraintSet(
 			protoIR.noteCanvasProps.constraints.map((noteConstraint) =>
@@ -171,10 +172,10 @@ export function chordPrototypeIRToChordPrototype(
 }
 
 export function chordesqueIRMapToChordesqueMap(
-	chordesqueIRMap: Map<number, ChordesqueIR[]>,
+	chordesqueIRMap: InfiniteArray<ChordesqueIR[]>,
 	chordPrototypes: ChordPrototypeIR[],
-): Map<number, Chordesque[]> {
-	const chordesqueMap = new Map<number, Chordesque[]>()
+): InfiniteArray<Chordesque[]> {
+	const chordesqueMap = new InfiniteArray<Chordesque[]>()
 
 	for (const [position, chordesqueIRs] of chordesqueIRMap.entries()) {
 		const chordesqueList: Chordesque[] = chordesqueIRs.map(

@@ -31,7 +31,6 @@ export function MidiPlayer({ notes, length, isPlaying, setIsPlaying, updatePlaye
 	const [volume, setVolume] = useState(-25)
 	synthRef.current.volume.setValueAtTime(volume, Tone.context.currentTime)
 
-	console.log(notes)
 	const noteRectHeight = 2
 	const yPositions = notes.map(note => note.octavedNote.toY(noteRectHeight))
 	const normalizedYPositions = normalizeYPositions(yPositions)
