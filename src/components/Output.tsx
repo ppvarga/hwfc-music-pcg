@@ -111,6 +111,8 @@ export function Output() {
 			const [parsedChordPrototypes, chordPrototypeConstraints] = parseChordPrototypes()
 			const [parsedSections, sectionConstraints] = parseSections()
 
+			console.log(numChords)
+
 			const chordesqueCanvasProps = new TileCanvasProps(
 				numChords,
 				new OptionsPerCell([
@@ -139,6 +141,8 @@ export function Output() {
 				random: new Random(),
 				higherValues: new HigherValues({ key: inferKey(), melodyKey: differentMelodyKey ? inferMelodyKey() : undefined }),
 			})
+
+			console.log(node)
 
 			setOutput(node.generate(useRhythm))
 		} catch (e) {
