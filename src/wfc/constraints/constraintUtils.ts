@@ -128,7 +128,7 @@ export const noteConstraintOptions = Array.from(
 export const convertIRToChordConstraint = (
 	ir: ChordConstraintIR,
 ): Constraint<Chordesque> => {
-	const keyGrabber = (higherValues: HigherValues) => higherValues.getKey()
+	const keyGrabber = (higherValues: HigherValues) => higherValues.key
 	switch (ir.type) {
 		case "ChordInKeyHardConstraint":
 			return new ChordInKeyHardConstraint(keyGrabber)
@@ -149,7 +149,7 @@ export const convertIRToNoteConstraint = (
 	switch (ir.type) {
 		case "MelodyInKeyHardConstraint":
 			return new MelodyInKeyHardConstraint((higherValues: HigherValues) =>
-				higherValues.getKey(),
+				higherValues.key,
 			)
 		case "MelodyAbsoluteStepSizeHardConstraint":
 			return new MelodyAbsoluteStepSizeHardConstraint(

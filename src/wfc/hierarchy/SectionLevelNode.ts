@@ -10,7 +10,7 @@ import { Section } from "./Section"
 import { SectionResult, SectionResultWithRhythm } from "./results"
 
 interface SectionLevelNodeProps {
-	higherValues?: HigherValues
+	higherValues: HigherValues
 	noteCanvasProps: TileCanvasProps<OctavedNote>
 	chordesqueCanvasProps: TileCanvasProps<Chordesque>
 	sectionCanvasProps: TileCanvasProps<Section>
@@ -29,7 +29,7 @@ export class SectionLevelNode {
 	private melodyLength: number
 
 	constructor(props: SectionLevelNodeProps) {
-		this.higherValues = props.higherValues ?? new HigherValues()
+		this.higherValues = props.higherValues
 		this.noteCanvasProps = props.noteCanvasProps
 		this.chordesqueCanvasProps = props.chordesqueCanvasProps
 		this.rhythmPatternOptions = props.rhythmPatternOptions
@@ -49,7 +49,7 @@ export class SectionLevelNode {
 		console.log(chordesqueCanvasProps)
 		console.log(section)
 		return new ChordLevelNode({
-			higherValues: this.higherValues.copyWithSection(section),
+			higherValues: {...this.higherValues, section},
 			noteCanvasProps: unionOfTileCanvasProps( 
 				this.noteCanvasProps, 
 				section.getNoteCanvasProps()),

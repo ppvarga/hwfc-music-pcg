@@ -7,7 +7,6 @@ import { Random } from "../util/Random"
 import { ConstraintSet } from "../wfc/ConstraintSet"
 import { OptionsPerCell } from "../wfc/OptionsPerCell"
 import { TileCanvasProps } from "../wfc/TileCanvas"
-import { HigherValues } from "../wfc/HigherValues"
 import { convertIRToChordConstraint, convertIRToNoteConstraint } from "../wfc/constraints/constraintUtils"
 import { ChordPrototype, Chordesque, chordPrototypeIRToChordPrototype, chordesqueIRMapToChordesqueMap } from "../wfc/hierarchy/Chordesque"
 import { ChordPrototypeOnlyFollowedByConstraint } from "../wfc/constraints/ChordPrototypeOnlyFollowedByConstraint"
@@ -128,6 +127,8 @@ export function Output() {
 				constraints: new ConstraintSet(sectionConstraints),
 			}
 
+			const inferredKey = inferKey()
+
 			const node = new SectionLevelNode({
 				noteCanvasProps,
 				chordesqueCanvasProps,
@@ -139,7 +140,7 @@ export function Output() {
 					maximumRestLength: maxRestLength,
 				},
 				random: new Random(),
-				higherValues: new HigherValues({ key: inferKey(), melodyKey: differentMelodyKey ? inferMelodyKey() : undefined }),
+				higherValues: { key: inferredKey, melodyKey: differentMelodyKey ? inferMelodyKey() : inferredKey },
 			})
 
 			console.log(node)

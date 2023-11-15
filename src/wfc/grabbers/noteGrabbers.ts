@@ -1,10 +1,10 @@
 import { HigherValues } from "../HigherValues"
 
 export const RootOfChordGrabber = (higherValues: HigherValues) =>
-	higherValues.getChord().getRoot()
+	higherValues.chord!.getRoot()
 
 export const ThirdOfChordGrabber = (higherValues: HigherValues) =>
-	higherValues.getChord().getThird()
+	higherValues.chord!.getThird()
 
 export const FifthOfChordGrabber = (higherValues: HigherValues) =>
-	higherValues.getChord().getFifth()
+	higherValues.chord!.getFifth()

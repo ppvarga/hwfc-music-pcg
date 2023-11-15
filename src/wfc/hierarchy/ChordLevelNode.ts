@@ -17,7 +17,7 @@ import { ChordPrototype, Chordesque } from "./Chordesque"
 import { ChordResult, ChordResultWithRhythm } from "./results"
 
 interface ChordLevelNodeProps {
-	higherValues?: HigherValues
+	higherValues: HigherValues
 	noteCanvasProps: TileCanvasProps<OctavedNote>
 	chordesqueCanvasProps: TileCanvasProps<Chordesque>
 	random: Random
@@ -34,7 +34,7 @@ export class ChordLevelNode {
 	private melodyLength: number
 
 	constructor(props: ChordLevelNodeProps) {
-		this.higherValues = props.higherValues ?? new HigherValues()
+		this.higherValues = props.higherValues 
 		this.noteCanvasProps = props.noteCanvasProps
 		this.chordesqueCanvas = new TileCanvas(
 			props.chordesqueCanvasProps,
@@ -59,7 +59,7 @@ export class ChordLevelNode {
 			}
 			const noteLevelNode = new NoteLevelNode(
 				actualNoteCanvasProps,
-				this.higherValues.copyWithChord(chordValue),
+				{...this.higherValues, chord: chordValue},
 				this.random,
 			)
 			return {
@@ -89,7 +89,7 @@ export class ChordLevelNode {
 			actualNoteCanvasProps.size = numberOfNotesInRhythmPattern(rhythmPattern)
 			const noteLevelNode = new NoteLevelNode(
 				actualNoteCanvasProps,
-				this.higherValues.copyWithChord(chordValue),
+				{...this.higherValues, chord: chordValue},
 				this.random,
 			)
 			return {
@@ -128,11 +128,11 @@ export class ChordLevelNode {
 				? chord.getRhythmStrategy() === "On"
 				: useRhythmByDefault
 
-			const noteHigherValues = this.higherValues.copyWithChord(chordValue)
+			const noteHigherValues = {...this.higherValues, chord: chordValue}
 			const noteHigherValuesWithKey =
 				chord instanceof ChordPrototype &&
 				chord.getUseDifferentMelodyKey()
-					? noteHigherValues.copyWithKey(chord.getMelodyKey())
+					? {...noteHigherValues, key: chord.getMelodyKey()}
 					: noteHigherValues
 			if (useRhythm) {
 				const rhythmPattern = getRandomRhythmPattern(
