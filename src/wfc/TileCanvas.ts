@@ -5,47 +5,17 @@ import { OptionsPerCell } from "./OptionsPerCell"
 import { Tile } from "./Tile"
 import { TileSelector } from "./TileSelector"
 
-export class TileCanvasProps<T> {
-	private size: number
-	private optionsPerCell: OptionsPerCell<T>
-	private constraints: ConstraintSet<T>
+export interface TileCanvasProps<T> {
+	size: number
+	optionsPerCell: OptionsPerCell<T>
+	constraints: ConstraintSet<T>
+}
 
-	constructor(
-		size: number,
-		optionsPerCell: OptionsPerCell<T>,
-		constraints: ConstraintSet<T>,
-	) {
-		this.size = size
-		this.optionsPerCell = optionsPerCell
-		this.constraints = constraints
-	}
-
-	union(other: TileCanvasProps<T>): TileCanvasProps<T> {
-		return new TileCanvasProps<T>(
-			other.size,
-			this.optionsPerCell.union(other.optionsPerCell),
-			this.constraints.union(other.constraints),
-		)
-	}
-
-	getOptionsPerCell(): OptionsPerCell<T> {
-		return this.optionsPerCell
-	}
-
-	getConstraints(): ConstraintSet<T> {
-		return this.constraints
-	}
-
-	getSize(): number {
-		return this.size
-	}
-
-	setOptionsPerCell(optionsPerCell: OptionsPerCell<T>): void {
-		this.optionsPerCell = optionsPerCell
-	}
-
-	setSize(size: number): void {
-		this.size = size
+export const unionOfTileCanvasProps = <T>(first: TileCanvasProps<T>, second: TileCanvasProps<T>) => {
+	return {
+		size: second.size,
+		optionsPerCell: first.optionsPerCell.union(second.optionsPerCell),
+		constraints: first.constraints.union(second.constraints),
 	}
 }
 
@@ -71,15 +41,15 @@ export class TileCanvas<T> {
 		higherValues: HigherValues,
 		random: Random,
 	) {
-		this.size = props.getSize()
+		this.size = props.size
 		this.collapsed = 0
 
-		const optionsPerCell = props.getOptionsPerCell()
+		const optionsPerCell = props.optionsPerCell
 
 		this.pq = new TileSelector<T>(random)
 		this.random = random
 		this.higherValues = higherValues
-		this.constraints = props.getConstraints()
+		this.constraints = props.constraints
 
 		this.tiles = [this.createTile(optionsPerCell, 0)]
 

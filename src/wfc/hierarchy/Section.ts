@@ -156,30 +156,30 @@ export function sectionIRToSection(
     sectionIR: SectionIR,
     chordPrototypes: ChordPrototypeIR[],
 ): Section {
-    const noteCanvasProps = new TileCanvasProps(
-        sectionIR.noteCanvasProps.size,
-        new OptionsPerCell(
+    const noteCanvasProps: TileCanvasProps<OctavedNote> = {
+        size: sectionIR.noteCanvasProps.size,
+        optionsPerCell: new OptionsPerCell(
             OctavedNote.all(),
             sectionIR.noteCanvasProps.optionsPerCell.transform(OctavedNote.multipleFromIRs),
         ),
-        new ConstraintSet(
+        constraints: new ConstraintSet(
             sectionIR.noteCanvasProps.constraints.map((noteConstraint) =>
                 convertIRToNoteConstraint(noteConstraint)
             )
         )
-    )
-    const chordesqueCanvasProps = new TileCanvasProps(
-        sectionIR.chordesqueCanvasProps.size,
-        new OptionsPerCell(
+        }
+    const chordesqueCanvasProps : TileCanvasProps<Chordesque> = {
+        size: sectionIR.chordesqueCanvasProps.size,
+        optionsPerCell: new OptionsPerCell(
             Chord.allBasicChords() as Chordesque[],
             chordesqueIRMapToChordesqueMap(sectionIR.chordesqueCanvasProps.optionsPerCell, chordPrototypes)
         ),
-        new ConstraintSet(
+        constraints: new ConstraintSet(
             sectionIR.chordesqueCanvasProps.constraints.map((chordConstraint) =>
                 convertIRToChordConstraint(chordConstraint)
             )
         )
-    )
+        }
 
     return new Section({
         ...sectionIR,

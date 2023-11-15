@@ -3,7 +3,7 @@ import { OctavedNote } from "../../music_theory/Note"
 import { RhythmPatternOptions } from "../../music_theory/Rhythm"
 import { Random } from "../../util/Random"
 import { HigherValues } from "../HigherValues"
-import { TileCanvasProps, TileCanvas } from "../TileCanvas"
+import { TileCanvasProps, TileCanvas, unionOfTileCanvasProps } from "../TileCanvas"
 import { ChordLevelNode } from "./ChordLevelNode"
 import { Chordesque } from "./Chordesque"
 import { Section } from "./Section"
@@ -43,18 +43,16 @@ export class SectionLevelNode {
 	}
 
 	private createChordLevelNode(section: Section) {
-		const chordesqueCanvasProps = this.chordesqueCanvasProps.union(
-			section.getChordesqueCanvasProps(),
-		)
-		if(section.getNumChordsStrategy() == "Custom") {chordesqueCanvasProps.setSize(section.getNumChords())}
-		else {chordesqueCanvasProps.setSize(this.chordesqueCanvasProps.getSize())}
+		const chordesqueCanvasProps = unionOfTileCanvasProps(this.chordesqueCanvasProps, section.getChordesqueCanvasProps())
+		if(section.getNumChordsStrategy() == "Custom") {chordesqueCanvasProps.size = section.getNumChords()}
+		else {chordesqueCanvasProps.size = this.chordesqueCanvasProps.size}
 		console.log(chordesqueCanvasProps)
 		console.log(section)
 		return new ChordLevelNode({
 			higherValues: this.higherValues.copyWithSection(section),
-			noteCanvasProps: this.noteCanvasProps.union(
-				section.getNoteCanvasProps(),
-			),
+			noteCanvasProps: unionOfTileCanvasProps( 
+				this.noteCanvasProps, 
+				section.getNoteCanvasProps()),
 			chordesqueCanvasProps,
 			rhythmPatternOptions: section.getRhythmStrategy() === "On" ? section.getRhythmPatternOptions() : this.rhythmPatternOptions,
 			random: this.random,

@@ -148,18 +148,18 @@ export function nameOfChordPrototypeIR(protoIR: ChordPrototypeIR): string {
 export function chordPrototypeIRToChordPrototype(
 	protoIR: ChordPrototypeIR,
 ): ChordPrototype {
-	const noteCanvasProps = new TileCanvasProps(
-		protoIR.noteCanvasProps.size,
-		new OptionsPerCell(
+	const noteCanvasProps: TileCanvasProps<OctavedNote> = {
+		size: protoIR.noteCanvasProps.size,
+		optionsPerCell: new OptionsPerCell(
 			OctavedNote.all(),
 			protoIR.noteCanvasProps.optionsPerCell.transform(OctavedNote.multipleFromIRs),
 		),
-		new ConstraintSet(
+		constraints: new ConstraintSet(
 			protoIR.noteCanvasProps.constraints.map((noteConstraint) =>
 				convertIRToNoteConstraint(noteConstraint),
 			),
 		),
-	)
+	}
 	return new ChordPrototype({
 		...protoIR,
 		value: Chord.fromIR(protoIR.chord),

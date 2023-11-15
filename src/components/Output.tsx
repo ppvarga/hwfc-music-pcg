@@ -24,11 +24,11 @@ export function Output() {
 	const appState = useAppContext()
 	const { output, setOutput, onlyUseChordPrototypes, chordPrototypes, inferKey, inferMelodyKey, differentMelodyKey, numChords, chordOptionsPerCell, chordConstraintSet, melodyLength, noteOptionsPerCell, noteConstraintSet, minNumNotes, startOnNote, maxRestLength, useRhythm, sections, sectionOptionsPerCell, numSections} = appState
 
-	const noteCanvasProps = new TileCanvasProps(
-		melodyLength,
-		new OptionsPerCell(OctavedNote.all(), noteOptionsPerCell.transform(OctavedNote.multipleFromIRs)),
-		new ConstraintSet(noteConstraintSet.map(noteConstraint => convertIRToNoteConstraint(noteConstraint))),
-	)
+	const noteCanvasProps: TileCanvasProps<OctavedNote> = {
+		size: melodyLength,
+		optionsPerCell: new OptionsPerCell(OctavedNote.all(), noteOptionsPerCell.transform(OctavedNote.multipleFromIRs)),
+		constraints: new ConstraintSet(noteConstraintSet.map(noteConstraint => convertIRToNoteConstraint(noteConstraint))),
+	}
 
 	function parseChordPrototypes(): [ChordPrototype[], Constraint<Chordesque>[]] {
 		const parsedChordPrototypes = []
@@ -113,20 +113,20 @@ export function Output() {
 
 			console.log(numChords)
 
-			const chordesqueCanvasProps = new TileCanvasProps(
-				numChords,
-				new OptionsPerCell([
+			const chordesqueCanvasProps: TileCanvasProps<Chordesque> = {
+				size: numChords,
+				optionsPerCell: new OptionsPerCell([
 					...parsedChordPrototypes,
 					...(onlyUseChordPrototypes ? [] : Chord.allBasicChords()),
 				], chordesqueIRMapToChordesqueMap(chordOptionsPerCell, chordPrototypes)),
-				new ConstraintSet([...chordConstraintSet.map(chordConstraint => convertIRToChordConstraint(chordConstraint)), ...chordPrototypeConstraints]),
-			)
+				constraints: new ConstraintSet([...chordConstraintSet.map(chordConstraint => convertIRToChordConstraint(chordConstraint)), ...chordPrototypeConstraints]),
+			}
 
-			const sectionCanvasProps = new TileCanvasProps(
-				numSections,
-				new OptionsPerCell(parsedSections, sectionIRMapToSectionMap(sectionOptionsPerCell, sections, chordPrototypes)),
-				new ConstraintSet(sectionConstraints),
-			)
+			const sectionCanvasProps : TileCanvasProps<Section> = {
+				size: numSections,
+				optionsPerCell: new OptionsPerCell(parsedSections, sectionIRMapToSectionMap(sectionOptionsPerCell, sections, chordPrototypes)),
+				constraints: new ConstraintSet(sectionConstraints),
+			}
 
 			const node = new SectionLevelNode({
 				noteCanvasProps,

@@ -11,7 +11,7 @@ import {
 } from "../../music_theory/Rhythm"
 import { Random } from "../../util/Random"
 import { HigherValues } from "../HigherValues"
-import { TileCanvasProps, TileCanvas } from "../TileCanvas"
+import { TileCanvasProps, TileCanvas, unionOfTileCanvasProps } from "../TileCanvas"
 import { NoteLevelNode } from "./NoteLevelNode"
 import { ChordPrototype, Chordesque } from "./Chordesque"
 import { ChordResult, ChordResultWithRhythm } from "./results"
@@ -53,8 +53,8 @@ export class ChordLevelNode {
 			const chordValue = chord.getChord()
 			let actualNoteCanvasProps = this.noteCanvasProps
 			if (chord instanceof ChordPrototype) {
-				actualNoteCanvasProps = this.noteCanvasProps.union(
-					chord.getNoteCanvasProps(),
+				actualNoteCanvasProps = unionOfTileCanvasProps(
+					this.noteCanvasProps, chord.getNoteCanvasProps()
 				)
 			}
 			const noteLevelNode = new NoteLevelNode(
@@ -81,13 +81,12 @@ export class ChordLevelNode {
 			)
 			let actualNoteCanvasProps = this.noteCanvasProps
 			if (chord instanceof ChordPrototype) {
-				actualNoteCanvasProps = this.noteCanvasProps.union(
+				actualNoteCanvasProps = unionOfTileCanvasProps( 
+					this.noteCanvasProps,
 					chord.getNoteCanvasProps(),
 				)
 			}
-			actualNoteCanvasProps.setSize(
-				numberOfNotesInRhythmPattern(rhythmPattern),
-			)
+			actualNoteCanvasProps.size = numberOfNotesInRhythmPattern(rhythmPattern)
 			const noteLevelNode = new NoteLevelNode(
 				actualNoteCanvasProps,
 				this.higherValues.copyWithChord(chordValue),
@@ -113,7 +112,10 @@ export class ChordLevelNode {
 			let rhythmPatternOptions = this.rhythmPatternOptions
 			
 			if (chord instanceof ChordPrototype) {
-				actualNoteCanvasProps = this.noteCanvasProps.union(chord.getNoteCanvasProps())
+				actualNoteCanvasProps = unionOfTileCanvasProps (
+					this.noteCanvasProps, 
+					chord.getNoteCanvasProps()
+				)
 				if (chord.getMelodyLengthStrategy() === "Custom") actualMelodyLength = chord.getMelodyLength()
 				if (chord.getRhythmStrategy() === "On") rhythmPatternOptions = chord.getRhythmPatternOptions()
 			}
@@ -138,9 +140,7 @@ export class ChordLevelNode {
 					rhythmPatternOptions,
 					this.random,
 				)
-				actualNoteCanvasProps.setSize(
-					numberOfNotesInRhythmPattern(rhythmPattern),
-				)
+				actualNoteCanvasProps.size = numberOfNotesInRhythmPattern(rhythmPattern)
 				const noteLevelNode = new NoteLevelNode(
 					actualNoteCanvasProps,
 					noteHigherValuesWithKey,
@@ -158,7 +158,7 @@ export class ChordLevelNode {
 				out.push(...subResult)
 				offset = newOffset
 			} else {
-				actualNoteCanvasProps.setSize(actualMelodyLength)
+				actualNoteCanvasProps.size = actualMelodyLength
 				const noteLevelNode = new NoteLevelNode(
 					actualNoteCanvasProps,
 					noteHigherValuesWithKey,
