@@ -25,86 +25,25 @@ export interface Chordesque {
 }
 
 export type ChordesqueIR = ChordIR | string
-
-interface ChordPrototypeProps {
-	name: string
-	noteCanvasProps: TileCanvasProps<OctavedNote>
-	value: Chord
-	rhythmStrategy: RhythmStrategy
-	rhythmPatternOptions: RhythmPatternOptions
-	melodyLength: number
-	melodyLengthStrategy: LengthStrategy
-	useDifferentMelodyKey: boolean
-	melodyKey: MusicalKey
-}
-
 export class ChordPrototype implements Chordesque {
-	private noteCanvasProps: TileCanvasProps<OctavedNote>
-	private chord: Chord
-	private name: string
-	private rhythmStrategy: RhythmStrategy
-	private rhythmPatternOptions: RhythmPatternOptions
-	private melodyLength: number
-	private useDifferentMelodyKey: boolean
-	private melodyKey: MusicalKey
-	private melodyLengthStrategy: LengthStrategy
+	constructor(
+		public readonly name: string,
+		public readonly noteCanvasProps: TileCanvasProps<OctavedNote>,
+		private readonly chord: Chord,
+		public readonly rhythmStrategy: RhythmStrategy,
+		public readonly rhythmPatternOptions: RhythmPatternOptions,
+		public readonly melodyLength: number,
+		public readonly useDifferentMelodyKey: boolean,
+		public readonly melodyKey: MusicalKey,
+		public readonly melodyLengthStrategy: LengthStrategy
+	) {}
 
-	constructor({
-		name,
-		noteCanvasProps,
-		value,
-		rhythmStrategy,
-		rhythmPatternOptions,
-		melodyLength,
-		useDifferentMelodyKey,
-		melodyKey,
-		melodyLengthStrategy,
-	}: ChordPrototypeProps) {
-		this.name = name
-		this.noteCanvasProps = noteCanvasProps
-		this.chord = value
-		this.rhythmStrategy = rhythmStrategy
-		this.rhythmPatternOptions = rhythmPatternOptions
-		this.melodyLength = melodyLength
-		this.useDifferentMelodyKey = useDifferentMelodyKey
-		this.melodyKey = melodyKey
-		this.melodyLengthStrategy = melodyLengthStrategy
+	getChord(): Chord {
+		return this.chord;
 	}
 
-	getChord() {
-		return this.chord
-	}
-
-	getName() {
-		return this.name
-	}
-
-	getNoteCanvasProps() {
-		return this.noteCanvasProps
-	}
-
-	getRhythmStrategy() {
-		return this.rhythmStrategy
-	}
-
-	getRhythmPatternOptions() {
-		return this.rhythmPatternOptions
-	}
-
-	getMelodyLength() {
-		return this.melodyLength
-	}
-
-	getUseDifferentMelodyKey() {
-		return this.useDifferentMelodyKey
-	}
-
-	getMelodyKey() {
-		return this.melodyKey
-	}
-
-	getMelodyLengthStrategy() {
-		return this.melodyLengthStrategy
+	getName(): string {
+		return this.name;
 	}
 }
 
@@ -160,15 +99,20 @@ export function chordPrototypeIRToChordPrototype(
 			),
 		),
 	}
-	return new ChordPrototype({
-		...protoIR,
-		value: Chord.fromIR(protoIR.chord),
+	return new ChordPrototype(
+		protoIR.name,
 		noteCanvasProps,
-		melodyKey: MusicalKey.fromRootAndType(
+		Chord.fromIR(protoIR.chord),
+		protoIR.rhythmStrategy,
+		protoIR.rhythmPatternOptions,
+		protoIR.melodyLength,
+		protoIR.useDifferentMelodyKey,
+		MusicalKey.fromRootAndType(
 			protoIR.melodyKeyRoot,
 			protoIR.melodyKeyType,
 		),
-	})
+		protoIR.melodyLengthStrategy,
+	)
 }
 
 export function chordesqueIRMapToChordesqueMap(

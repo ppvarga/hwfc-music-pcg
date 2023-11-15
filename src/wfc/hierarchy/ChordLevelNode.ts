@@ -54,7 +54,7 @@ export class ChordLevelNode {
 			let actualNoteCanvasProps = this.noteCanvasProps
 			if (chord instanceof ChordPrototype) {
 				actualNoteCanvasProps = unionOfTileCanvasProps(
-					this.noteCanvasProps, chord.getNoteCanvasProps()
+					this.noteCanvasProps, chord.noteCanvasProps
 				)
 			}
 			const noteLevelNode = new NoteLevelNode(
@@ -83,7 +83,7 @@ export class ChordLevelNode {
 			if (chord instanceof ChordPrototype) {
 				actualNoteCanvasProps = unionOfTileCanvasProps( 
 					this.noteCanvasProps,
-					chord.getNoteCanvasProps(),
+					chord.noteCanvasProps,
 				)
 			}
 			actualNoteCanvasProps.size = numberOfNotesInRhythmPattern(rhythmPattern)
@@ -114,25 +114,25 @@ export class ChordLevelNode {
 			if (chord instanceof ChordPrototype) {
 				actualNoteCanvasProps = unionOfTileCanvasProps (
 					this.noteCanvasProps, 
-					chord.getNoteCanvasProps()
+					chord.noteCanvasProps,
 				)
-				if (chord.getMelodyLengthStrategy() === "Custom") actualMelodyLength = chord.getMelodyLength()
-				if (chord.getRhythmStrategy() === "On") rhythmPatternOptions = chord.getRhythmPatternOptions()
+				if (chord.melodyLengthStrategy === "Custom") actualMelodyLength = chord.melodyLength
+				if (chord.rhythmStrategy === "On") rhythmPatternOptions = chord.rhythmPatternOptions
 			}
 
 			const chordHasPreference =
 				chord instanceof ChordPrototype &&
-				(chord.getRhythmStrategy() === "On" ||
-					chord.getRhythmStrategy() === "Off")
+				(chord.rhythmStrategy === "On" ||
+					chord.rhythmStrategy === "Off")
 			const useRhythm = chordHasPreference
-				? chord.getRhythmStrategy() === "On"
+				? chord.rhythmStrategy === "On"
 				: useRhythmByDefault
 
 			const noteHigherValues = {...this.higherValues, chord: chordValue}
 			const noteHigherValuesWithKey =
 				chord instanceof ChordPrototype &&
-				chord.getUseDifferentMelodyKey()
-					? {...noteHigherValues, key: chord.getMelodyKey()}
+				chord.useDifferentMelodyKey
+					? {...noteHigherValues, key: chord.melodyKey}
 					: noteHigherValues
 			if (useRhythm) {
 				const rhythmPattern = getRandomRhythmPattern(

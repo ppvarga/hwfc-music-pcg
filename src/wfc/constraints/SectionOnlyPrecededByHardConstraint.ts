@@ -35,8 +35,8 @@ export class SectionOnlyPrecededByHardConstraint
 		second: Section,
 		higherValues: HigherValues,
 	): boolean {
-		if (second.getName() != this.sectionName) return true
+		if (second.name != this.sectionName) return true
 		const sectionSet = this.grabber(higherValues)
-		return sectionSet.some((sectionName) => sectionName === first.getName())
+		return sectionSet.some((sectionName) => sectionName === first.name)
 	}
 }
