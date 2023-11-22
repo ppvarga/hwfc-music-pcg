@@ -149,7 +149,7 @@ export const convertIRToNoteConstraint = (
 	switch (ir.type) {
 		case "MelodyInKeyHardConstraint":
 			return new MelodyInKeyHardConstraint((higherValues: HigherValues) =>
-				higherValues.key,
+				higherValues.melodyKey,
 			)
 		case "MelodyAbsoluteStepSizeHardConstraint":
 			return new MelodyAbsoluteStepSizeHardConstraint(

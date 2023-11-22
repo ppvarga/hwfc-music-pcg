@@ -13,6 +13,7 @@ import { SectionIR, SectionInit, nameOfSectionIR } from "./wfc/hierarchy/Section
 import { InfiniteArray } from "./wfc/InfiniteArray"
 
 export interface PassiveAppState {
+	bpm: number;
     numChords: number;
     numSections: number;
     melodyLength: number;
@@ -35,7 +36,6 @@ export interface PassiveAppState {
     sections: SectionIR[];         
 };
 
-
 function AppState() {
 	//GLOBAL LENGTHS
 	const [numChords, tempSetNumChords] = useState(4)
@@ -47,6 +47,8 @@ function AppState() {
 		tempSetMelodyLength(newLength)
 	}
 	const [numSections, setNumSections] = useState(4)
+
+	const [bpm, setBpm] = useState(120)
 
 	//GLOBAL KEY
 	const [keyRoot, tempSetKeyRoot] = useState(Note.C)
@@ -195,7 +197,7 @@ function AppState() {
 
 	//STATE
 	const updateState = (newState: PassiveAppState): void => {
-
+		setBpm(newState.bpm)
 		setNumChords(newState.numChords)
 		setNumSections(newState.numSections)
 
@@ -229,6 +231,9 @@ function AppState() {
 	}
 
 	return {
+		bpm,
+		setBpm,
+
 		numChords,
 		setNumChords,
 		numSections,

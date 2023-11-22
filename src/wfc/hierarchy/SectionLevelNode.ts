@@ -1,21 +1,17 @@
 import { NoteOutput } from "../../components/MidiPlayer"
 import { OctavedNote } from "../../music_theory/Note"
-import { RhythmPatternOptions } from "../../music_theory/Rhythm"
 import { Random } from "../../util/Random"
 import { HigherValues } from "../HigherValues"
 import { TileCanvasProps, TileCanvas, unionOfTileCanvasProps } from "../TileCanvas"
 import { ChordLevelNode } from "./ChordLevelNode"
 import { Chordesque } from "./Chordesque"
 import { Section } from "./Section"
-import { SectionResult, SectionResultWithRhythm } from "./results"
 
 interface SectionLevelNodeProps {
 	higherValues: HigherValues
 	noteCanvasProps: TileCanvasProps<OctavedNote>
 	chordesqueCanvasProps: TileCanvasProps<Chordesque>
 	sectionCanvasProps: TileCanvasProps<Section>
-	rhythmPatternOptions: RhythmPatternOptions
-	melodyLength: number
 	random: Random
 }
 
@@ -24,66 +20,50 @@ export class SectionLevelNode {
 	private noteCanvasProps: TileCanvasProps<OctavedNote>
 	private chordesqueCanvasProps: TileCanvasProps<Chordesque>
 	private sectionCanvas: TileCanvas<Section>
-	private rhythmPatternOptions: RhythmPatternOptions
 	private random: Random
-	private melodyLength: number
 
 	constructor(props: SectionLevelNodeProps) {
 		this.higherValues = props.higherValues
 		this.noteCanvasProps = props.noteCanvasProps
 		this.chordesqueCanvasProps = props.chordesqueCanvasProps
-		this.rhythmPatternOptions = props.rhythmPatternOptions
 		this.sectionCanvas = new TileCanvas(
+			this.higherValues.numSections,
 			props.sectionCanvasProps,
 			this.higherValues,
 			props.random,
 		)
 		this.random = props.random
-		this.melodyLength = props.melodyLength
 	}
 
 	private createChordLevelNode(section: Section) {
-		const chordesqueCanvasProps = unionOfTileCanvasProps(this.chordesqueCanvasProps, section.chordesqueCanvasProps)
-		if(section.numChordsStrategy == "Custom") {chordesqueCanvasProps.size = section.numChords}
-		else {chordesqueCanvasProps.size = this.chordesqueCanvasProps.size}
-		console.log(chordesqueCanvasProps)
-		console.log(section)
 		return new ChordLevelNode({
-			higherValues: {...this.higherValues, section},
+			higherValues: {
+				...this.higherValues, 
+				section, 
+				numChords: section.numChordsStrategy === "Custom" ? section.numChords : this.higherValues.numChords,
+				useRhythm: section.rhythmStrategy === "On" || (section.rhythmStrategy === "Inherit" && this.higherValues.useRhythm),
+				rhythmPatternOptions: section.rhythmStrategy === "On" ? section.rhythmPatternOptions : this.higherValues.rhythmPatternOptions,
+				melodyLength: section.melodyLengthStrategy === "Custom" ? section.melodyLength : this.higherValues.melodyLength,
+			},
 			noteCanvasProps: unionOfTileCanvasProps( 
 				this.noteCanvasProps, 
-				section.noteCanvasProps),
-			chordesqueCanvasProps,
-			rhythmPatternOptions: section.rhythmStrategy === "On" ? section.rhythmPatternOptions : this.rhythmPatternOptions,
+				section.noteCanvasProps
+			),
+			chordesqueCanvasProps: unionOfTileCanvasProps(
+				this.chordesqueCanvasProps,
+				section.chordesqueCanvasProps
+			),
 			random: this.random,
-			melodyLength: section.melodyLengthStrategy === "Custom" ? section.melodyLength : this.melodyLength,
 		})
 	}
 
-	public generateWithoutRhythm(): SectionResult[] {
-		const sections = this.sectionCanvas.generate()
-		return sections.map((section) =>
-			this.createChordLevelNode(section).generateWithoutRhythm(),
-		)
-	}
-
-	public generateWithRhythm(): SectionResultWithRhythm[] {
-		const sections = this.sectionCanvas.generate()
-		return sections.map((section) =>
-			this.createChordLevelNode(section).generateWithRhythm(),
-		)
-	}
-
-	public generate(useRhythmByDefault: boolean): [NoteOutput[], number] {
+	public generate(): [NoteOutput[], number] {
 		const sections = this.sectionCanvas.generate()
 		const noteOutputs: NoteOutput[] = []
 		let totalDuration = 0
-		console.log(this.chordesqueCanvasProps)
 		for (const section of sections) {
-			const useRhythm = section.rhythmStrategy === "On" || (section.rhythmStrategy === "Inherit" && useRhythmByDefault)
-
 			const chordLevelNode = this.createChordLevelNode(section)
-			const [sectionNoteOutputs, sectionDuration] = chordLevelNode.generate(useRhythm)
+			const [sectionNoteOutputs, sectionDuration] = chordLevelNode.generate()
 
 			noteOutputs.push(...(sectionNoteOutputs.map((noteOutput) => {
 				noteOutput.startTime += totalDuration

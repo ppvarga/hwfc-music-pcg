@@ -21,10 +21,9 @@ import { SectionLevelNode } from "../wfc/hierarchy/SectionLevelNode"
 export function Output() {
 	const [isPlaying, setIsPlaying] = useState(false)
 	const appState = useAppContext()
-	const { output, setOutput, onlyUseChordPrototypes, chordPrototypes, inferKey, inferMelodyKey, differentMelodyKey, numChords, chordOptionsPerCell, chordConstraintSet, melodyLength, noteOptionsPerCell, noteConstraintSet, minNumNotes, startOnNote, maxRestLength, useRhythm, sections, sectionOptionsPerCell, numSections} = appState
+	const { output, setOutput, onlyUseChordPrototypes, chordPrototypes, inferKey, inferMelodyKey, differentMelodyKey, numChords, chordOptionsPerCell, chordConstraintSet, melodyLength, noteOptionsPerCell, noteConstraintSet, minNumNotes, startOnNote, maxRestLength, useRhythm, sections, sectionOptionsPerCell, numSections, bpm} = appState
 
 	const noteCanvasProps: TileCanvasProps<OctavedNote> = {
-		size: melodyLength,
 		optionsPerCell: new OptionsPerCell(OctavedNote.all(), noteOptionsPerCell.transform(OctavedNote.multipleFromIRs)),
 		constraints: new ConstraintSet(noteConstraintSet.map(noteConstraint => convertIRToNoteConstraint(noteConstraint))),
 	}
@@ -113,7 +112,6 @@ export function Output() {
 			console.log(numChords)
 
 			const chordesqueCanvasProps: TileCanvasProps<Chordesque> = {
-				size: numChords,
 				optionsPerCell: new OptionsPerCell([
 					...parsedChordPrototypes,
 					...(onlyUseChordPrototypes ? [] : Chord.allBasicChords()),
@@ -122,7 +120,6 @@ export function Output() {
 			}
 
 			const sectionCanvasProps : TileCanvasProps<Section> = {
-				size: numSections,
 				optionsPerCell: new OptionsPerCell(parsedSections, sectionIRMapToSectionMap(sectionOptionsPerCell, sections, chordPrototypes)),
 				constraints: new ConstraintSet(sectionConstraints),
 			}
@@ -133,19 +130,27 @@ export function Output() {
 				noteCanvasProps,
 				chordesqueCanvasProps,
 				sectionCanvasProps,
-				melodyLength,
-				rhythmPatternOptions: {
-					minimumNumberOfNotes: minNumNotes,
-					onlyStartOnNote: startOnNote,
-					maximumRestLength: maxRestLength,
-				},
 				random: new Random(),
-				higherValues: { key: inferredKey, melodyKey: differentMelodyKey ? inferMelodyKey() : inferredKey },
+				higherValues: {
+					key: inferredKey, 
+					melodyKey: differentMelodyKey ? inferMelodyKey() : inferredKey,
+					bpm,
+					useRhythm,
+					numChords,
+					numSections,
+					melodyLength,
+					rhythmPatternOptions: {
+						minimumNumberOfNotes: minNumNotes,
+						onlyStartOnNote: startOnNote,
+						maximumRestLength: maxRestLength,
+					},
+				},
+				
 			})
 
 			console.log(node)
 
-			setOutput(node.generate(useRhythm))
+			setOutput(node.generate())
 		} catch (e) {
 			console.error(e)
 			alert(e)

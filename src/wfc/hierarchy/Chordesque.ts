@@ -88,7 +88,6 @@ export function chordPrototypeIRToChordPrototype(
 	protoIR: ChordPrototypeIR,
 ): ChordPrototype {
 	const noteCanvasProps: TileCanvasProps<OctavedNote> = {
-		size: protoIR.noteCanvasProps.size,
 		optionsPerCell: new OptionsPerCell(
 			OctavedNote.all(),
 			protoIR.noteCanvasProps.optionsPerCell.transform(OctavedNote.multipleFromIRs),

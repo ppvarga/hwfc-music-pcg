@@ -6,14 +6,12 @@ import { Tile } from "./Tile"
 import { TileSelector } from "./TileSelector"
 
 export interface TileCanvasProps<T> {
-	size: number
 	optionsPerCell: OptionsPerCell<T>
 	constraints: ConstraintSet<T>
 }
 
 export const unionOfTileCanvasProps = <T>(first: TileCanvasProps<T>, second: TileCanvasProps<T>) => {
 	return {
-		size: second.size,
 		optionsPerCell: first.optionsPerCell.union(second.optionsPerCell),
 		constraints: first.constraints.union(second.constraints),
 	}
@@ -37,11 +35,12 @@ export class TileCanvas<T> {
 	}
 
 	constructor(
+		size: number,
 		props: TileCanvasProps<T>,
 		higherValues: HigherValues,
 		random: Random,
 	) {
-		this.size = props.size
+		this.size = size
 		this.collapsed = 0
 
 		const optionsPerCell = props.optionsPerCell

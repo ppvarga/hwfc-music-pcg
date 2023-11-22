@@ -1,106 +1,39 @@
-import {
-	chordResultToOutput,
-	chordResultWithRhythmToOutput,
-} from "../../audio/midi"
+import { chordResultToOutput, chordResultWithRhythmToOutput } from "../../audio/midi"
 import { NoteOutput } from "../../components/MidiPlayer"
 import { OctavedNote } from "../../music_theory/Note"
-import {
-	RhythmPatternOptions,
-	numberOfNotesInRhythmPattern,
-	getRandomRhythmPattern,
-} from "../../music_theory/Rhythm"
+import { getRandomRhythmPattern } from "../../music_theory/Rhythm"
 import { Random } from "../../util/Random"
 import { HigherValues } from "../HigherValues"
 import { TileCanvasProps, TileCanvas, unionOfTileCanvasProps } from "../TileCanvas"
 import { NoteLevelNode } from "./NoteLevelNode"
 import { ChordPrototype, Chordesque } from "./Chordesque"
-import { ChordResult, ChordResultWithRhythm } from "./results"
 
 interface ChordLevelNodeProps {
 	higherValues: HigherValues
 	noteCanvasProps: TileCanvasProps<OctavedNote>
 	chordesqueCanvasProps: TileCanvasProps<Chordesque>
 	random: Random
-	rhythmPatternOptions: RhythmPatternOptions
-	melodyLength: number
 }
 
 export class ChordLevelNode {
 	private higherValues: HigherValues
 	private noteCanvasProps: TileCanvasProps<OctavedNote>
 	private chordesqueCanvas: TileCanvas<Chordesque>
-	private rhythmPatternOptions: RhythmPatternOptions
 	private random: Random
-	private melodyLength: number
 
 	constructor(props: ChordLevelNodeProps) {
 		this.higherValues = props.higherValues 
 		this.noteCanvasProps = props.noteCanvasProps
 		this.chordesqueCanvas = new TileCanvas(
+			this.higherValues.numChords,
 			props.chordesqueCanvasProps,
 			this.higherValues,
 			props.random,
 		)
-		this.rhythmPatternOptions = props.rhythmPatternOptions
 		this.random = props.random
-		this.melodyLength = props.melodyLength
 	}
 
-	public generateWithoutRhythm(): ChordResult[] {
-		const chords = this.chordesqueCanvas.generate()
-
-		return chords.map((chord) => {
-			const chordValue = chord.getChord()
-			let actualNoteCanvasProps = this.noteCanvasProps
-			if (chord instanceof ChordPrototype) {
-				actualNoteCanvasProps = unionOfTileCanvasProps(
-					this.noteCanvasProps, chord.noteCanvasProps
-				)
-			}
-			const noteLevelNode = new NoteLevelNode(
-				actualNoteCanvasProps,
-				{...this.higherValues, chord: chordValue},
-				this.random,
-			)
-			return {
-				chord: chordValue,
-				notes: noteLevelNode.generate(),
-			}
-		})
-	}
-
-	public generateWithRhythm(): ChordResultWithRhythm[] {
-		const chords = this.chordesqueCanvas.generate()
-
-		return chords.map((chord) => {
-			const chordValue = chord.getChord()
-			const rhythmPattern = getRandomRhythmPattern(
-				this.melodyLength,
-				this.rhythmPatternOptions,
-				this.random,
-			)
-			let actualNoteCanvasProps = this.noteCanvasProps
-			if (chord instanceof ChordPrototype) {
-				actualNoteCanvasProps = unionOfTileCanvasProps( 
-					this.noteCanvasProps,
-					chord.noteCanvasProps,
-				)
-			}
-			actualNoteCanvasProps.size = numberOfNotesInRhythmPattern(rhythmPattern)
-			const noteLevelNode = new NoteLevelNode(
-				actualNoteCanvasProps,
-				{...this.higherValues, chord: chordValue},
-				this.random,
-			)
-			return {
-				chord: chordValue,
-				notes: noteLevelNode.generate(),
-				rhythmPattern,
-			}
-		})
-	}
-
-	public generate(useRhythmByDefault: boolean): [NoteOutput[], number] {
+	public generate(): [NoteOutput[], number] {
 		const chords = this.chordesqueCanvas.generate()
 
 		let offset = 0
@@ -108,8 +41,8 @@ export class ChordLevelNode {
 		for (const chord of chords) {
 			const chordValue = chord.getChord()
 			let actualNoteCanvasProps = this.noteCanvasProps
-			let actualMelodyLength = this.melodyLength
-			let rhythmPatternOptions = this.rhythmPatternOptions
+			let actualMelodyLength = this.higherValues.melodyLength
+			let rhythmPatternOptions = this.higherValues.rhythmPatternOptions
 			
 			if (chord instanceof ChordPrototype) {
 				actualNoteCanvasProps = unionOfTileCanvasProps (
@@ -124,52 +57,51 @@ export class ChordLevelNode {
 				chord instanceof ChordPrototype &&
 				(chord.rhythmStrategy === "On" ||
 					chord.rhythmStrategy === "Off")
+
 			const useRhythm = chordHasPreference
 				? chord.rhythmStrategy === "On"
-				: useRhythmByDefault
+				: this.higherValues.useRhythm
 
-			const noteHigherValues = {...this.higherValues, chord: chordValue}
-			const noteHigherValuesWithKey =
-				chord instanceof ChordPrototype &&
-				chord.useDifferentMelodyKey
-					? {...noteHigherValues, key: chord.melodyKey}
-					: noteHigherValues
-			if (useRhythm) {
-				const rhythmPattern = getRandomRhythmPattern(
-					actualMelodyLength,
-					rhythmPatternOptions,
-					this.random,
-				)
-				actualNoteCanvasProps.size = numberOfNotesInRhythmPattern(rhythmPattern)
-				const noteLevelNode = new NoteLevelNode(
-					actualNoteCanvasProps,
-					noteHigherValuesWithKey,
-					this.random,
-				)
+			const newHigherValues: HigherValues = {...{...this.higherValues, chord: chordValue, useRhythm},
+				...(chord instanceof ChordPrototype ? {
+					rhythmPatternOptions: chord.rhythmPatternOptions,
+					melodyLength: chord.melodyLength
+				} : {})
+			}
+
+			const noteLevelNode = new NoteLevelNode(
+				actualNoteCanvasProps,
+				newHigherValues,
+				this.random,
+			)
+
+			const abstractResultBase = {
+				chord: chordValue,
+				notes: noteLevelNode.generate()
+			}
+
+			if(useRhythm) {
 				const abstractResult = {
-					chord: chordValue,
-					notes: noteLevelNode.generate(),
-					rhythmPattern,
+					...abstractResultBase,
+					rhythmPattern: getRandomRhythmPattern(
+						actualMelodyLength,
+						rhythmPatternOptions,
+						this.random,
+					)
 				}
+
 				const [subResult, newOffset] = chordResultWithRhythmToOutput(
 					abstractResult,
+					this.higherValues.bpm,
 					offset,
 				)
 				out.push(...subResult)
 				offset = newOffset
+				
 			} else {
-				actualNoteCanvasProps.size = actualMelodyLength
-				const noteLevelNode = new NoteLevelNode(
-					actualNoteCanvasProps,
-					noteHigherValuesWithKey,
-					this.random,
-				)
-				const abstractResult = {
-					chord: chordValue,
-					notes: noteLevelNode.generate(),
-				}
 				const [subResult, newOffset] = chordResultToOutput(
-					abstractResult,
+					abstractResultBase,
+					this.higherValues.bpm,
 					offset,
 				)
 				out.push(...subResult)

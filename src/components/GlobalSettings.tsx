@@ -8,9 +8,10 @@ import { RhythmSettings } from "./RhythmSettings"
 
 export function GlobalSettings() {
 
-	const { numChords, setNumChords, numSections, setNumSections} = useAppContext()
+	const { numChords, setNumChords, numSections, setNumSections, bpm, setBpm} = useAppContext()
 	return <div className="main-column">
 		<h2>Global settings</h2>
+		<BpmSelector value={bpm} setValue={setBpm} />
 		<NumberSelector value={numSections} setValue={setNumSections} min={1} max={16} label="Number of sections" />
 		<NumberSelector value={numChords} setValue={setNumChords} min={1} max={16} label="Number of chords" />
 		<MelodyLengthSelector />
@@ -65,6 +66,14 @@ export function NumberSelector({ value, setValue, min, max, label }: NumberSelec
 		</div>
 	</div>
 
+}
+
+interface BpmSelectorProps {
+	value: number
+	setValue: (value: number) => void
+}
+function BpmSelector({ value, setValue }: BpmSelectorProps) {
+	return <input type="number" value={value} onChange={(e) => setValue(parseInt(e.target.value))} />
 }
 
 export const noteOptions = [

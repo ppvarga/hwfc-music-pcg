@@ -73,7 +73,6 @@ export function sectionIRToSection(
     chordPrototypes: ChordPrototypeIR[],
 ): Section {
     const noteCanvasProps: TileCanvasProps<OctavedNote> = {
-        size: sectionIR.noteCanvasProps.size,
         optionsPerCell: new OptionsPerCell(
             OctavedNote.all(),
             sectionIR.noteCanvasProps.optionsPerCell.transform(OctavedNote.multipleFromIRs),
@@ -85,7 +84,6 @@ export function sectionIRToSection(
         )
         }
     const chordesqueCanvasProps : TileCanvasProps<Chordesque> = {
-        size: sectionIR.chordesqueCanvasProps.size,
         optionsPerCell: new OptionsPerCell(
             Chord.allBasicChords() as Chordesque[],
             chordesqueIRMapToChordesqueMap(sectionIR.chordesqueCanvasProps.optionsPerCell, chordPrototypes)
