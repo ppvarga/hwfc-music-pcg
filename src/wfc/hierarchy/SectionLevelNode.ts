@@ -40,6 +40,7 @@ export class SectionLevelNode {
 			higherValues: {
 				...this.higherValues, 
 				section, 
+				bpm: section.bpmStrategy === "Custom" ? section.bpm : this.higherValues.bpm,
 				numChords: section.numChordsStrategy === "Custom" ? section.numChords : this.higherValues.numChords,
 				useRhythm: section.rhythmStrategy === "On" || (section.rhythmStrategy === "Inherit" && this.higherValues.useRhythm),
 				rhythmPatternOptions: section.rhythmStrategy === "On" ? section.rhythmPatternOptions : this.higherValues.rhythmPatternOptions,

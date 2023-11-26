@@ -65,7 +65,8 @@ export class ChordLevelNode {
 			const newHigherValues: HigherValues = {...{...this.higherValues, chord: chordValue, useRhythm},
 				...(chord instanceof ChordPrototype ? {
 					rhythmPatternOptions: chord.rhythmPatternOptions,
-					melodyLength: chord.melodyLength
+					melodyLength: chord.melodyLength,
+					bpm: chord.bpmStrategy === "Custom" ? chord.bpm : this.higherValues.bpm,
 				} : {})
 			}
 

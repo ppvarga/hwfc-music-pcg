@@ -35,7 +35,10 @@ export class ChordPrototype implements Chordesque {
 		public readonly melodyLength: number,
 		public readonly useDifferentMelodyKey: boolean,
 		public readonly melodyKey: MusicalKey,
-		public readonly melodyLengthStrategy: LengthStrategy
+		public readonly melodyLengthStrategy: LengthStrategy,
+		public readonly bpmStrategy: LengthStrategy,
+		public readonly bpm: number,
+
 	) {}
 
 	getChord(): Chord {
@@ -67,6 +70,8 @@ export const ChordPrototypeInit = (id: number) => {
 		rhythmStrategy: "Inherit" as RhythmStrategy,
 		melodyLengthStrategy: "Inherit" as LengthStrategy,
 		melodyLength: 4,
+		bpmStrategy: "Inherit" as LengthStrategy,
+		bpm: 120,
 		rhythmPatternOptions: {
 			onlyStartOnNote: true,
 			minimumNumberOfNotes: 3,
@@ -111,6 +116,8 @@ export function chordPrototypeIRToChordPrototype(
 			protoIR.melodyKeyType,
 		),
 		protoIR.melodyLengthStrategy,
+		protoIR.bpmStrategy,
+		protoIR.bpm,
 	)
 }
 

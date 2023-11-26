@@ -76,6 +76,24 @@ function BpmSelector({ value, setValue }: BpmSelectorProps) {
 	return <input type="number" value={value} onChange={(e) => setValue(parseInt(e.target.value))} />
 }
 
+interface InheritedBpmSelectorProps {
+	strategy: LengthStrategy
+	setStrategy: (strategy: LengthStrategy) => void
+	value: number
+	setValue: (value: number) => void
+}
+export function InheritedBpmSelector({ strategy, setStrategy, value, setValue }: InheritedBpmSelectorProps) {
+	const toggleStrategy = () => {
+		if (strategy === "Inherit") setStrategy("Custom")
+		else setStrategy("Inherit")
+	}
+
+	return <div style={{ display: "flex", flexDirection: "row", margin: "1em", justifyContent: "center"}}>
+		<button onClick={toggleStrategy}>{strategy} BPM</button>
+		{strategy === "Custom" && <BpmSelector value={value} setValue={setValue} />}
+	</div>
+}
+
 export const noteOptions = [
 	{ label: "C", value: Note.C },
 	{ label: "C#", value: Note.CSharp },

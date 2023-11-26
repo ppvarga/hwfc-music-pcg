@@ -10,6 +10,7 @@ import { OptionsPerCell } from "../OptionsPerCell"
 import { TileCanvasProps } from "../TileCanvas"
 import { ChordConstraintIR, NoteConstraintIR, convertIRToChordConstraint, convertIRToNoteConstraint } from "../constraints/constraintUtils"
 import { ChordPrototypeIR, Chordesque, ChordesqueIR, chordesqueIRMapToChordesqueMap } from "./Chordesque"
+import { parseChordPrototypes } from "../../components/Output"
 
 export interface Section {
     name: string
@@ -23,6 +24,8 @@ export interface Section {
     melodyKey: MusicalKey
     numChordsStrategy: LengthStrategy
     numChords: number
+    bpmStrategy: LengthStrategy
+    bpm: number
 }
 
 export const SectionInit = (id: number) => {
@@ -48,6 +51,8 @@ export const SectionInit = (id: number) => {
 		melodyLength: 4,
         numChordsStrategy: "Inherit" as LengthStrategy,
         numChords: 4,
+        bpmStrategy: "Inherit" as LengthStrategy,
+        bpm: 120,
 		rhythmPatternOptions: {
 			onlyStartOnNote: true,
 			minimumNumberOfNotes: 3,
@@ -71,6 +76,7 @@ export function nameOfSectionIR(sectionIR: SectionIR) {
 export function sectionIRToSection(
     sectionIR: SectionIR,
     chordPrototypes: ChordPrototypeIR[],
+    onlyUseChordPrototypes: boolean,
 ): Section {
     const noteCanvasProps: TileCanvasProps<OctavedNote> = {
         optionsPerCell: new OptionsPerCell(
@@ -83,9 +89,12 @@ export function sectionIRToSection(
             )
         )
         }
+    const {parsedChordPrototypes} = parseChordPrototypes(chordPrototypes)
     const chordesqueCanvasProps : TileCanvasProps<Chordesque> = {
-        optionsPerCell: new OptionsPerCell(
-            Chord.allBasicChords() as Chordesque[],
+        optionsPerCell: new OptionsPerCell([
+            ...parsedChordPrototypes,
+            ...(onlyUseChordPrototypes ? [] : Chord.allBasicChords()),
+        ],
             chordesqueIRMapToChordesqueMap(sectionIR.chordesqueCanvasProps.optionsPerCell, chordPrototypes)
         ),
         constraints: new ConstraintSet(
@@ -110,6 +119,7 @@ export function sectionIRMapToSectionMap(
 	sectionIRMap: InfiniteArray<SectionIR[]>,
     sections: SectionIR[],
 	chordPrototypes: ChordPrototypeIR[],
+    onlyUseChordPrototypes: boolean,
 ): InfiniteArray<Section[]> {
 	const sectionMap = new InfiniteArray<Section[]>()
 
@@ -123,7 +133,7 @@ export function sectionIRMapToSectionMap(
                     throw new Error(
                         `Section ${sectionIR.name} not found`,
                     )
-                return sectionIRToSection(section, chordPrototypes)
+                return sectionIRToSection(section, chordPrototypes, onlyUseChordPrototypes)
             }
 		)
 		sectionMap.set(position, sectionList)
