@@ -24,12 +24,10 @@ function App() {
 						<SectionTiles />
 					</div>
 					<div className="main-column">
-						<h2>Chords</h2>
 						<ChordTiles />
 						<ChordConstraints />
 					</div>
 					<div className="main-column">
-						<h2>Melody</h2>
 						<NoteTiles />
 						<NoteConstraints />
 					</div>
