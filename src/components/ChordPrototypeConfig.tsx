@@ -7,7 +7,7 @@ import { InfiniteArray } from "../wfc/InfiniteArray"
 import { NoteTiles } from "./NoteTiles"
 import { NoteConstraints } from "./NoteConstraints"
 import { buttonStyles, selectStyles } from "../styles"
-import { InheritedLengthSelector, MelodyKeySelector, melodyKeyTypeToOption } from "./GlobalSettings"
+import { InheritedBpmSelector, InheritedLengthSelector, MelodyKeySelector, melodyKeyTypeToOption } from "./GlobalSettings"
 import { ChordIR, ChordQuality} from "../music_theory/Chord"
 import Select from "react-select"
 import { ConstantNoteSelector } from "./ConstantNoteSelector"
@@ -38,6 +38,18 @@ export function ChordPrototypeConfig({ prototype, removePrototype, onUpdate }: C
 	}
 
 	const [chordValue, setChordValue] = useState(prototype.chord)
+
+	const [bpmStrategy, tempSetBpmStrategy] = useState(prototype.bpmStrategy)
+	const setBpmStrategy = (newBpmStrategy: ChordPrototypeIR["bpmStrategy"]) => {
+		tempSetBpmStrategy(newBpmStrategy)
+		onUpdate({ bpmStrategy: newBpmStrategy })
+	}
+
+	const [bpm, tempSetBpm] = useState(prototype.bpm)
+	const setBpm = (newBpm: number) => {
+		tempSetBpm(newBpm)
+		onUpdate({ bpm: newBpm })
+	}
 
 	const [rhythmStrategy, tempSetRhythmStrategy] = useState(prototype.rhythmStrategy)
 	const setRhythmStrategy = (newRhythmStrategy: ChordPrototypeIR["rhythmStrategy"]) => {
@@ -137,6 +149,11 @@ export function ChordPrototypeConfig({ prototype, removePrototype, onUpdate }: C
 		setMelodyKeyRoot,
 		melodyKeyType,
 		setMelodyKeyType,
+
+		bpmStrategy,
+		setBpmStrategy,
+		bpm,
+		setBpm,
 	}
 
 	return <ChordPrototypeProvider env={env}>
@@ -168,7 +185,9 @@ export function ChordPrototypeConfig({ prototype, removePrototype, onUpdate }: C
 		</div>
 		<div style={{ display: "flex", gap: "1em" }}>
 			<div style={{ flex: 1 }}>
+				<InheritedBpmSelector strategy={bpmStrategy} setStrategy={setBpmStrategy} value={bpm} setValue={setBpm} />
 				<MelodyKeySelector />
+				
 				<InheritedLengthSelector  strategy={melodyLengthStrategy} setStrategy={setMelodyLengthStrategy} name="melody length" value={melodyLength} setValue={setMelodyLength}/>
 				<NoteTiles />
 				<InheritedRhythmSettings strategy={rhythmStrategy} setStrategy={setRhythmStrategy} />

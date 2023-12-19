@@ -3,14 +3,12 @@ import { OctavedNote } from "../music_theory/Note"
 import {
 	ChordResult,
 	ChordResultWithRhythm,
-	SectionResult,
-	SectionResultWithRhythm,
 } from "../wfc/hierarchy/results"
 import { Chord } from "../music_theory/Chord"
 import { durationOfRhythmPattern } from "../music_theory/Rhythm"
 import { NoteOutput } from "../components/MidiPlayer"
 
-const NOTE_DURATION = 0.5
+const baseDuration = (bpm: number) =>  60 / bpm
 
 function noteToPitch(note: OctavedNote): Pitch {
 	return `${note.getNote()}${note.getOctave()}`
@@ -145,28 +143,6 @@ export function chordResultsWithRhythmToMidi(
 	finishMidi([chordTrack, noteTrack], setSrc)
 }
 
-export function sectionResultToMidi(
-	sectionResult: SectionResult,
-	setSrc: (url: string) => void,
-) {
-	const chordTrack = new MidiWriter.Track()
-	const noteTrack = new MidiWriter.Track()
-
-	sectionResult.forEach((chordResult) => {
-		chordToMidi(chordResult.chord, chordResult.notes.length, chordTrack)
-
-		noteTrack.addEvent(
-			new MidiWriter.NoteEvent({
-				pitch: chordResult.notes.map(noteToPitch),
-				duration: "4",
-				sequential: true,
-			}),
-		)
-	})
-
-	finishMidi([chordTrack, noteTrack], setSrc)
-}
-
 function chordToNoteOutput(
 	chord: Chord,
 	startTime: number,
@@ -193,20 +169,21 @@ function chordToNoteOutput(
 
 export function chordResultToOutput(
 	chordResult: ChordResult,
-	offset = 0,
+	bpm: number,
+	offset: number,
 ): [NoteOutput[], number] {
 	let time = offset
 	const out: NoteOutput[] = []
 	chordResult.notes.forEach((octavedNote) => {
-		out.push({ octavedNote, startTime: time, duration: NOTE_DURATION })
-		time += NOTE_DURATION
+		out.push({ octavedNote, startTime: time, duration: baseDuration(bpm) })
+		time += baseDuration(bpm)
 	})
 
 	out.push(
 		...chordToNoteOutput(
 			chordResult.chord,
 			offset,
-			chordResult.notes.length * NOTE_DURATION,
+			chordResult.notes.length * baseDuration(bpm),
 		),
 	)
 	return [out, time]
@@ -214,7 +191,8 @@ export function chordResultToOutput(
 
 export function chordResultWithRhythmToOutput(
 	chordResultWithRhythm: ChordResultWithRhythm,
-	offset = 0,
+	bpm: number,
+	offset: number,
 ): [NoteOutput[], number] {
 	let time = offset
 	let noteIndex = 0
@@ -224,10 +202,10 @@ export function chordResultWithRhythmToOutput(
 			out.push({
 				octavedNote: chordResultWithRhythm.notes[noteIndex++],
 				startTime: time,
-				duration: unit.duration * NOTE_DURATION,
+				duration: unit.duration * baseDuration(bpm),
 			})
 		}
-		time += unit.duration * NOTE_DURATION
+		time += unit.duration * baseDuration(bpm)
 	})
 
 	out.push(
@@ -235,41 +213,9 @@ export function chordResultWithRhythmToOutput(
 			chordResultWithRhythm.chord,
 			offset,
 			durationOfRhythmPattern(chordResultWithRhythm.rhythmPattern) *
-				NOTE_DURATION,
+				baseDuration(bpm),
 		),
 	)
 	return [out, time]
 }
 
-export function sectionResultToOutput(
-	sectionResult: SectionResult,
-	offset = 0,
-): [NoteOutput[], number] {
-	let time = offset
-	const out: NoteOutput[] = []
-	sectionResult.forEach((chordResult) => {
-		const [noteOutputs, newTime] = chordResultToOutput(chordResult, time)
-		out.push(...noteOutputs)
-		time = newTime
-	})
-
-	return [out, time]
-}
-
-export function sectionResultWithRhythmToOutput(
-	sectionResultWithRhythm: SectionResultWithRhythm,
-	offset = 0,
-): [NoteOutput[], number] {
-	let time = offset
-	const out: NoteOutput[] = []
-	sectionResultWithRhythm.forEach((chordResultWithRhythm) => {
-		const [noteOutputs, newTime] = chordResultWithRhythmToOutput(
-			chordResultWithRhythm,
-			time,
-		)
-		out.push(...noteOutputs)
-		time = newTime
-	})
-
-	return [out, time]
-}

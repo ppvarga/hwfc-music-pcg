@@ -10,8 +10,9 @@ import { OptionsPerCell } from "../OptionsPerCell"
 import { TileCanvasProps } from "../TileCanvas"
 import { ChordConstraintIR, NoteConstraintIR, convertIRToChordConstraint, convertIRToNoteConstraint } from "../constraints/constraintUtils"
 import { ChordPrototypeIR, Chordesque, ChordesqueIR, chordesqueIRMapToChordesqueMap } from "./Chordesque"
+import { parseChordPrototypes } from "../../components/Output"
 
-interface SectionProps {
+export interface Section {
     name: string
     noteCanvasProps: TileCanvasProps<OctavedNote>
     chordesqueCanvasProps: TileCanvasProps<Chordesque>
@@ -23,90 +24,8 @@ interface SectionProps {
     melodyKey: MusicalKey
     numChordsStrategy: LengthStrategy
     numChords: number
-}
-
-export class Section {
-	private name: string
-	private noteCanvasProps: TileCanvasProps<OctavedNote>
-	private chordesqueCanvasProps: TileCanvasProps<Chordesque>
-	private rhythmPatternOptions: RhythmPatternOptions
-    private melodyLength: number
-    private melodyLengthStrategy: LengthStrategy
-    private rhythmStrategy: RhythmStrategy
-    private useDifferentMelodyKey: boolean
-    private melodyKey: MusicalKey
-    private numChordsStrategy: LengthStrategy
-    private numChords: number
-
-	constructor({
-        name,
-        noteCanvasProps,
-        chordesqueCanvasProps,
-        rhythmPatternOptions,
-        melodyLength,
-        melodyLengthStrategy,
-        rhythmStrategy,
-        useDifferentMelodyKey,
-        melodyKey,
-        numChordsStrategy,
-        numChords,
-    }: SectionProps) {
-        this.name = name
-        this.noteCanvasProps = noteCanvasProps
-        this.chordesqueCanvasProps = chordesqueCanvasProps
-        this.rhythmPatternOptions = rhythmPatternOptions
-        this.melodyLength = melodyLength
-        this.melodyLengthStrategy = melodyLengthStrategy
-        this.rhythmStrategy = rhythmStrategy
-        this.useDifferentMelodyKey = useDifferentMelodyKey
-        this.melodyKey = melodyKey
-        this.numChordsStrategy = numChordsStrategy
-        this.numChords = numChords
-    }
-
-	getNoteCanvasProps() {
-		return this.noteCanvasProps
-	}
-
-	getChordesqueCanvasProps() {
-		return this.chordesqueCanvasProps
-	}
-
-	getRhythmPatternOptions() {
-		return this.rhythmPatternOptions
-	}
-
-	getName() {
-		return this.name
-	}
-
-    getMelodyLength() {
-        return this.melodyLength
-    }
-
-    getMelodyLengthStrategy() {
-        return this.melodyLengthStrategy
-    }
-
-    getRhythmStrategy() {
-        return this.rhythmStrategy
-    }
-
-    getUseDifferentMelodyKey() {
-        return this.useDifferentMelodyKey
-    }
-
-    getMelodyKey() {
-        return this.melodyKey
-    }
-
-    getNumChordsStrategy() {
-        return this.numChordsStrategy
-    }
-
-    getNumChords() {
-        return this.numChords
-    }
+    bpmStrategy: LengthStrategy
+    bpm: number
 }
 
 export const SectionInit = (id: number) => {
@@ -132,6 +51,8 @@ export const SectionInit = (id: number) => {
 		melodyLength: 4,
         numChordsStrategy: "Inherit" as LengthStrategy,
         numChords: 4,
+        bpmStrategy: "Inherit" as LengthStrategy,
+        bpm: 120,
 		rhythmPatternOptions: {
 			onlyStartOnNote: true,
 			minimumNumberOfNotes: 3,
@@ -155,33 +76,35 @@ export function nameOfSectionIR(sectionIR: SectionIR) {
 export function sectionIRToSection(
     sectionIR: SectionIR,
     chordPrototypes: ChordPrototypeIR[],
+    onlyUseChordPrototypes: boolean,
 ): Section {
-    const noteCanvasProps = new TileCanvasProps(
-        sectionIR.noteCanvasProps.size,
-        new OptionsPerCell(
+    const noteCanvasProps: TileCanvasProps<OctavedNote> = {
+        optionsPerCell: new OptionsPerCell(
             OctavedNote.all(),
             sectionIR.noteCanvasProps.optionsPerCell.transform(OctavedNote.multipleFromIRs),
         ),
-        new ConstraintSet(
+        constraints: new ConstraintSet(
             sectionIR.noteCanvasProps.constraints.map((noteConstraint) =>
                 convertIRToNoteConstraint(noteConstraint)
             )
         )
-    )
-    const chordesqueCanvasProps = new TileCanvasProps(
-        sectionIR.chordesqueCanvasProps.size,
-        new OptionsPerCell(
-            Chord.allBasicChords() as Chordesque[],
+        }
+    const {parsedChordPrototypes} = parseChordPrototypes(chordPrototypes)
+    const chordesqueCanvasProps : TileCanvasProps<Chordesque> = {
+        optionsPerCell: new OptionsPerCell([
+            ...parsedChordPrototypes,
+            ...(onlyUseChordPrototypes ? [] : Chord.allBasicChords()),
+        ],
             chordesqueIRMapToChordesqueMap(sectionIR.chordesqueCanvasProps.optionsPerCell, chordPrototypes)
         ),
-        new ConstraintSet(
+        constraints: new ConstraintSet(
             sectionIR.chordesqueCanvasProps.constraints.map((chordConstraint) =>
                 convertIRToChordConstraint(chordConstraint)
             )
         )
-    )
+        }
 
-    return new Section({
+    return {
         ...sectionIR,
         noteCanvasProps,
         chordesqueCanvasProps,
@@ -189,13 +112,14 @@ export function sectionIRToSection(
             sectionIR.melodyKeyRoot,
             sectionIR.melodyKeyType,
         ),
-    })
+    }
 }
 
 export function sectionIRMapToSectionMap(
 	sectionIRMap: InfiniteArray<SectionIR[]>,
     sections: SectionIR[],
 	chordPrototypes: ChordPrototypeIR[],
+    onlyUseChordPrototypes: boolean,
 ): InfiniteArray<Section[]> {
 	const sectionMap = new InfiniteArray<Section[]>()
 
@@ -209,7 +133,7 @@ export function sectionIRMapToSectionMap(
                     throw new Error(
                         `Section ${sectionIR.name} not found`,
                     )
-                return sectionIRToSection(section, chordPrototypes)
+                return sectionIRToSection(section, chordPrototypes, onlyUseChordPrototypes)
             }
 		)
 		sectionMap.set(position, sectionList)

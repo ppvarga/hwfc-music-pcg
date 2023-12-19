@@ -1,5 +1,5 @@
 import { OctavedNote } from "../../music_theory/Note"
-import { constantGrabber } from "../grabbers/constantGrabbers"
+import { constantMelodyShapeGrabber, constantNumberArrayGrabber, constantOctavedNoteGrabber } from "../grabbers/constantGrabbers"
 import { Chordesque } from "../hierarchy/Chordesque"
 import {
 	AscendingMelodySoftConstraint,
@@ -62,6 +62,7 @@ import {
 } from "./cadences/PlagalCadenceSoftConstraint"
 import { Constraint } from "./concepts/Constraint"
 import { HigherValues } from "../HigherValues"
+import { noteGrabberIRToGrabber } from "../grabbers/noteGrabbers"
 
 export type ChordConstraintIR =
 	| ChordInKeyHardConstraintIR
@@ -82,44 +83,52 @@ export type NoteConstraintIR =
 export type ChordConstraintType = ChordConstraintIR["type"]
 export type NoteConstraintType = NoteConstraintIR["type"]
 
-const chordConstraintTypesAndNames = [
-	["ChordInKeyHardConstraint", "Chord in Key"],
-	[
-		"ChordRootAbsoluteStepSizeHardConstraint",
-		"Chord root absolute step size",
-	],
-	["PlagalCadenceSoftConstraint", "Plagal Cadence"],
-	["PerfectCadenceSoftConstraint", "Perfect Cadence"],
+const chordConstraintTypesNamesHints = [
+	["ChordInKeyHardConstraint", "Chord in Key", ""],
+	["ChordRootAbsoluteStepSizeHardConstraint", "Chord root absolute step size", "Restricts the possible root notes of chords to those that are a certain number of steps away from the previous root note."],
+	["PlagalCadenceSoftConstraint", "Plagal Cadence", "Makes plagal cadences (IV-I) within the key more likely. The probability of a plagal cadence is multiplied by the boost factor, relative to all other chord changes."],
+	["PerfectCadenceSoftConstraint", "Perfect Cadence", "Makes perfect cadences (V-I) within the key more likely. The probability of a perfect cadence is multiplied by the boost factor, relative to all other chord changes."],
 ] as const
 
-type ChordConstraintName = (typeof chordConstraintTypesAndNames)[number][1]
+type ChordConstraintName = (typeof chordConstraintTypesNamesHints)[number][1]
+type ChordConstraintHint = (typeof chordConstraintTypesNamesHints)[number][2]
+type ChordConstraintReadable = {
+	name: ChordConstraintName
+	hint: ChordConstraintHint
+}
 
 export const chordConstraintTypeToName = new Map<
 	ChordConstraintType,
-	ChordConstraintName
->(chordConstraintTypesAndNames)
+	ChordConstraintReadable
+>(chordConstraintTypesNamesHints.map(([value, name, hint]) => [value, { name, hint }]))
 
 export const chordConstraintOptions = Array.from(
 	chordConstraintTypeToName.entries(),
 ).map(([value, label]) => ({ value, label }))
 
-const noteConstraintTypesAndNames = [
-	["MelodyInKeyHardConstraint", "Melody in Key"],
-	["MelodyAbsoluteStepSizeHardConstraint", "Melody absolute step size"],
-	["AscendingMelodySoftConstraint", "Ascending Melody"],
-	["DescendingMelodySoftConstraint", "Descending Melody"],
-	["MelodyEndsOnNoteHardConstraint", "Melody ends on note"],
-	["MelodyStartsOnNoteHardConstraint", "Melody starts on note"],
-	["MelodyInRangeHardConstraint", "Melody in range"],
-	["MelodyShapeHardConstraint", "Melody shape"],
+const noteConstraintTypesNamesHints = [
+	["MelodyInKeyHardConstraint", "Melody in Key", ""],
+	["MelodyAbsoluteStepSizeHardConstraint", "Melody absolute step size", "Restricts the possible notes of the melody to those that are a certain number of steps away from the previous note. Enter a space-separated list of numbers."],
+	["AscendingMelodySoftConstraint", "Ascending Melody", "Makes ascending melodies more likely. The probability of an ascending step is multiplied by the boost factor, relative to all other steps."],
+	["DescendingMelodySoftConstraint", "Descending Melody", "Makes descending melodies more likely. The probability of a descending step is multiplied by the boost factor, relative to all other steps."],
+	["MelodyEndsOnNoteHardConstraint", "Melody ends on note", "The melody piece within a chord ends on a specific note."],
+	["MelodyStartsOnNoteHardConstraint", "Melody starts on note", "The melody piece within a chord starts on a specific note."],
+	["MelodyInRangeHardConstraint", "Melody in range", "The melody piece within a chord is within the specified range, including both boundaries."],
+	["MelodyShapeHardConstraint", "Melody shape", ""],
 ] as const
 
-type NoteConstraintName = (typeof noteConstraintTypesAndNames)[number][1]
+type NoteConstraintName = (typeof noteConstraintTypesNamesHints)[number][1]
+type NoteConstraintHint = (typeof noteConstraintTypesNamesHints)[number][2]
+type NoteConstraintReadable = {
+	name: NoteConstraintName
+	hint: NoteConstraintHint
+}
+
 
 export const noteConstraintTypeToName = new Map<
 	NoteConstraintType,
-	NoteConstraintName
->(noteConstraintTypesAndNames)
+	NoteConstraintReadable
+>(noteConstraintTypesNamesHints.map(([value, name, hint]) => [value, { name, hint }]))
 
 export const noteConstraintOptions = Array.from(
 	noteConstraintTypeToName.entries(),
@@ -128,13 +137,13 @@ export const noteConstraintOptions = Array.from(
 export const convertIRToChordConstraint = (
 	ir: ChordConstraintIR,
 ): Constraint<Chordesque> => {
-	const keyGrabber = (higherValues: HigherValues) => higherValues.getKey()
+	const keyGrabber = (higherValues: HigherValues) => higherValues.key
 	switch (ir.type) {
 		case "ChordInKeyHardConstraint":
 			return new ChordInKeyHardConstraint(keyGrabber)
 		case "ChordRootAbsoluteStepSizeHardConstraint":
 			return new ChordRootAbsoluteStepSizeHardConstraint(
-				constantGrabber(new Set(ir.stepSizes)),
+				constantNumberArrayGrabber(ir.stepSizes),
 			)
 		case "PlagalCadenceSoftConstraint":
 			return new PlagalCadenceSoftConstraint(ir.bonus, keyGrabber)
@@ -149,27 +158,27 @@ export const convertIRToNoteConstraint = (
 	switch (ir.type) {
 		case "MelodyInKeyHardConstraint":
 			return new MelodyInKeyHardConstraint((higherValues: HigherValues) =>
-				higherValues.getKey(),
+				higherValues.melodyKey,
 			)
 		case "MelodyAbsoluteStepSizeHardConstraint":
 			return new MelodyAbsoluteStepSizeHardConstraint(
-				constantGrabber(new Set(ir.stepSizes)),
+				constantNumberArrayGrabber(ir.stepSizes),
 			)
 		case "AscendingMelodySoftConstraint":
 			return new AscendingMelodySoftConstraint(ir.bonus)
 		case "DescendingMelodySoftConstraint":
 			return new DescendingMelodySoftConstraint(ir.bonus)
 		case "MelodyEndsOnNoteHardConstraint":
-			return new MelodyEndsOnNoteHardConstraint(ir.noteGrabber)
+			return new MelodyEndsOnNoteHardConstraint(noteGrabberIRToGrabber(ir.noteGrabber))
 		case "MelodyStartsOnNoteHardConstraint":
-			return new MelodyStartsOnNoteHardConstraint(ir.noteGrabber)
+			return new MelodyStartsOnNoteHardConstraint(noteGrabberIRToGrabber(ir.noteGrabber))
 		case "MelodyInRangeHardConstraint":
 			return new MelodyInRangeHardConstraint(
-				constantGrabber(OctavedNote.fromIR(ir.lowerNoteIR)),
-				constantGrabber(OctavedNote.fromIR(ir.higherNoteIR)),
+				constantOctavedNoteGrabber(OctavedNote.fromIR(ir.lowerNoteIR)),
+				constantOctavedNoteGrabber(OctavedNote.fromIR(ir.higherNoteIR)),
 			)
 		case "MelodyShapeHardConstraint":
-			return new MelodyShapeHardConstraint(constantGrabber(ir.shape))
+			return new MelodyShapeHardConstraint(constantMelodyShapeGrabber(ir.shape))
 	}
 }
 

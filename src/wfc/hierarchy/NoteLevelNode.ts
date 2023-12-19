@@ -12,6 +12,7 @@ export class NoteLevelNode {
 		random: Random,
 	) {
 		this.canvas = new TileCanvas<OctavedNote>(
+			higherValues.melodyLength,
 			canvasProps,
 			higherValues,
 			random,

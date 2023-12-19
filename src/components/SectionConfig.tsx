@@ -6,7 +6,7 @@ import { InfiniteArray } from "../wfc/InfiniteArray"
 import { NoteTiles } from "./NoteTiles"
 import { NoteConstraints } from "./NoteConstraints"
 import { buttonStyles,} from "../styles"
-import { InheritedLengthSelector, KeySelector, MelodyKeySelector, melodyKeyTypeToOption } from "./GlobalSettings"
+import { InheritedBpmSelector, InheritedLengthSelector, KeySelector, MelodyKeySelector, melodyKeyTypeToOption } from "./GlobalSettings"
 import { SelectKeyTypeOption,} from "./utils"
 import { InheritedRhythmSettings } from "./RhythmSettings"
 import { SectionIR } from "../wfc/hierarchy/Section"
@@ -58,6 +58,17 @@ export function SectionConfig({ section, removeSection, onUpdate }: SectionConfi
 	const setNumChords = (newNumChords: number) => {
 		tempSetNumChords(newNumChords)
 		onUpdate({ numChords: newNumChords })
+	}
+
+	const [bpmStrategy, tempSetBpmStrategy] = useState(section.bpmStrategy)
+	const setBpmStrategy = (newBpmStrategy: SectionIR["bpmStrategy"]) => {
+		tempSetBpmStrategy(newBpmStrategy)
+		onUpdate({ bpmStrategy: newBpmStrategy })
+	}
+	const [bpm, tempSetBpm] = useState(section.bpm)
+	const setBpm = (newBpm: number) => {
+		tempSetBpm(newBpm)
+		onUpdate({ bpm: newBpm })
 	}
 
 	const [rhythmStrategy, tempSetRhythmStrategy] = useState(section.rhythmStrategy)
@@ -200,6 +211,11 @@ export function SectionConfig({ section, removeSection, onUpdate }: SectionConfi
 		addChordConstraint,
 		removeChordConstraint,
 		handleChordConstraintChange,
+
+		bpmStrategy,
+		setBpmStrategy,
+		bpm,
+		setBpm,
 	}
 
 	return <SectionProvider env={env}>
@@ -226,6 +242,7 @@ export function SectionConfig({ section, removeSection, onUpdate }: SectionConfi
 			<div style={{ flex: 1 }}>
 				<KeySelector useDifferentKey={useDifferentKey} setUseDifferentKey={setUseDifferentKey}/>
 				<MelodyKeySelector />
+				<InheritedBpmSelector strategy={bpmStrategy} setStrategy={setBpmStrategy} value={bpm} setValue={setBpm}/>
 				<InheritedLengthSelector strategy={numChordsStrategy} setStrategy={setNumChordsStrategy} name="number of chords" value={numChords} setValue={setNumChords}/>
 				<InheritedLengthSelector  strategy={melodyLengthStrategy} setStrategy={setMelodyLengthStrategy} name="melody length" value={melodyLength} setValue={setMelodyLength}/>
 				<InheritedRhythmSettings strategy={rhythmStrategy} setStrategy={setRhythmStrategy} />
