@@ -1,105 +1,67 @@
-# Audio WFC
+# Read me right now
 
-HP Patrik Varga - 2022-23
+Hey! I'm so glad you made it. Welcome to this hell of a repository, for the official _ppvarga_ Honours Project as well as our Research Project.
 
-## Getting started
+In the following, I will be assuming that you understand the conceptual background of the project, regarding a rudimentary understanding of music theory and the WFC algorithm.
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+# Running the app
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+This application is written in TypeScript with React, and it is deployed using Vite (pronounced "veet" - I will get upset if you don't pronounce it like that). 
 
-## Add your files
+For managing dependencies, make sure you have Node.js and npm installed, you can check this with `node -v` and `npm -v`
 
--   [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
--   [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+Now, you can run `npm install` to install the libraries that this project depends on.
 
-```
-cd existing_repo
-git remote add origin https://gitlab.ewi.tudelft.nl/rbidarra/audio-wfc.git
-git branch -M main
-git push -uf origin main
-```
+To run the app locally, use the command `npx vite` or `npm run dev`, both should achieve the same thing. This will also give you a URL on localhost, which now hosts your application. Any time you save a file in the project, it updates automatically! :)
 
-## Integrate with your tools
+# Project structure
 
--   [ ] [Set up project integrations](https://gitlab.ewi.tudelft.nl/rbidarra/audio-wfc/-/settings/integrations)
+If anything in the code behaves unexpectedly or you get stuck, don't hesitate to reach out! A lot of this code has ben patched together as I went, so it is natural that there are some unintuitive parts. If I did it in a weird way, either I had a good reason for it, or I wasn't smart enough to do it better. Either way, mainly for your own sanity, please don't introduce any structural changes before talking to me.
 
-## Collaborate with your team
+The base directory contains some meta stuff, I doubt you will have to change any of it. If you have any images or similar universal-access files, you should put them into the `public` directory. 
 
--   [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
--   [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
--   [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
--   [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
--   [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+## The `src` directory
 
-## Test and Deploy
+`App.tsx` contains the general layout of the app. You shouldn't define any components in here, you should do that in the `components` directory :0
 
-Use the built-in continuous integration in GitLab.
+`AppState.tsx` is responsible for storing and managing the state of the GUI and conversely, the state of the editor. If you want to introduce a new parameter, you should:
+- add its signature to the `PassiveAppState` interface 
+- in the body of the `AppState` function:
+    - create a variable and a temporary setter callback for it with `useState` 
+    - create an actual setter function from the temporary one (this is necessary for nice type signature compatibility)
+    - add it to the `updateState` function
+    - add both the variable and the setter callback to the return object
+- if the parameter is relevant in chord prototypes and sections, put it (only!) into the `ChordPrototypeEnvironment` type. If it's not relevant in chord prototypes but it is in sections, put it into the `SectionEnvironment` type.
+- if there are some easy checks for whether the value of this parameter is 'valid', please add them into the `errorsInAppState` function.
 
--   [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
--   [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
--   [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
--   [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
--   [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+Now, you can use these parameters by calling the `useAppState` function in your component and taking the relevant parameters from the massive object that it returns. See the `components` directory for example usage.
 
----
+The rest of the files in the base of the `src` directory aren't too relevant. Let's break down the subdirectories!
 
-# Editing this README
+### The `audio` subdirectory
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
+This one should contain everything that has to do with going from the canvas representation to other, more commonly used audio representations (MIDI, mp3, etc.) and vice versa (looking at you, Chaan!)
 
-## Suggestions for a good README
+For now, it only has a single file which is a bit messy, the library I found for building MIDI files is surprisingly difficult to use, let me know if you have any issues with it.
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+### The `components`  subdirectory
 
-## Name
+Here you can find all you GUI components, in `.tsx` files. If you're not super comfortable with React yet, no issue, just play around with the existing components and you'll get the hang of it in no time!
 
-Choose a self-explaining name for your project.
+Try and reuse components as much as you can, and write ones which are reusable in more generic contexts.
 
-## Description
+### The `music_theory` subdirectory
 
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+This is where all of the music theory is provided for the internal logic of the constraints. Cool stuff, I'm proud of it.
 
-## Badges
+### The `util`  subdirectory
 
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+Just a dump for miscallenious code that seems a bit too generic to put into any other subdirectory.
 
-## Visuals
+### The `wfc`  subdirectory
 
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+This is where the model resides. This is probably where we will spend most of our time in the live rundown, but afterwards it should be clear (also, I'm sorry, I don't really feel like writing everything out in here, I think telling you about it in person is way more efficient).
 
-## Installation
+# This is it, I guess
 
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-
-Show your appreciation to those who have contributed to the project.
-
-## License
-
-For open source projects, say how it is licensed.
-
-## Project status
-
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+hell yea
