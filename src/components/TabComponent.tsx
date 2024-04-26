@@ -31,7 +31,7 @@ const TabComponent: React.FC<TabComponentProps> = ({ tabs }) => {
 			</div>
 
 			<div>
-				{{ ...tabs[activeTabIndex].content, key: activeTabIndex }}
+				{{ ...tabs[activeTabIndex].content, key: activeTabIndex.toString() }}
 			</div>
 		</div>
 	)
