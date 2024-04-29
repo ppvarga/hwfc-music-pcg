@@ -21,6 +21,12 @@ const optionsToWeighedOptions = <T>(options: Set<T>): Set<[T, number]> => {
 	return new Set([...options].map((option: T) => [option, 1]))
 }
 
+type Decision<T> = {
+	index : number
+	value : T
+	oldState : Tile<T>[]
+}
+
 export class TileCanvas<T> {
 	private size: number
 	private collapsed: number
@@ -29,6 +35,7 @@ export class TileCanvas<T> {
 	private random: Random
 	private higherValues: HigherValues
 	private constraints: ConstraintSet<T>
+	private decisions: Decision<T>[]
 
 	public getSize(): number {
 		return this.size
@@ -49,6 +56,7 @@ export class TileCanvas<T> {
 		this.random = random
 		this.higherValues = higherValues
 		this.constraints = props.constraints
+		this.decisions = []
 
 		this.tiles = [this.createTile(optionsPerCell, 0)]
 
@@ -97,6 +105,10 @@ export class TileCanvas<T> {
 		return ++this.collapsed
 	}
 
+	public retractOne(): number {
+		return --this.collapsed
+	}
+
 	public addTileOption(tile: Tile<T>) {
 		this.pq.add(tile)
 	}
@@ -105,11 +117,39 @@ export class TileCanvas<T> {
 		return this.random
 	}
 
-	public collapseNext(): Tile<T> {
+	public collapseNext() {
 		if (this.collapsed >= this.size) throw new Error("Nothing to collapse")
 		const tileToCollapse = this.pq.poll()
-		tileToCollapse.collapse()
-		return tileToCollapse
+
+		var numOptions = tileToCollapse.getNumOptions()
+
+		while(numOptions > 0){
+			const value = tileToCollapse.chooseValue()
+			if (value === undefined) {
+				this.backtrack()
+				return
+			}
+			if (tileToCollapse.collapse(value)){
+				this.decisions.push({
+					index: tileToCollapse.getPosition(),
+					value: tileToCollapse.getValue(),
+					oldState: this.tiles.map(t => t.clone())
+				})
+				break
+			}
+			numOptions--
+		}
+		if(numOptions == 0) this.backtrack()
+
+		return
+	}
+
+	private backtrack() {
+		const decision = this.decisions.pop()
+		if(decision === undefined) throw new Error("You've run out of options :(")
+		this.tiles = decision.oldState
+		this.tiles[decision.index].removeValue(decision.value)
+		this.retractOne()
 	}
 
 	public generate(): T[] {

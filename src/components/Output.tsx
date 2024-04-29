@@ -115,8 +115,6 @@ export function Output() {
 			const {parsedChordPrototypes, chordPrototypeConstraints} = parseChordPrototypes(chordPrototypes)
 			const [parsedSections, sectionConstraints] = parseSections()
 
-			console.log(numChords)
-
 			const chordesqueCanvasProps: TileCanvasProps<Chordesque> = {
 				optionsPerCell: new OptionsPerCell([
 					...parsedChordPrototypes,
@@ -153,8 +151,6 @@ export function Output() {
 				},
 				
 			})
-
-			console.log(node)
 
 			setOutput(node.generate())
 		} catch (e) {

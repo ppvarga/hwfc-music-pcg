@@ -8,6 +8,15 @@ export interface TileProps<T> {
 	next?: Tile<T>
 }
 
+function getItemFromSet<T>(set: Set<T>, predicate: (item: T) => boolean): T | undefined {
+    for (const item of set) {
+        if (predicate(item)) {
+            return item;
+        }
+    }
+    return undefined; // Return undefined if no item matches the predicate
+}
+
 export class Tile<T> {
 	private prev!: Tile<T>
 	private next!: Tile<T>
@@ -33,6 +42,17 @@ export class Tile<T> {
 		}
 		this.prev = props.prev!
 		this.next = props.next!
+	}
+
+	public clone(): Tile<T> {
+		const newStatus = this.status instanceof Set ? new Set(this.status) : this.status
+		return new Tile({
+			status: newStatus,
+			position: this.position,
+			canvas: this.canvas,
+			prev: this.prev,
+			next: this.next
+		})
 	}
 
 	public setPrev(prev: Tile<T>): void {
@@ -92,9 +112,11 @@ export class Tile<T> {
 		})
 
 		if (out === 0) {
-			throw new Error("No valid options left")
+			throw new ConflictError()
 		} else if (out === 1) {
-			this.finishCollapse(newOptionWeights[0][0])
+			if (!this.collapse(newOptionWeights[0][0])){
+				throw new ConflictError()
+			}
 			return 1
 		}
 
@@ -116,12 +138,33 @@ export class Tile<T> {
 		return out
 	}
 
-	private finishCollapse(value: T): void {
+	// returns whether it was a successful collapse
+	public collapse(value: T): boolean {
+		if(! (this.status instanceof Set)) throw new Error("Already collapsed, bozo")
+ 		const oldStatus = this.status
 		this.status = value
 		this.canvas.collapseOne()
 		this.collapsed = true
-		this.next.updateOptions()
-		this.prev.updateOptions()
+		try {
+			this.next.updateOptions()
+			this.prev.updateOptions()
+		} catch (e) {
+			if(! (e instanceof ConflictError)) throw e
+			this.collapsed = false
+			this.canvas.retractOne()
+			this.status = oldStatus
+			this.removeValue(value)
+
+			return false
+		}
+		return true
+	}
+
+	public removeValue(value: T) {
+		if(!(this.status instanceof Set)) throw new Error("Can't remove from non-set status")
+		const valuePair = getItemFromSet(this.status, t => t[0] == value)
+		if (valuePair === undefined) throw new Error("This wasn't in the set")
+		this.status.delete(valuePair)
 	}
 
 	public getNumOptions(): number {
@@ -136,9 +179,8 @@ export class Tile<T> {
 		return this.collapsed
 	}
 
-	public collapse(): void {
-		if (!(this.status instanceof Set)) return
-		const options = [...(this.status as Set<[T, number]>)]
+	public chooseValue(): T | undefined {
+		const options = Array.from(this.status as Set<[T, number]>)
 		const totalWeight = options.reduce(
 			(acc, [_, weight]) => acc + weight,
 			0,
@@ -153,8 +195,7 @@ export class Tile<T> {
 				break
 			}
 		}
-		if (out === undefined) throw new Error("No valid options left")
-		this.finishCollapse(out)
+		return out
 	}
 
 	public getValue(): T {
@@ -168,5 +209,11 @@ export class Tile<T> {
 
 	public getCanvas(): TileCanvas<T> {
 		return this.canvas
+	}
+}
+
+export class ConflictError extends Error{
+	constructor() {
+		super("No valid options left")
 	}
 }
