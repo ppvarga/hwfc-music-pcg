@@ -1,7 +1,8 @@
 import { Random } from "../util/Random"
+import { Equatable } from "../util/utils"
 import { Tile } from "./Tile"
 
-export class TileSelector<T> {
+export class TileSelector<T extends Equatable> {
 	private pq: [number, Tile<T>][] = []
 	private random: Random
 

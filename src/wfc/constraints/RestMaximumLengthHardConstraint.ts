@@ -24,7 +24,7 @@ export class RestMaximumLengthHardConstraint
 
 	check(tile: Tile<RhythmPattern>, _higherValues: HigherValues): boolean {
 		const rhythmPattern = tile.getValue()
-		return !rhythmPattern.some(
+		return !rhythmPattern.getUnits().some(
 			(note) => note.type == "rest" && note.duration > this.maximumLength,
 		)
 	}

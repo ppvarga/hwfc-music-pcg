@@ -82,7 +82,7 @@ export function chordResultWithRhythmToMidi(
 
 	let wait = 0
 	let noteIndex = 0
-	chordResultWithRhythm.rhythmPattern.forEach((unit) => {
+	chordResultWithRhythm.rhythmPattern.getUnits().forEach((unit) => {
 		if (unit.type == "note") {
 			noteTrack.addEvent(
 				new MidiWriter.NoteEvent({
@@ -120,7 +120,7 @@ export function chordResultsWithRhythmToMidi(
 		)
 
 		let noteIndex = 0
-		chordResultWithRhythm.rhythmPattern.forEach((unit) => {
+		chordResultWithRhythm.rhythmPattern.getUnits().forEach((unit) => {
 			if (unit.type == "note") {
 				noteTrack.addEvent(
 					new MidiWriter.NoteEvent({
@@ -197,7 +197,7 @@ export function chordResultWithRhythmToOutput(
 	let time = offset
 	let noteIndex = 0
 	const out: NoteOutput[] = []
-	chordResultWithRhythm.rhythmPattern.forEach((unit) => {
+	chordResultWithRhythm.rhythmPattern.getUnits().forEach((unit) => {
 		if (unit.type == "note") {
 			out.push({
 				octavedNote: chordResultWithRhythm.notes[noteIndex++],

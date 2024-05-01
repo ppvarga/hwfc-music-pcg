@@ -1,9 +1,10 @@
+import { Equatable } from "../util/utils"
 import { TileCanvas } from "./TileCanvas"
 
-export interface TileProps<T> {
+export interface TileProps<T extends Equatable> {
 	status: T | Set<[T, number]> | "header" | "trailer"
 	position: number
-	canvas: TileCanvas<T>
+	canvas: TileCanvas<any, T>
 	prev?: Tile<T>
 	next?: Tile<T>
 }
@@ -17,13 +18,13 @@ function getItemFromSet<T>(set: Set<T>, predicate: (item: T) => boolean): T | un
     return undefined; // Return undefined if no item matches the predicate
 }
 
-export class Tile<T> {
+export class Tile<T extends Equatable> {
 	private prev!: Tile<T>
 	private next!: Tile<T>
 	private position: number
 	private numOptions: number
 	private status: T | Set<[T, number]> | "header" | "trailer"
-	private canvas: TileCanvas<T>
+	private canvas: TileCanvas<any, T>
 	private collapsed: boolean
 
 	constructor(props: TileProps<T>) {
@@ -63,15 +64,17 @@ export class Tile<T> {
 		this.next = next
 	}
 
-	public getPrev(): Tile<T> {
-		return this.prev
+	public getPrev(reachOver: boolean): Tile<T> {
+		if (reachOver && this.prev.status == "header") return this.canvas.lastTileOfPrevious()
+		else return this.prev
 	}
 
-	public getNext(): Tile<T> {
-		return this.next
+	public getNext(reachOver: boolean): Tile<T> {
+		if (reachOver && this.next.status == "trailer") return this.canvas.firstTileOfNext()
+		else return this.next
 	}
 
-	static header<T>(canvas: TileCanvas<T>): Tile<T> {
+	static header<T extends Equatable>(canvas: TileCanvas<any, T>): Tile<T> {
 		return new Tile<T>({
 			status: "header",
 			position: -1,
@@ -79,7 +82,7 @@ export class Tile<T> {
 		})
 	}
 
-	static trailer<T>(canvas: TileCanvas<T>): Tile<T> {
+	static trailer<T extends Equatable>(canvas: TileCanvas<any, T>): Tile<T> {
 		return new Tile<T>({
 			status: "trailer",
 			position: canvas.getSize(),
@@ -161,7 +164,9 @@ export class Tile<T> {
 	}
 
 	public removeValue(value: T) {
-		if(!(this.status instanceof Set)) throw new Error("Can't remove from non-set status")
+		if(!(this.status instanceof Set)){
+			throw new Error("Can't remove from non-set status")
+		}
 		const valuePair = getItemFromSet(this.status, t => t[0] == value)
 		if (valuePair === undefined) throw new Error("This wasn't in the set")
 		this.status.delete(valuePair)
@@ -207,8 +212,14 @@ export class Tile<T> {
 		return this.position
 	}
 
-	public getCanvas(): TileCanvas<T> {
+	public getCanvas(): TileCanvas<any, T> {
 		return this.canvas
+	}
+
+	public getOptions(): T[] {
+		if (this.status instanceof Set) return Array.from(this.status).map(a => a[0])
+		if (this.status == "header" || this.status == "trailer") throw new Error("HOW")
+		return [this.status]
 	}
 }
 

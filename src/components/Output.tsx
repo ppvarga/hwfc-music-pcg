@@ -40,7 +40,7 @@ export function parseChordPrototypes(chordPrototypes: ChordPrototypeIR[]): Parse
 				if (properlyNamedChordPrototypes.some(proto => proto.name === chordName)) return true
 				return (Chord.parseChordString(chordName) !== undefined)
 			})) {
-				chordPrototypeConstraints.push(new ChordPrototypeOnlyPrecededByConstraint(protoIR.name, constantStringArrayGrabber(protoIR.allowedPrecedingChords)))
+				chordPrototypeConstraints.push(new ChordPrototypeOnlyPrecededByConstraint(protoIR.name, constantStringArrayGrabber(protoIR.allowedPrecedingChords), true))
 			}
 		}
 
@@ -49,7 +49,7 @@ export function parseChordPrototypes(chordPrototypes: ChordPrototypeIR[]): Parse
 				if (properlyNamedChordPrototypes.some(proto => proto.name === chordName)) return true
 				return (Chord.parseChordString(chordName) !== undefined)
 			})) {
-				chordPrototypeConstraints.push(new ChordPrototypeOnlyFollowedByConstraint(protoIR.name, constantStringArrayGrabber(protoIR.allowedFollowingChords)))
+				chordPrototypeConstraints.push(new ChordPrototypeOnlyFollowedByConstraint(protoIR.name, constantStringArrayGrabber(protoIR.allowedFollowingChords), true))
 			}
 		}
 	}
@@ -87,7 +87,7 @@ export function Output() {
 					if (properlyNamedSections.some(section => section.name === sectionName)) return true
 					return (Chord.parseChordString(sectionName) !== undefined)
 				})) {
-					sectionConstraints.push(new SectionOnlyPrecededByHardConstraint(sectionIR.name, constantStringArrayGrabber(sectionIR.allowedPrecedingSections)))
+					sectionConstraints.push(new SectionOnlyPrecededByHardConstraint(sectionIR.name, constantStringArrayGrabber(sectionIR.allowedPrecedingSections), true))
 				}
 			}
 
@@ -96,7 +96,7 @@ export function Output() {
 					if (properlyNamedSections.some(section => section.name === sectionName)) return true
 					return (Chord.parseChordString(sectionName) !== undefined)
 				})) {
-					sectionConstraints.push(new SectionOnlyFollowedByHardConstraint(sectionIR.name, constantStringArrayGrabber(sectionIR.allowedFollowingSections)))
+					sectionConstraints.push(new SectionOnlyFollowedByHardConstraint(sectionIR.name, constantStringArrayGrabber(sectionIR.allowedFollowingSections), true))
 				}
 			}
 		}
@@ -149,7 +149,7 @@ export function Output() {
 						maximumRestLength: maxRestLength,
 					},
 				},
-				
+				position: 0
 			})
 
 			setOutput(node.generate())

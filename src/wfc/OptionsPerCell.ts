@@ -1,6 +1,7 @@
+import { Equatable, unique } from "../util/utils"
 import { InfiniteArray } from "./InfiniteArray"
 
-export class OptionsPerCell<T> {
+export class OptionsPerCell<T extends Equatable> {
 	cells: InfiniteArray<T[]>
 	allOptions: T[]
 
@@ -34,7 +35,7 @@ export class OptionsPerCell<T> {
 	}
 
 	public union(other: OptionsPerCell<T>): OptionsPerCell<T> {
-		const newAllOptions = [...this.allOptions, ...other.allOptions]
+		const newAllOptions = unique([...this.allOptions, ...other.allOptions])
 
 		const newOptionsPerCell = new OptionsPerCell<T>(newAllOptions)
 

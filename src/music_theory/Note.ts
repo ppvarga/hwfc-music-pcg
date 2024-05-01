@@ -1,3 +1,5 @@
+import { Equatable } from "../util/utils"
+
 //type Note = "C" | "C#" | "D" | "D#" | "E" | "F" | "F#" | "G" | "G#" | "A" | "A#" | "B"
 export enum Note {
 	C = "C",
@@ -45,7 +47,7 @@ export type OctavedNoteIR = {
 	octave: number
 }
 
-export class OctavedNote {
+export class OctavedNote implements Equatable {
 	private note: Note
 	private octave: number
 
@@ -56,6 +58,11 @@ export class OctavedNote {
 			throw new Error("Octave 9 can't have notes G#, A, A# or B")
 		this.note = note
 		this.octave = octave
+	}
+
+	equals(other: any): boolean {
+		if(!(other instanceof OctavedNote)) return false
+		return (this.note == other.note && this.octave == other.octave)
 	}
 
 	public static fromMIDIValue(midiValue: number): OctavedNote {

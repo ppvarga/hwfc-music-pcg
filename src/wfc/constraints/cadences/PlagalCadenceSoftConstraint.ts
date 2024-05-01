@@ -9,6 +9,7 @@ export const PlagalCadenceSoftConstraintInit = {
 	type: "PlagalCadenceSoftConstraint" as const,
 	bonus: 1,
 	validByDefault: true as const,
+	reachOver: true
 }
 
 export type PlagalCadenceSoftConstraintIR =
@@ -17,7 +18,7 @@ export class PlagalCadenceSoftConstraint extends GenericCadenceSoftConstraint {
 	name = chordConstraintTypeToName.get(
 		PlagalCadenceSoftConstraintInit.type,
 	)!.name as string
-	constructor(bonus: number, keyGrabber: Grabber<MusicalKey>) {
+	constructor(bonus: number, keyGrabber: Grabber<MusicalKey>, reachOver: boolean) {
 		super(
 			bonus,
 			constantNumberGrabber(5),
@@ -25,6 +26,7 @@ export class PlagalCadenceSoftConstraint extends GenericCadenceSoftConstraint {
 			constantConcreteChordQualityGrabber("major" as ConcreteChordQuality),
 			constantConcreteChordQualityGrabber("major" as ConcreteChordQuality),
 			keyGrabber,
+			reachOver
 		)
 	}
 }
