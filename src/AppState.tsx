@@ -15,6 +15,7 @@ import { InfiniteArray } from "./wfc/InfiniteArray"
 export interface PassiveAppState {
 	bpm: number;
     numChords: number;
+	numInstruments: number;    
     numSections: number;
     melodyLength: number;
     keyRoot: Note;
@@ -33,7 +34,7 @@ export interface PassiveAppState {
     maxRestLength: number;
     chordPrototypes: ChordPrototypeIR[];  
     onlyUseChordPrototypes: boolean;
-    sections: SectionIR[];         
+    sections: SectionIR[];     
 };
 
 function AppState() {
@@ -42,6 +43,7 @@ function AppState() {
 	const setNumChords = (newNumChords: number) => {
 		tempSetNumChords(newNumChords)
 	}
+	const [numInstruments, setNumInstruments] = useState(1)
 	const [melodyLength, tempSetMelodyLength] = useState(4)
 	const setMelodyLength = (newLength: number) => {
 		tempSetMelodyLength(newLength)
@@ -199,6 +201,7 @@ function AppState() {
 	const updateState = (newState: PassiveAppState): void => {
 		setBpm(newState.bpm)
 		setNumChords(newState.numChords)
+		setNumInstruments(newState.numInstruments)
 		setNumSections(newState.numSections)
 
 		setMelodyLength(newState.melodyLength)
@@ -236,6 +239,8 @@ function AppState() {
 
 		numChords,
 		setNumChords,
+		numInstruments,
+		setNumInstruments,
 		numSections,
 		setNumSections,
 

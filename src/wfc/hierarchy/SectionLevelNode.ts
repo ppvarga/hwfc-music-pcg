@@ -58,13 +58,13 @@ export class SectionLevelNode {
 		})
 	}
 
-	public generate(): [NoteOutput[], number] {
+	public generate(numInstruments: number): [NoteOutput[], number] {
 		const sections = this.sectionCanvas.generate()
 		const noteOutputs: NoteOutput[] = []
 		let totalDuration = 0
 		for (const section of sections) {
 			const chordLevelNode = this.createChordLevelNode(section)
-			const [sectionNoteOutputs, sectionDuration] = chordLevelNode.generate()
+			const [sectionNoteOutputs, sectionDuration] = chordLevelNode.generate(numInstruments)
 
 			noteOutputs.push(...(sectionNoteOutputs.map((noteOutput) => {
 				noteOutput.startTime += totalDuration

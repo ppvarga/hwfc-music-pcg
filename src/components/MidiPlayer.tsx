@@ -12,6 +12,7 @@ export type NoteOutput = {
 	octavedNote: OctavedNote;
 	startTime: number;
 	duration: number;
+	instrument?: number;
 };
 
 const generateMidi = (notes: NoteOutput[]) => {
@@ -24,6 +25,7 @@ const generateMidi = (notes: NoteOutput[]) => {
 			startTick: Math.round(note.startTime * ticksPerSecond), 
 			duration: `T${note.duration * ticksPerSecond -1}`
 		}));
+		track.addEvent(new MidiWriter.ProgramChangeEvent({ instrument: 10 }))
     });
 
     let write = new MidiWriter.Writer(track);

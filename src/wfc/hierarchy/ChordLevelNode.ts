@@ -33,7 +33,7 @@ export class ChordLevelNode {
 		this.random = props.random
 	}
 
-	public generate(): [NoteOutput[], number] {
+	public generate(numInstruments: number): [NoteOutput[], number] {
 		const chords = this.chordesqueCanvas.generate()
 
 		let offset = 0
@@ -70,43 +70,76 @@ export class ChordLevelNode {
 				} : {})
 			}
 
-			const noteLevelNode = new NoteLevelNode(
-				actualNoteCanvasProps,
-				newHigherValues,
-				this.random,
-			)
-
-			const abstractResultBase = {
-				chord: chordValue,
-				notes: noteLevelNode.generate()
+			let noteLevelNodes: NoteLevelNode[] = []
+			for (let i = 0; i < numInstruments; i++) {
+				noteLevelNodes.push(new NoteLevelNode(actualNoteCanvasProps, newHigherValues, this.random))
 			}
 
-			if(useRhythm) {
-				const abstractResult = {
-					...abstractResultBase,
-					rhythmPattern: getRandomRhythmPattern(
-						actualMelodyLength,
-						rhythmPatternOptions,
-						this.random,
-					)
-				}
+			// const noteLevelNode = new NoteLevelNode(
+			// 	actualNoteCanvasProps,
+			// 	newHigherValues,
+			// 	this.random,
+			// )
 
-				const [subResult, newOffset] = chordResultWithRhythmToOutput(
-					abstractResult,
-					this.higherValues.bpm,
-					offset,
-				)
-				out.push(...subResult)
-				offset = newOffset
+			// const noteLevelNode2 = new NoteLevelNode(
+			// 	actualNoteCanvasProps,
+			// 	newHigherValues,
+			// 	this.random,
+			// )
+
+			// const abstractResultBase = {
+			// 	chord: chordValue,
+			// 	notes: noteLevelNode.generate()
+			// }
+
+			// const abstractResultBase2 = {
+			// 	chord: chordValue,
+			// 	notes: noteLevelNode2.generate()
+			// }
+
+			if(useRhythm) {
+				let newestOffset = offset
+				noteLevelNodes.forEach((noteLevelNode: NoteLevelNode) => {
+					const abstractResultBase = {
+						chord: chordValue,
+			 			notes: noteLevelNode.generate()
+					}
+
+					const abstractResult = {
+						...abstractResultBase,
+						rhythmPattern: getRandomRhythmPattern(
+							actualMelodyLength,
+							rhythmPatternOptions,
+							this.random,
+						)
+					}
+
+					const [subResult, newerOffset] = chordResultWithRhythmToOutput(
+						abstractResult,
+						this.higherValues.bpm,
+						offset,
+					)
+					out.push(...subResult)
+					newestOffset = newerOffset
+				})
+				offset = newestOffset
 				
 			} else {
-				const [subResult, newOffset] = chordResultToOutput(
-					abstractResultBase,
-					this.higherValues.bpm,
-					offset,
-				)
-				out.push(...subResult)
-				offset = newOffset
+				let newestOffset = offset
+				noteLevelNodes.forEach((noteLevelNode: NoteLevelNode) => {
+					const abstractResultBase = {
+						chord: chordValue,
+			 			notes: noteLevelNode.generate()
+					}
+					const [subResult, newerOffset] = chordResultToOutput(
+						abstractResultBase,
+						this.higherValues.bpm,
+						offset,
+					)
+					out.push(...subResult)
+					newestOffset = newerOffset
+				})
+				offset = newestOffset
 			}
 		}
 

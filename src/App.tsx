@@ -11,6 +11,7 @@ import { ChordPrototypesPage } from "./components/ChordPrototypesPage"
 import { SectionsPage } from "./components/SectionsPage"
 import { SectionTiles } from "./components/SectionTiles"
 import { Configs } from "./components/Configs"
+import { NumberOfInstruments } from "./components/NumberOfInstruments"
 
 function App() {
 
@@ -22,6 +23,7 @@ function App() {
 					<GlobalSettings />
 					<div className="main-column">
 						<SectionTiles />
+						<NumberOfInstruments />
 					</div>
 					<div className="main-column">
 						<ChordTiles />
