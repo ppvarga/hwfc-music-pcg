@@ -11,7 +11,7 @@ import { TileCanvasProps } from "../TileCanvas"
 import { ChordConstraintIR, NoteConstraintIR, convertIRToChordConstraint, convertIRToNoteConstraint } from "../constraints/constraintUtils"
 import { ChordPrototypeIR, Chordesque, ChordesqueIR, chordesqueIRMapToChordesqueMap } from "./Chordesque"
 import { parseChordPrototypes } from "../../components/Output"
-import { Equatable } from "../../util/utils"
+import { Canvasable } from "../../util/utils"
 
 export interface SectionProps{
     name: string
@@ -29,7 +29,7 @@ export interface SectionProps{
     bpm: number
 }
 
-export class Section implements Equatable {
+export class Section implements Canvasable {
     constructor(
         private name: string, 
         private noteCanvasProps: TileCanvasProps<OctavedNote>, 

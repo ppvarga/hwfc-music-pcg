@@ -1,13 +1,17 @@
+import { OctavedNote } from "../music_theory/Note"
 import { Random } from "../util/Random"
-import { Equatable } from "../util/utils"
+import { Canvasable, Equatable } from "../util/utils"
 import { ConstraintSet } from "./ConstraintSet"
 import { HigherValues } from "./HigherValues"
 import { OptionsPerCell } from "./OptionsPerCell"
-import { Tile } from "./Tile"
+import { ConflictError, Tile } from "./Tile"
 import { TileSelector } from "./TileSelector"
+import { Chordesque } from "./hierarchy/Chordesque"
 import { HWFCNode } from "./hierarchy/HWFCNode"
+import { Section } from "./hierarchy/Section"
+import { SharedDecision } from "./hierarchy/backtracking"
 
-export interface TileCanvasProps<T extends Equatable> {
+export interface TileCanvasProps<T extends Canvasable> {
 	optionsPerCell: OptionsPerCell<T>
 	constraints: ConstraintSet<T>
 }
@@ -23,19 +27,19 @@ const optionsToWeighedOptions = <T>(options: Set<T>): Set<[T, number]> => {
 	return new Set([...options].map((option: T) => [option, 1]))
 }
 
-type Decision<T extends Equatable> = {
+export type Decision<T extends Canvasable> = {
 	index : number
 	value : T
 	oldState : Tile<T>[]
 }
 
-export class TileCanvas<P extends Equatable, T extends Equatable> {
+export class TileCanvas<P extends Canvasable, T extends Canvasable> {
 	private collapsed: number
 	private tiles: Tile<T>[]
 	private pq: TileSelector<T>
 	private higherValues: HigherValues
 	private constraints: ConstraintSet<T>
-	private decisions: Decision<T>[]
+	private numDecisions: number = 0
 
 	public getSize(): number {
 		return this.size
@@ -46,7 +50,9 @@ export class TileCanvas<P extends Equatable, T extends Equatable> {
 		props: TileCanvasProps<T>,
 		higherValues: HigherValues,
 		private random: Random,
-		private node: HWFCNode<P, T>
+		private node: HWFCNode<P, T>,
+		private decisions: SharedDecision[],
+		private level: "section" | "chord" | "melody"
 	) {
 		this.collapsed = 0
 
@@ -165,15 +171,41 @@ export class TileCanvas<P extends Equatable, T extends Equatable> {
 		while(numOptions > 0){
 			const value = tileToCollapse.chooseValue()
 			if (value === undefined) {
+				if(this.numDecisions == 0) alert("bozooo")
 				this.backtrack()
 				return
 			}
 			if (tileToCollapse.collapse(value)){
-				this.decisions.push({
-					index: tileToCollapse.getPosition(),
-					value: tileToCollapse.getValue(),
-					oldState
-				})
+				this.numDecisions++
+				switch(this.level){
+					case "section":
+						this.decisions.push({
+							level: "section",
+							index: tileToCollapse.getPosition(),
+							value: tileToCollapse.getValue() as unknown as Section,
+							oldState: oldState as unknown as Tile<Section>[],
+						})
+						break
+					case "chord":
+						this.decisions.push({
+							level: "chord",
+							index: tileToCollapse.getPosition(),
+							value: tileToCollapse.getValue() as unknown as Chordesque,
+							oldState: oldState as unknown as Tile<Chordesque>[],
+							sectionNumber: this.node.getPosition()
+						})
+						break
+					case "melody":
+						this.decisions.push({
+							level: "melody",
+							index: tileToCollapse.getPosition(),
+							value: tileToCollapse.getValue() as unknown as OctavedNote,
+							oldState: oldState as unknown as Tile<OctavedNote>[],
+							chordNumber: this.node.getPosition(),
+							sectionNumber: this.node.getParent()!.getPosition()
+						})
+						break
+				}
 				break
 			}
 			numOptions--
@@ -184,11 +216,32 @@ export class TileCanvas<P extends Equatable, T extends Equatable> {
 	}
 
 	private backtrack() {
-		const decision = this.decisions.pop()
-		if(decision === undefined) throw new Error("You've run out of options :(")
-		this.tiles = decision.oldState
-		this.tiles[decision.index].removeValue(decision.value)
+		var decision = undefined
+		while(this.numDecisions > 0){ // will remain unchanged, essentially an if(...){while(true){...}}
+			decision = this.decisions.pop()
+			if(decision === undefined) throw new ConflictError()
+			if(this.isDecisionAboutThis(decision)){
+				break
+			}
+		}
+		if(decision === undefined) throw new ConflictError() // no decisions on this level, need to deal with this elsewhere
+		
+		switch(decision.level){
+			case "section":
+				(this as unknown as TileCanvas<never, Section>).tiles = decision.oldState;
+				(this as unknown as TileCanvas<never, Section>).tiles[decision.index].removeValue(decision.value);
+				break
+			case "chord":
+				(this as unknown as TileCanvas<Section, Chordesque>).tiles = decision.oldState;
+				(this as unknown as TileCanvas<Section, Chordesque>).tiles[decision.index].removeValue(decision.value);
+				break
+			case "melody":
+				(this as unknown as TileCanvas<Chordesque, OctavedNote>).tiles = decision.oldState;
+				(this as unknown as TileCanvas<Chordesque, OctavedNote>).tiles[decision.index].removeValue(decision.value);
+				break
+		}
 		this.retractOne()
+		this.numDecisions--
 	}
 
 	public generate(): T[] {
@@ -198,7 +251,25 @@ export class TileCanvas<P extends Equatable, T extends Equatable> {
 		return this.tiles.map((tile) => tile.getValue())
 	}
 
+	public tryAnother(): T[] {
+		this.backtrack()
+		return this.generate()
+	}
+
 	public getNode(): HWFCNode<P,T> {
 		return this.node
+	}
+
+	private isDecisionAboutThis(decision: SharedDecision): boolean {
+		if (this.level != decision.level) return false
+		switch(decision.level){
+			case "section":
+				return true
+			case "chord":
+				return this.node.getPosition() == decision.sectionNumber
+			case "melody":
+				return this.node.getParent()!.getPosition() == decision.sectionNumber && this.node.getPosition() == decision.chordNumber
+
+		}
 	}
 }

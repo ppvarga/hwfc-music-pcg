@@ -16,6 +16,8 @@ export interface Equatable {
 	equals(other: any): boolean;
 }
 
+export interface Canvasable extends Equatable{}
+
 export function unique<T extends Equatable>(arr: T[]): T[] {
 	return arr.reduce((acc: T[], current: T) => {
 	  if (!acc.some(item => item.equals(current))) {

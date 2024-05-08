@@ -18,9 +18,9 @@ import {
 	NoteConstraintIR,
 	convertIRToNoteConstraint,
 } from "../constraints/constraintUtils"
-import { Equatable } from "../../util/utils"
+import { Canvasable } from "../../util/utils"
 
-export interface Chordesque extends Equatable {
+export interface Chordesque extends Canvasable {
 	getName(): string
 	getChord: () => Chord
 }

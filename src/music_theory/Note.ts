@@ -1,4 +1,4 @@
-import { Equatable } from "../util/utils"
+import { Canvasable } from "../util/utils"
 
 //type Note = "C" | "C#" | "D" | "D#" | "E" | "F" | "F#" | "G" | "G#" | "A" | "A#" | "B"
 export enum Note {
@@ -47,7 +47,7 @@ export type OctavedNoteIR = {
 	octave: number
 }
 
-export class OctavedNote implements Equatable {
+export class OctavedNote implements Canvasable {
 	private note: Note
 	private octave: number
 

@@ -17,6 +17,7 @@ import { Section, sectionIRMapToSectionMap, sectionIRToSection } from "../wfc/hi
 import { SectionOnlyPrecededByHardConstraint } from "../wfc/constraints/SectionOnlyPrecededByHardConstraint"
 import { SectionOnlyFollowedByHardConstraint } from "../wfc/constraints/SectionOnlyFollowedByHardConstraint"
 import { SectionLevelNode } from "../wfc/hierarchy/SectionLevelNode"
+import { SharedDecision } from "../wfc/hierarchy/backtracking"
 
 interface ParseChordPrototypesReturn {
 	parsedChordPrototypes: ChordPrototype[]
@@ -130,6 +131,8 @@ export function Output() {
 
 			const inferredKey = inferKey()
 
+			const decisions : SharedDecision[] = []
+
 			const node = new SectionLevelNode({
 				noteCanvasProps,
 				chordesqueCanvasProps,
@@ -149,7 +152,8 @@ export function Output() {
 						maximumRestLength: maxRestLength,
 					},
 				},
-				position: 0
+				position: 0,
+				decisions
 			})
 
 			setOutput(node.generate())
