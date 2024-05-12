@@ -33,7 +33,7 @@ export type Decision<T extends Canvasable> = {
 	oldState : Tile<T>[]
 }
 
-export class TileCanvas<P extends Canvasable, T extends Canvasable> {
+export class TileCanvas<P extends Canvasable, T extends Canvasable, C extends Canvasable> {
 	private collapsed: number
 	private tiles: Tile<T>[]
 	private pq: TileSelector<T>
@@ -50,7 +50,7 @@ export class TileCanvas<P extends Canvasable, T extends Canvasable> {
 		props: TileCanvasProps<T>,
 		higherValues: HigherValues,
 		private random: Random,
-		private node: HWFCNode<P, T>,
+		private node: HWFCNode<P, T, C>,
 		private decisions: SharedDecision[],
 		private level: "section" | "chord" | "melody"
 	) {
@@ -100,7 +100,7 @@ export class TileCanvas<P extends Canvasable, T extends Canvasable> {
 
 	firstTileOfNext(): Tile<T> {
 		const nextIndex = this.node.getPosition() + 1
-		const parent: HWFCNode<any, P> | undefined = this.node.getParent()
+		const parent: HWFCNode<any, P, T> | undefined = this.node.getParent()
 		if (parent === undefined) return Tile.trailer(this)
 		if (nextIndex >= parent.getSubNodes().length) {
 			const grandparent = parent.getParent()
@@ -111,7 +111,7 @@ export class TileCanvas<P extends Canvasable, T extends Canvasable> {
 			if (uncle === undefined || uncle.getSubNodes().length == 0) return Tile.trailer(this)
 			return uncle.getSubNodes()[0].getCanvas().tiles[0]
 		}
-		const next: HWFCNode<P, T> = parent.getSubNodes()[nextIndex]
+		const next: HWFCNode<P, T, C> = parent.getSubNodes()[nextIndex]
 		const nextCanvas = next.getCanvas()
 		return nextCanvas.tiles[0]
 	}
@@ -228,16 +228,16 @@ export class TileCanvas<P extends Canvasable, T extends Canvasable> {
 		
 		switch(decision.level){
 			case "section":
-				(this as unknown as TileCanvas<never, Section>).tiles = decision.oldState;
-				(this as unknown as TileCanvas<never, Section>).tiles[decision.index].removeValue(decision.value);
+				(this as unknown as TileCanvas<never, Section, Chordesque>).tiles = decision.oldState;
+				(this as unknown as TileCanvas<never, Section, Chordesque>).tiles[decision.index].removeValue(decision.value);
 				break
 			case "chord":
-				(this as unknown as TileCanvas<Section, Chordesque>).tiles = decision.oldState;
-				(this as unknown as TileCanvas<Section, Chordesque>).tiles[decision.index].removeValue(decision.value);
+				(this as unknown as TileCanvas<Section, Chordesque, OctavedNote>).tiles = decision.oldState;
+				(this as unknown as TileCanvas<Section, Chordesque, OctavedNote>).tiles[decision.index].removeValue(decision.value);
 				break
 			case "melody":
-				(this as unknown as TileCanvas<Chordesque, OctavedNote>).tiles = decision.oldState;
-				(this as unknown as TileCanvas<Chordesque, OctavedNote>).tiles[decision.index].removeValue(decision.value);
+				(this as unknown as TileCanvas<Chordesque, OctavedNote, never>).tiles = decision.oldState;
+				(this as unknown as TileCanvas<Chordesque, OctavedNote, never>).tiles[decision.index].removeValue(decision.value);
 				break
 		}
 		this.retractOne()
@@ -256,7 +256,7 @@ export class TileCanvas<P extends Canvasable, T extends Canvasable> {
 		return this.generate()
 	}
 
-	public getNode(): HWFCNode<P,T> {
+	public getNode(): HWFCNode<P,T, C> {
 		return this.node
 	}
 
@@ -272,4 +272,14 @@ export class TileCanvas<P extends Canvasable, T extends Canvasable> {
 
 		}
 	}
+
+	public getValueAtPosition(position: number): T {
+		if(this.collapsed < this.size) throw new Error("The canvas is not fully collapsed yet")
+		return this.tiles[position].getValue()
+	}
+
+	public getLevel() {
+		return this.level
+	}
+	
 }

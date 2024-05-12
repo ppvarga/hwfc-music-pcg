@@ -4,7 +4,7 @@ import { TileCanvas } from "./TileCanvas"
 export interface TileProps<T extends Equatable> {
 	status: T | Set<[T, number]> | "header" | "trailer"
 	position: number
-	canvas: TileCanvas<any, T>
+	canvas: TileCanvas<any, T, any>
 	prev?: Tile<T>
 	next?: Tile<T>
 }
@@ -24,7 +24,7 @@ export class Tile<T extends Equatable> {
 	private position: number
 	private numOptions: number
 	private status: T | Set<[T, number]> | "header" | "trailer"
-	private canvas: TileCanvas<any, T>
+	private canvas: TileCanvas<any, T, any>
 	private collapsed: boolean
 
 	constructor(props: TileProps<T>) {
@@ -74,7 +74,7 @@ export class Tile<T extends Equatable> {
 		else return this.next
 	}
 
-	static header<T extends Equatable>(canvas: TileCanvas<any, T>): Tile<T> {
+	static header<T extends Equatable>(canvas: TileCanvas<any, T, any>): Tile<T> {
 		return new Tile<T>({
 			status: "header",
 			position: -1,
@@ -82,7 +82,7 @@ export class Tile<T extends Equatable> {
 		})
 	}
 
-	static trailer<T extends Equatable>(canvas: TileCanvas<any, T>): Tile<T> {
+	static trailer<T extends Equatable>(canvas: TileCanvas<any, T, any>): Tile<T> {
 		return new Tile<T>({
 			status: "trailer",
 			position: canvas.getSize(),
@@ -212,7 +212,7 @@ export class Tile<T extends Equatable> {
 		return this.position
 	}
 
-	public getCanvas(): TileCanvas<any, T> {
+	public getCanvas(): TileCanvas<any, T, any> {
 		return this.canvas
 	}
 

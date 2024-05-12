@@ -5,19 +5,18 @@ import { Canvasable } from "../../util/utils"
 import { Chordesque } from "./Chordesque"
 import { Section } from "./Section"
 
-export type ChordResult = Result<Chordesque> & {
-	chord: Chord
-	notes: OctavedNote[]
-}
-
-export type ChordResultWithRhythm = ChordResult & {
-	rhythmPattern: RhythmPattern
-}
+export type EntireResult = Result<any> & SectionResult[]
 
 export type SectionResult = Result<Section> & ChordResult[]
 
-export type SectionResultWithRhythm = Result<Section> & ChordResultWithRhythm[]
+export type ChordResult = Result<Chordesque> & {
+	chord: Chord
+	notes: OctavedNote[]
+	rhythmPattern: RhythmPattern
+	bpm: number
+}
 
-export type MelodyResult = Result<OctavedNote> & OctavedNote[]
+
+export type MelodyResult = Result<OctavedNote> & OctavedNote
 
 export interface Result<T extends Canvasable> {}

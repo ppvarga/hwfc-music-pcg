@@ -8,10 +8,10 @@ import { MelodyInRangeHardConstraintInit } from "./wfc/constraints/MelodyInRange
 import { ChordConstraintIR, NoteConstraintIR } from "./wfc/constraints/constraintUtils"
 import { ChordRootAbsoluteStepSizeHardConstraintInit } from "./wfc/constraints/ChordRootAbsoluteStepSizeHardConstraint"
 import { ChordPrototypeIR, ChordesqueIR, nameOfChordPrototypeIR } from "./wfc/hierarchy/Chordesque"
-import { NoteOutput } from "./components/MidiPlayer"
 import { SectionIR, SectionInit, nameOfSectionIR } from "./wfc/hierarchy/Section"
 import { InfiniteArray } from "./wfc/InfiniteArray"
 import { unique } from "./util/utils"
+import { Output } from "./audio/midi"
 
 export interface PassiveAppState {
 	bpm: number;
@@ -194,7 +194,7 @@ function AppState() {
 	}
 
 	//OUTPUT
-	const [output, setOutput] = useState<[NoteOutput[], number]>([[], 0])
+	const [output, setOutput] = useState<Output>({notes: [], duration: 0})
 
 	//STATE
 	const updateState = (newState: PassiveAppState): void => {
@@ -228,7 +228,7 @@ function AppState() {
 
 		setSections(newState.sections)
 
-		setOutput([[], 0])
+		setOutput({notes: [], duration: 0})
 	}
 
 	return {

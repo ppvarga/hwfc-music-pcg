@@ -6,21 +6,22 @@ import { ChordLevelNode } from "./ChordLevelNode"
 import { Chordesque } from "./Chordesque"
 import { HWFCNode } from "./HWFCNode"
 import { SharedDecision } from "./backtracking"
+import { ChordResult, MelodyResult, Result } from "./results"
 
-export class NoteLevelNode extends HWFCNode<Chordesque, OctavedNote, never>{
-	protected canvas: TileCanvas<Chordesque, OctavedNote>
-	protected subNodes: HWFCNode<OctavedNote, never, never>[] = []
+export class NoteLevelNode extends HWFCNode<Chordesque, OctavedNote, any>{
+	protected canvas: TileCanvas<Chordesque, OctavedNote, never>
+	protected subNodes: HWFCNode<OctavedNote, any, never>[] = []
 
 	constructor(
 		canvasProps: TileCanvasProps<OctavedNote>,
-		higherValues: HigherValues,
+		private higherValues: HigherValues,
 		random: Random,
 		protected parent: ChordLevelNode,
 		protected position: number,
 		protected decisions: SharedDecision[]
 	) {
 		super()
-		this.canvas = new TileCanvas<Chordesque, OctavedNote>(
+		this.canvas = new TileCanvas<Chordesque, OctavedNote, any>(
 			higherValues.melodyLength,
 			canvasProps,
 			higherValues,
@@ -34,4 +35,19 @@ export class NoteLevelNode extends HWFCNode<Chordesque, OctavedNote, never>{
 	public generate(): OctavedNote[] {
 		return this.canvas.generate()
 	}
+
+	public mergeResults(subResults: Result<OctavedNote>[]): Result<Chordesque> {
+		const chordResult: ChordResult = {
+			chord: this.higherValues.chord!,
+			notes: (subResults as MelodyResult[]),
+			rhythmPattern: this.higherValues.rhythmPattern!,
+			bpm: this.higherValues.bpm
+		} 
+		return chordResult
+	}
+
+	public createChildNode(position: number): HWFCNode<OctavedNote, any, any> {
+		throw new Error("This should not be called")
+	}
+
 }

@@ -1,11 +1,102 @@
+import { Chord } from "../../music_theory/Chord"
+import { OctavedNote } from "../../music_theory/Note"
 import { Canvasable } from "../../util/utils"
 import { ConflictError } from "../Tile"
+import { ChordLevelNode } from "./ChordLevelNode"
+import { Chordesque } from "./Chordesque"
 import { HWFCNode } from "./HWFCNode"
+import { NoteLevelNode } from "./NoteLevelNode"
+import { Section } from "./Section"
+import { SectionLevelNode } from "./SectionLevelNode"
 import { Result } from "./results"
 
 export class BreadthFirstTraverser {
-    public static generate<P extends Canvasable, T extends Canvasable, C extends Canvasable>(node: HWFCNode<P,T,C>): Result<C> {
-        let sections = node.getCanvas().generate()
+    private static lastChordNode?: ChordLevelNode = undefined
+    private static lastNoteNode?: NoteLevelNode = undefined
+    
+    static backtrackPrevChord(
+        setResultAtPosition : (position: number, newResult: Result<Chordesque>) => boolean,
+        prevPosition : number
+    ): boolean {
+        const prevNode = this.lastChordNode
+        if(prevNode === undefined) return false
+        try {
+            const prevResult = this.tryAnother(prevNode)
+            if(!setResultAtPosition(prevPosition, prevResult)) throw new Error("Looking into the future")
+            return true
+        } catch (e) {
+            if(e instanceof ConflictError) {
+                return false
+            }
+            throw e
+        }
+    }
+
+    static backtrackPrevNote(
+        setResultAtPosition : (position: number, newResult: Result<OctavedNote>) => boolean,
+        prevPosition : number
+    ): boolean {
+        const prevNode = this.lastNoteNode
+        if(prevNode === undefined) return false
+        try {
+            const prevResult = this.tryAnother(prevNode)
+            if(!setResultAtPosition(prevPosition, prevResult)) throw new Error("Looking into the future")
+            return true
+        } catch (e) {
+            if(e instanceof ConflictError) {
+                return false
+            }
+            throw e
+        }
+    }
+    
+    static solveAtPosition<P extends Canvasable, T extends Canvasable, C extends Canvasable>(
+            node: HWFCNode<P,T,C>,
+            position : number, 
+            sections : T[], 
+            prevNode: HWFCNode<T,C,any> | undefined, 
+            setResultAtPosition : (position: number, newResult: Result<C>) => boolean
+        ): SubSolution<T,C,any> {
+        try {
+            const childNode = node.createChildNode(position)
+            node.getSubNodes().push(childNode)
+            const childResult = BreadthFirstTraverser.generate(childNode)
+
+            const childLevel = childNode.getCanvas().getLevel()
+            if(childLevel == "chord"){
+                this.lastChordNode = childNode as unknown as ChordLevelNode
+            } else if (childLevel == "melody"){
+                this.lastNoteNode = childNode as unknown as NoteLevelNode
+            } else throw new Error("This is not a child")
+
+            return {result: childResult}
+            
+        } catch (e) {
+            if (e instanceof ConflictError){		
+                const successfulBacktrack = node.getCanvas().getLevel() == "section" ?
+                    BreadthFirstTraverser.backtrackPrevChord(setResultAtPosition, position - 1) :
+                    BreadthFirstTraverser.backtrackPrevNote(setResultAtPosition, position - 1)
+                if (successfulBacktrack) {
+                    node.getSubNodes().pop()
+                    return BreadthFirstTraverser.solveAtPosition(node, position, sections, prevNode, setResultAtPosition)
+                } else {
+                    return "Fail"
+                }
+            } else throw e
+        }
+    }
+    
+    public static generate<P extends Canvasable, T extends Canvasable, C extends Canvasable>(node: HWFCNode<P,T,C>): Result<P> {
+        return this.generateCore(node,node.getCanvas().generate())
+    }
+        
+
+    public static tryAnother<P extends Canvasable, T extends Canvasable, C extends Canvasable>(node: HWFCNode<P,T,C>): Result<P> {
+        return this.generateCore(node, node.getCanvas().tryAnother())
+    }
+
+    private static generateCore<P extends Canvasable, T extends Canvasable, C extends Canvasable>(node: HWFCNode<P,T,C>, items: T[]): Result<P> {
+        if(node instanceof NoteLevelNode) return node.mergeResults(items)
         let isValid = true
         const results : Result<C>[] = []
         const setResultAtPosition = (position: number, newResult: Result<C>) => {
@@ -17,70 +108,24 @@ export class BreadthFirstTraverser {
         while(true){
             let prevNode : HWFCNode<T,C,any> | undefined = undefined
     
-            for (let i = 0; i < sections.length; i++) {
-                const subSolution: SubSolution<T,C,any> = BreadthFirstTraverser.solveAtPosition(node, i, sections, prevNode, setResultAtPosition)
+            for (let i = 0; i < items.length; i++) {
+                const subSolution: SubSolution<T,C,any> = BreadthFirstTraverser.solveAtPosition(node, i, items, prevNode, setResultAtPosition)
                 if(subSolution === "Fail") {
                     isValid = false
                     break
                 }
                 const result = subSolution.result
                 results.push(result)
-                prevNode = subSolution.newprevNode
             }
             if (isValid) break
-            sections = node.getCanvas().tryAnother()
+            items = node.getCanvas().tryAnother()
         }
         return node.mergeResults(results)
     }
-    
-    static backtrackPrev<T extends Canvasable, C extends Canvasable>(
-        prevNode: HWFCNode<T,C,any> | undefined,
-        setResultAtPosition : (position: number, newResult: Result<C>) => boolean,
-        prevPosition : number
-    ): boolean {
-        if(prevNode === undefined) return false
-        try {
-            const prevResult = prevNode.tryAnother()
-            if(!setResultAtPosition(prevPosition, prevResult)) throw new Error("Looking into the future")
-            return true
-        } catch (e) {
-            if(e instanceof ConflictError) {
-                return false
-            }
-            throw e
-        }
-    
-    }
-    
-    static solveAtPosition<P extends Canvasable, T extends Canvasable, C extends Canvasable>(
-            node: HWFCNode<P,T,C>,
-            position : number, 
-            sections : T[], 
-            prevNode: HWFCNode<T,C,any> | undefined, 
-            setResultAtPosition : (position: number, newResult: Result<C>) => boolean
-        ): SubSolution<T,C,any> {
-        const childNode = node.createChildNode(position)
-        node.getSubNodes().push(childNode)
-        try {
-            const childResult = childNode.generate()
-            return {result: childResult, newprevNode:childNode}
-        } catch (e) {
-            if (e instanceof ConflictError){		
-                if (BreadthFirstTraverser.backtrackPrev(prevNode, setResultAtPosition, position - 1)) {
-                    node.getSubNodes().pop()
-                    return BreadthFirstTraverser.solveAtPosition(node, position, sections, prevNode, setResultAtPosition)
-                } else {
-                    return "Fail"
-                }
-            } else throw e
-        }
-    }
-
 }
 
 interface SubSolutionSuccess<P extends Canvasable, T extends Canvasable, C extends Canvasable> {
-result : Result<T>
-newprevNode : HWFCNode<P,T,C>
+    result : Result<T>
 } 
 
 type SubSolution<P extends Canvasable, T extends Canvasable, C extends Canvasable> = SubSolutionSuccess<P,T,C> | "Fail"

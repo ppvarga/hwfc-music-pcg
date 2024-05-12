@@ -18,6 +18,9 @@ import { SectionOnlyPrecededByHardConstraint } from "../wfc/constraints/SectionO
 import { SectionOnlyFollowedByHardConstraint } from "../wfc/constraints/SectionOnlyFollowedByHardConstraint"
 import { SectionLevelNode } from "../wfc/hierarchy/SectionLevelNode"
 import { SharedDecision } from "../wfc/hierarchy/backtracking"
+import { BreadthFirstTraverser } from "../wfc/hierarchy/BreadthFirstTraverser"
+import { EntireResult } from "../wfc/hierarchy/results"
+import { entireResultToOutput } from "../audio/midi"
 
 interface ParseChordPrototypesReturn {
 	parsedChordPrototypes: ChordPrototype[]
@@ -156,7 +159,10 @@ export function Output() {
 				decisions
 			})
 
-			setOutput(node.generate())
+			const result = BreadthFirstTraverser.generate(node) as EntireResult
+			console.log(result)
+			console.log(entireResultToOutput(result, 0))
+			setOutput(entireResultToOutput(result, 0))
 		} catch (e) {
 			console.error(e)
 			alert(e)
@@ -178,6 +184,6 @@ export function Output() {
 			backgroundColor: "rgba(0,0,0,0.75)",
 			maxWidth:"90vw",
 		}}>
-		<MidiPlayer notes={output[0]} length={output[1]} isPlaying={isPlaying} setIsPlaying={setIsPlaying} updatePlayer={updatePlayer}/>
+		<MidiPlayer notes={output.notes} length={output.end} isPlaying={isPlaying} setIsPlaying={setIsPlaying} updatePlayer={updatePlayer}/>
 	</div>
 }

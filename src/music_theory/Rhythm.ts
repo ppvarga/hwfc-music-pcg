@@ -29,6 +29,10 @@ export function numberOfNotesInRhythmPattern(pattern: RhythmPattern) {
 	return pattern.getUnits().filter((unit) => unit.type == "note").length
 }
 
+export function basicRhythm(length: number): RhythmPattern {
+	return new RhythmPattern(Array(length).fill({type:"note", duration:1}))
+}
+
 function abstractPatternsForLength(length: number): number[][] {
 	if (length < 0) throw new Error("Pattern can't have negative length")
 
