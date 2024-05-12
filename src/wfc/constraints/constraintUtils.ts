@@ -64,6 +64,7 @@ import { Constraint } from "./concepts/Constraint"
 import { HigherValues } from "../HigherValues"
 import { noteGrabberIRToGrabber } from "../grabbers/noteGrabbers"
 import { NoHalfStepInterMelodyConstraint, NoHalfStepInterMelodyConstraintIR, NoHalfStepInterMelodyConstraintInit } from "./NoHalfStepInterMelodyConstraint"
+import { NoSameNoteInterMelodyConstraint, NoSameNoteInterMelodyConstraintIR, NoSameNoteInterMelodyConstraintInit } from "./NoSameNoteInterMelodyConstraint"
 
 export type ChordConstraintIR =
 	| ChordInKeyHardConstraintIR
@@ -83,6 +84,7 @@ export type NoteConstraintIR =
 
 export type InterMelodyConstraintIR =
 	| NoHalfStepInterMelodyConstraintIR
+	| NoSameNoteInterMelodyConstraintIR
 
 export type ChordConstraintType = ChordConstraintIR["type"]
 export type NoteConstraintType = NoteConstraintIR["type"]
@@ -140,7 +142,8 @@ export const noteConstraintOptions = Array.from(
 ).map(([value, label]) => ({ value, label }))
 
 const interMelodyConstraintTypesNamesHints = [
-	["NoHalfStepInterMelodyConstraint", "No dissonance", "Ensures an instrument does not play a note a half step from a note played by some other instrument."]
+	["NoHalfStepInterMelodyConstraint", "No dissonance", "Ensures an instrument does not play a note a half step from a note played by some other instrument."],
+	["NoSameNoteInterMelodyConstraint", "No same note", "Ensures an instrument does not play the same note as another instrument at the same time"]
 ] as const
 
 type InterMelodyConstraintName = (typeof interMelodyConstraintTypesNamesHints)[number][1]
@@ -213,6 +216,8 @@ export const convertIRToInterMelodyConstraint = (
 	switch (ir.type) {
 		case "NoHalfStepInterMelodyConstraint":
 			return new NoHalfStepInterMelodyConstraint()
+		case "NoSameNoteInterMelodyConstraint":
+			return new NoSameNoteInterMelodyConstraint()
 	}
 }
 
@@ -260,5 +265,7 @@ export const initializeInterMelodyConstraint = (
 	switch (name) {
 		case "NoHalfStepInterMelodyConstraint":
 			return NoHalfStepInterMelodyConstraintInit
+		case "NoSameNoteInterMelodyConstraint":
+			return NoSameNoteInterMelodyConstraintInit
 	}
 }
