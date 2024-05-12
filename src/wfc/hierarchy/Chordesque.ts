@@ -19,10 +19,12 @@ import {
 	convertIRToNoteConstraint,
 } from "../constraints/constraintUtils"
 import { Canvasable } from "../../util/utils"
+import { Section } from "./Section"
 
 export interface Chordesque extends Canvasable {
 	getName(): string
 	getChord: () => Chord
+	getBpm: (section: Section) => number
 }
 
 export type ChordesqueIR = ChordIR | string
@@ -48,6 +50,10 @@ export class ChordPrototype implements Chordesque {
 
 	getName(): string {
 		return this.name;
+	}
+
+	getBpm(section: Section) {
+		return this.bpm;
 	}
 
 	equals(other: any): boolean {

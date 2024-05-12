@@ -1,5 +1,6 @@
 import { arrayEquals } from "../util/utils"
 import { Chordesque, ChordesqueIR } from "../wfc/hierarchy/Chordesque"
+import { Section } from "../wfc/hierarchy/Section"
 import { Note, relativeNote } from "./Note"
 import { NoteSet } from "./NoteSet"
 
@@ -101,6 +102,10 @@ export class Chord extends NoteSet implements Chordesque {
 
 	getChord() {
 		return this
+	}
+
+	getBpm(section: Section){
+		return section.getObj().bpm
 	}
 
 	static allBasicChords(): Chord[] {

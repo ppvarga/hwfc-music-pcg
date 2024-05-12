@@ -22,13 +22,13 @@ interface ChordLevelNodeProps {
 	decisions: SharedDecision[]
 }
 
-export class ChordLevelNode extends HWFCNode<Section, Chordesque> {
+export class ChordLevelNode extends HWFCNode<Section, Chordesque, OctavedNote> {
 	private higherValues: HigherValues
 	private noteCanvasProps: TileCanvasProps<OctavedNote>
 	protected canvas: TileCanvas<Section, Chordesque>
 	private random: Random
 	protected position: number
-	protected subNodes: HWFCNode<Chordesque, any>[]
+	protected subNodes: HWFCNode<Chordesque, OctavedNote, any>[]
 	protected decisions: SharedDecision[]
 
 	constructor(props: ChordLevelNodeProps) {
@@ -51,9 +51,15 @@ export class ChordLevelNode extends HWFCNode<Section, Chordesque> {
 		)
 	}
 
-	public generate(): [NoteOutput[], number] {
-		const chords = this.canvas.generate()
+	public tryAnother(): [NoteOutput[], number] {
+		return this.generateCore(this.canvas.tryAnother())
+	}
 
+	public generate(): [NoteOutput[], number] {
+		return this.generateCore(this.canvas.generate())
+	}
+
+	private generateCore(chords : Chordesque[]): [NoteOutput[], number] {
 		let offset = 0
 		const out: NoteOutput[] = []
 		for (const [position,chord] of chords.entries()) {

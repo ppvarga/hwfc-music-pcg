@@ -7,9 +7,9 @@ import { Chordesque } from "./Chordesque"
 import { HWFCNode } from "./HWFCNode"
 import { SharedDecision } from "./backtracking"
 
-export class NoteLevelNode extends HWFCNode<Chordesque, OctavedNote>{
+export class NoteLevelNode extends HWFCNode<Chordesque, OctavedNote, never>{
 	protected canvas: TileCanvas<Chordesque, OctavedNote>
-	protected subNodes: HWFCNode<OctavedNote, any>[] = []
+	protected subNodes: HWFCNode<OctavedNote, never, never>[] = []
 
 	constructor(
 		canvasProps: TileCanvasProps<OctavedNote>,

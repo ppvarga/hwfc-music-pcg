@@ -9,6 +9,7 @@ import { Chordesque } from "./Chordesque"
 import { HWFCNode } from "./HWFCNode"
 import { Section } from "./Section"
 import { SharedDecision } from "./backtracking"
+import { Result } from "./results"
 
 interface SectionLevelNodeProps {
 	higherValues: HigherValues
@@ -20,14 +21,14 @@ interface SectionLevelNodeProps {
 	decisions: SharedDecision[]
 }
 
-export class SectionLevelNode extends HWFCNode<any, Section> {
+export class SectionLevelNode extends HWFCNode<any, Section, Chordesque> {
 	private higherValues: HigherValues
 	private noteCanvasProps: TileCanvasProps<OctavedNote>
 	private chordesqueCanvasProps: TileCanvasProps<Chordesque>
 	protected canvas: TileCanvas<never, Section>
 	private random: Random
 	protected position: number
-	protected subNodes: HWFCNode<Section, Chordesque>[]
+	protected subNodes: HWFCNode<Section, Chordesque, OctavedNote>[]
 	protected decisions: SharedDecision[]
 
 	constructor(props: SectionLevelNodeProps) {
@@ -79,66 +80,102 @@ export class SectionLevelNode extends HWFCNode<any, Section> {
 
 	public generate(): [NoteOutput[], number] {
 		let sections = this.canvas.generate()
-
 		let isValid = true
-		let totalDuration = 0
-		let noteOutputs: NoteOutput[] = []
+		const durations: number[] = []
+		const noteOutputss: NoteOutput[][] = []
+		const setResultAtPosition = (position: number, newDuration : number, newNoteOutputs : NoteOutput[]) => {
+			if(position < 0 || position >= durations.length) return false
+			durations[position] = newDuration
+			noteOutputss[position] = newNoteOutputs
+			return true
+		}
+
 		while(true){
-			noteOutputs = []
-			totalDuration = 0
+			let prevNode : ChordLevelNode | undefined = undefined
 
-			let prevSectionCanvas : TileCanvas<Section, Chordesque> | undefined = undefined
-			for (const [position,section] of sections.entries()) {
-				const chordLevelNode = this.createChordLevelNode(section, position)
-				this.subNodes.push(chordLevelNode)
-				let sectionNoteOutputs
-				let sectionDuration
-				try {
-					[sectionNoteOutputs, sectionDuration] = chordLevelNode.generate()
-				} catch (e) {
-					if (e instanceof ConflictError){
-
-						////////////// THIS NEEDS TO BE FIGURED OUT
-						while(true){
-							try {
-								prevSectionCanvas!.tryAnother()
-							} catch (e) {
-								if (e instanceof ConflictError) {
-									break
-								}
-							}
-						}
-						
-
-						if (this.backtrackPrev(prevSectionCanvas!)) {
-							
-						} else {
-							isValid = false
-							break
-						}
-						////////////// IT REALLY DOES
-
-						isValid = false
-						break
-					} else throw e
+			for (let i = 0; i < sections.length; i++) {
+				const subSolution = this.solveAtPosition(i, sections, prevNode, setResultAtPosition)
+				if(subSolution === "Fail") {
+					isValid = false
+					break
 				}
-
-				noteOutputs.push(...(sectionNoteOutputs.map((noteOutput) => {
-					noteOutput.startTime += totalDuration
-					return noteOutput
-				})))
-
-				totalDuration += sectionDuration
-
-				prevSectionCanvas = chordLevelNode.getCanvas()
+				const {noteOutputs, duration, prevNode: newprevNode} = subSolution
+				noteOutputss.push(noteOutputs)
+				durations.push(duration)
+				prevNode = newprevNode
 			}
 			if (isValid) break
 			sections = this.canvas.tryAnother()
 		}
-		return [noteOutputs, totalDuration]
+		const allNoteOutputs : NoteOutput[] = []
+		let totalDuration = 0
+		for (let i = 0; i < sections.length; i++) {
+			totalDuration += durations[i]
+			for(const subNoteOutput of noteOutputss[i]){
+				allNoteOutputs.push(subNoteOutput)
+			}
+		}
+		return [allNoteOutputs, totalDuration]
 	}
 
-	backtrackPrev(prevSectionCanvas: TileCanvas<Section, Chordesque>): boolean {
-		throw new Error("Method not implemented.")
+	backtrackPrev(
+		prevNode: ChordLevelNode | undefined,
+		setResultAtPosition : (position: number, newDuration : number, newNoteOutputs : NoteOutput[]) => boolean,
+		prevPosition : number
+	): boolean {
+		if(prevNode === undefined) return false
+		try {
+			const [prevNotes, prevDuration] = prevNode.tryAnother()
+			if(!setResultAtPosition(prevPosition, prevDuration, prevNotes)) throw new Error("Looking into the future")
+			return true
+		} catch (e) {
+			if(e instanceof ConflictError) {
+				return false
+			}
+			throw e
+		}
+
+	}
+
+	solveAtPosition(
+			position : number, 
+			sections : Section[], 
+			prevNode: ChordLevelNode | undefined, 
+			setResultAtPosition : (position: number, newDuration : number, newNoteOutputs : NoteOutput[]) => boolean
+		): SubSolution {
+		const section = sections[position]
+		const chordLevelNode = this.createChordLevelNode(section, position)
+		this.subNodes.push(chordLevelNode)
+		try {
+			const [sectionNoteOutputs, sectionDuration] = chordLevelNode.generate()
+			let duration = 0
+			let noteOutputs: NoteOutput[] = []
+
+			noteOutputs.push(...(sectionNoteOutputs.map((noteOutput) => {
+				noteOutput.startTime += duration
+				return noteOutput
+			})))
+
+			duration += sectionDuration
+
+			return {noteOutputs, duration, prevNode:chordLevelNode}
+		} catch (e) {
+			if (e instanceof ConflictError){		
+				if (this.backtrackPrev(prevNode, setResultAtPosition, position - 1)) {
+					this.subNodes.pop()
+					return this.solveAtPosition(position, sections, prevNode, setResultAtPosition)
+				} else {
+					return "Fail"
+				}
+			} else throw e
+		}
 	}
 }
+
+interface SubSolutionSuccess {
+	noteOutputs : NoteOutput[]
+	duration : number
+	prevNode : ChordLevelNode
+} 
+
+type SubSolution = SubSolutionSuccess | "Fail"
