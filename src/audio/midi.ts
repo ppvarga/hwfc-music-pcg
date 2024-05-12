@@ -147,6 +147,7 @@ function chordToNoteOutput(
 	chord: Chord,
 	startTime: number,
 	duration: number,
+	instrument: number,
 ): NoteOutput[] {
 	const out: NoteOutput[] = []
 
@@ -161,6 +162,7 @@ function chordToNoteOutput(
 			octavedNote: new OctavedNote(note, 3),
 			startTime,
 			duration,
+			instrument: instrument,
 		})
 	})
 
@@ -171,6 +173,7 @@ export function chordResultToOutput(
 	chordResult: ChordResult,
 	bpm: number,
 	offset: number,
+	instrument: number,
 ): [NoteOutput[], number] {
 	let time = offset
 	const out: NoteOutput[] = []
@@ -184,6 +187,7 @@ export function chordResultToOutput(
 			chordResult.chord,
 			offset,
 			chordResult.notes.length * baseDuration(bpm),
+			instrument,
 		),
 	)
 	return [out, time]
@@ -193,6 +197,7 @@ export function chordResultWithRhythmToOutput(
 	chordResultWithRhythm: ChordResultWithRhythm,
 	bpm: number,
 	offset: number,
+	instrument: number,
 ): [NoteOutput[], number] {
 	let time = offset
 	let noteIndex = 0
@@ -203,6 +208,7 @@ export function chordResultWithRhythmToOutput(
 				octavedNote: chordResultWithRhythm.notes[noteIndex++],
 				startTime: time,
 				duration: unit.duration * baseDuration(bpm),
+				instrument: instrument,
 			})
 		}
 		time += unit.duration * baseDuration(bpm)
@@ -214,6 +220,7 @@ export function chordResultWithRhythmToOutput(
 			offset,
 			durationOfRhythmPattern(chordResultWithRhythm.rhythmPattern) *
 				baseDuration(bpm),
+			instrument,
 		),
 	)
 	return [out, time]

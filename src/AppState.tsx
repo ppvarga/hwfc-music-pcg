@@ -5,7 +5,7 @@ import { SelectKeyTypeOption } from "./components/utils"
 import { ChordInKeyHardConstraintInit } from "./wfc/constraints/ChordInKeyHardConstraint"
 import { MelodyInKeyHardConstraintInit } from "./wfc/constraints/MelodyInKeyHardConstraint"
 import { MelodyInRangeHardConstraintInit } from "./wfc/constraints/MelodyInRangeHardConstraint"
-import { ChordConstraintIR, NoteConstraintIR } from "./wfc/constraints/constraintUtils"
+import { ChordConstraintIR, NoteConstraintIR, InterMelodyConstraintIR } from "./wfc/constraints/constraintUtils"
 import { ChordRootAbsoluteStepSizeHardConstraintInit } from "./wfc/constraints/ChordRootAbsoluteStepSizeHardConstraint"
 import { ChordPrototypeIR, ChordesqueIR, nameOfChordPrototypeIR } from "./wfc/hierarchy/Chordesque"
 import { NoteOutput } from "./components/MidiPlayer"
@@ -27,7 +27,8 @@ export interface PassiveAppState {
     chordOptionsPerCell: InfiniteArray<ChordesqueIR[]>;
     noteOptionsPerCell: InfiniteArray<OctavedNoteIR[]>; 
     chordConstraintSet: ChordConstraintIR[]; 
-    noteConstraintSet: NoteConstraintIR[];  
+    noteConstraintSet: NoteConstraintIR[]; 
+	interMelodyConstraintSet: InterMelodyConstraintIR[]; 
     useRhythm: boolean;
     minNumNotes: number;
     startOnNote: boolean;
@@ -128,6 +129,22 @@ function AppState() {
 		setNoteConstraintSet(newConstraintSet)
 	}
 
+	const basicInterMelodyConstraintSet = [] as InterMelodyConstraintIR[]
+	const [interMelodyConstraintSet, setInterMelodyConstraintSet] = useState(basicInterMelodyConstraintSet)
+	const addInterMelodyConstraint = (constraint: InterMelodyConstraintIR) => {
+		setInterMelodyConstraintSet([...interMelodyConstraintSet, constraint])
+	}
+	const removeInterMelodyConstraint = (index: number) => {
+		const newConstraintSet = [...interMelodyConstraintSet]
+		newConstraintSet.splice(index, 1)
+		setInterMelodyConstraintSet(newConstraintSet)
+	}
+	const handleInterMelodyConstraintChange = (index: number, constraint: InterMelodyConstraintIR) => {
+		const newConstraintSet = [...interMelodyConstraintSet]
+		newConstraintSet[index] = constraint
+		setInterMelodyConstraintSet(newConstraintSet)
+	}
+
 	//RHYTHM
 	const [useRhythm, setUseRhythm] = useState(false)
 
@@ -219,6 +236,7 @@ function AppState() {
 
 		setChordConstraintSet(newState.chordConstraintSet)
 		setNoteConstraintSet(newState.noteConstraintSet)
+		setInterMelodyConstraintSet(newState.interMelodyConstraintSet)
 
 		setUseRhythm(newState.useRhythm)
 		setMinNumNotes(newState.minNumNotes)
@@ -277,6 +295,11 @@ function AppState() {
 		addNoteConstraint,
 		removeNoteConstraint,
 		handleNoteConstraintChange,
+
+		interMelodyConstraintSet,
+		addInterMelodyConstraint,
+		removeInterMelodyConstraint,
+		handleInterMelodyConstraintChange,
 
 		useRhythm,
 		setUseRhythm,

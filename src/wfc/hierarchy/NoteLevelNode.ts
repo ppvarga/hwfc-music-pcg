@@ -22,4 +22,8 @@ export class NoteLevelNode {
 	public generate(): OctavedNote[] {
 		return this.canvas.generate()
 	}
+
+	public getCanvas(): TileCanvas<OctavedNote> {
+		return this.canvas
+	}
 }

@@ -63,6 +63,7 @@ import {
 import { Constraint } from "./concepts/Constraint"
 import { HigherValues } from "../HigherValues"
 import { noteGrabberIRToGrabber } from "../grabbers/noteGrabbers"
+import { NoHalfStepInterMelodyConstraint, NoHalfStepInterMelodyConstraintIR, NoHalfStepInterMelodyConstraintInit } from "./NoHalfStepInterMelodyConstraint"
 
 export type ChordConstraintIR =
 	| ChordInKeyHardConstraintIR
@@ -80,8 +81,12 @@ export type NoteConstraintIR =
 	| MelodyShapeHardConstraintIR
 	| MelodyInKeyHardConstraintIR
 
+export type InterMelodyConstraintIR =
+	| NoHalfStepInterMelodyConstraintIR
+
 export type ChordConstraintType = ChordConstraintIR["type"]
 export type NoteConstraintType = NoteConstraintIR["type"]
+export type InterMelodyConstraintType = InterMelodyConstraintIR["type"]
 
 const chordConstraintTypesNamesHints = [
 	["ChordInKeyHardConstraint", "Chord in Key", ""],
@@ -134,6 +139,26 @@ export const noteConstraintOptions = Array.from(
 	noteConstraintTypeToName.entries(),
 ).map(([value, label]) => ({ value, label }))
 
+const interMelodyConstraintTypesNamesHints = [
+	["NoHalfStepInterMelodyConstraint", "No dissonance", "Ensures an instrument does not play a note a half step from a note played by some other instrument."]
+] as const
+
+type InterMelodyConstraintName = (typeof interMelodyConstraintTypesNamesHints)[number][1]
+type InterMelodyConstraintHint = (typeof interMelodyConstraintTypesNamesHints)[number][2]
+type InterMelodyConstraintReadable = {
+	name: InterMelodyConstraintName
+	hint: InterMelodyConstraintHint
+}
+
+export const interMelodyConstraintTypeToName = new Map<
+	InterMelodyConstraintType,
+	InterMelodyConstraintReadable
+>(interMelodyConstraintTypesNamesHints.map(([value, name, hint]) => [value, {name, hint}]))
+
+export const interMelodyConstraintOptions = Array.from(
+	interMelodyConstraintTypeToName.entries(),
+).map(([value, label]) => ({ value, label }))
+
 export const convertIRToChordConstraint = (
 	ir: ChordConstraintIR,
 ): Constraint<Chordesque> => {
@@ -182,6 +207,15 @@ export const convertIRToNoteConstraint = (
 	}
 }
 
+export const convertIRToInterMelodyConstraint = (
+	ir: InterMelodyConstraintIR,
+): Constraint<OctavedNote> => {
+	switch (ir.type) {
+		case "NoHalfStepInterMelodyConstraint":
+			return new NoHalfStepInterMelodyConstraint()
+	}
+}
+
 export const initializeChordConstraint = (
 	name: ChordConstraintType,
 ): ChordConstraintIR => {
@@ -217,5 +251,14 @@ export const initializeNoteConstraint = (
 			return MelodyInRangeHardConstraintInit
 		case "MelodyShapeHardConstraint":
 			return MelodyShapeHardConstraintInit
+	}
+}
+
+export const initializeInterMelodyConstraint = (
+	name: InterMelodyConstraintType,
+): InterMelodyConstraintIR => {
+	switch (name) {
+		case "NoHalfStepInterMelodyConstraint":
+			return NoHalfStepInterMelodyConstraintInit
 	}
 }

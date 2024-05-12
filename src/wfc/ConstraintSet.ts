@@ -1,10 +1,12 @@
 import { HigherValues } from "./HigherValues"
 import { Tile } from "./Tile"
+import { TileCanvas } from "./TileCanvas"
 import {
 	SoftConstraint,
 	HardConstraint,
 	Constraint,
 	isHardConstraint,
+	InterMelodyConstraint,
 } from "./constraints/concepts/Constraint"
 
 function partition<T>(array: T[], isValid: (elem: T) => boolean): [T[], T[]] {
@@ -21,19 +23,24 @@ function partition<T>(array: T[], isValid: (elem: T) => boolean): [T[], T[]] {
 export class ConstraintSet<T> {
 	private softConstraints: SoftConstraint<T>[]
 	private hardConstraints: HardConstraint<T>[]
+	private interMelodyConstraints: InterMelodyConstraint<T>[]
 
 	constructor(constraints?: Constraint<T>[]) {
-		[this.softConstraints, this.hardConstraints] = partition(
+		[this.softConstraints, constraints] = partition(
 			constraints ?? [],
 			(constraint) => constraint instanceof SoftConstraint
-		) as [SoftConstraint<T>[], HardConstraint<T>[]]
+		) as [SoftConstraint<T>[], Constraint<T>[]]
+		[this.hardConstraints, this.interMelodyConstraints] = partition(
+			constraints ?? [],
+			(constraint) => isHardConstraint(constraint)
+		) as [HardConstraint<T>[], InterMelodyConstraint<T>[]]
 	}
 
-	public weight(tile: Tile<T>, higherValues: HigherValues): number {
+	public weight(tile: Tile<T>, higherValues: HigherValues, otherInstruments?: TileCanvas<T>[]): number {
 		if (
 			!this.hardConstraints.every((hardConstraint) =>
 				hardConstraint.check(tile, higherValues)
-			)
+			) || (otherInstruments && !this.interMelodyConstraints.every((interMelodyConstraint) => otherInstruments.every((otherInstrument) => interMelodyConstraint.checkIM(tile, otherInstrument))))
 		)
 			return 0
 		let out = 1

@@ -2,6 +2,7 @@ import { useRef, useState, useEffect } from "react"
 import * as Tone from "tone"
 import { OctavedNote } from "../music_theory/Note"
 import MidiWriter, { Pitch } from 'midi-writer-js';
+// import { useAppContext } from "../AppState";
 
 const normalizeYPositions = (yPositions: number[]): number[] => {
 	const maxY = Math.max(...yPositions)
@@ -15,17 +16,24 @@ export type NoteOutput = {
 	instrument?: number;
 };
 
-const generateMidi = (notes: NoteOutput[]) => {
+const generateMidi = (notes: NoteOutput[]) => {//, numInstruments: number) => {
+	// let tracks: MidiWriter.Track[] = []
+	// for (let i = 0; i < numInstruments; i++) {
+	// 	tracks.push(new MidiWriter.Track())
+	// }
+	// console.log(tracks)
     let track = new MidiWriter.Track();
     const ticksPerSecond = 256;
 
     notes.forEach(note => {
+		note.instrument = !note.instrument ? 1 : note.instrument
 		track.addEvent(new MidiWriter.NoteEvent({
+		// tracks[note.instrument - 1].addEvent(new MidiWriter.NoteEvent({
 			pitch: note.octavedNote.toString() as Pitch, 
 			startTick: Math.round(note.startTime * ticksPerSecond), 
 			duration: `T${note.duration * ticksPerSecond -1}`
 		}));
-		track.addEvent(new MidiWriter.ProgramChangeEvent({ instrument: 10 }))
+		// tracks[note.instrument - 1].addEvent(new MidiWriter.ProgramChangeEvent({ instrument: note.instrument == 1 ? 1 : (note.instrument - 1) * 10 }))
     });
 
     let write = new MidiWriter.Writer(track);
@@ -40,16 +48,27 @@ type MidiPlayerProps = {
 	updatePlayer: () => void;
 };
 
+// const synths: Tone.VoiceConstructor<Tone.Synth<Tone.SynthOptions>>[] = [Tone.Synth, Tone.MonoSynth, Tone.AMSynth, Tone.FMSynth, Tone.MembraneSynth]
+
 export function MidiPlayer({ notes, length, isPlaying, setIsPlaying, updatePlayer }: MidiPlayerProps) {
+	// const { numInstruments } = useAppContext()
 	const canvasRef = useRef<HTMLCanvasElement>(null)
 	const [currentNotesIndices, setCurrentNotesIndices] = useState<number[]>([])
 	const synthRef = useRef<Tone.PolySynth>();
 	if (!synthRef.current) {
 		synthRef.current = new Tone.PolySynth(Tone.Synth).toDestination();
 	}
+	// const synthRefs = useRef<Tone.PolySynth[]>();
+	// if (!synthRefs.current) {
+	// 	synthRef.current = synths.map((synth) => new Tone.PolySynth(synth).toDestination())
+	// }
 	const [volume, setVolume] = useState(-25)
 	synthRef.current.volume.setValueAtTime(volume, Tone.context.currentTime)
-
+	// const FMSynthRef = useRef<Tone.PolySynth>();
+	// if (!FMSynthRef.current) {
+	// 	FMSynthRef.current = new Tone.PolySynth(Tone.FMSynth).toDestination();
+	// }
+	// FMSynthRef.current.volume.setValueAtTime(volume, Tone.context.currentTime)
 	const noteRectHeight = 2
 	const yPositions = notes.map(note => note.octavedNote.toY(noteRectHeight))
 	const normalizedYPositions = normalizeYPositions(yPositions)
@@ -85,6 +104,8 @@ export function MidiPlayer({ notes, length, isPlaying, setIsPlaying, updatePlaye
 		let endTime = 0
 
 		notes.forEach((note, i) => {
+			// const curSynth = !note.instrument || note.instrument == 1 ? synthRef : FMSynthRef
+
 			Tone.Transport.schedule(time => {
 				setCurrentNotesIndices(prevIndices => [...prevIndices, i])
 				synthRef.current!.triggerAttack(note.octavedNote.toString(), time)

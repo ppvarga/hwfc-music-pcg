@@ -67,7 +67,7 @@ export class Tile<T> {
 		})
 	}
 
-	public updateOptions(options?: T[]): number {
+	public updateOptions(options?: T[], otherInstruments?: TileCanvas<T>[]): number {
 		if (options === undefined) {
 			if (!(this.status instanceof Set)) return -1
 			options = [...(this.status as Set<[T, number]>)].map(
@@ -84,6 +84,7 @@ export class Tile<T> {
 				.weight(
 					this.hypotheticalTile(option),
 					this.canvas.getHigherValues(),
+					otherInstruments
 				)
 			if (weight <= 0) return
 			const optionWeightPair: [T, number] = [option, weight]
@@ -116,12 +117,19 @@ export class Tile<T> {
 		return out
 	}
 
-	private finishCollapse(value: T): void {
+	private finishCollapse(value: T, otherInstruments?: TileCanvas<T>[]): void {
 		this.status = value
 		this.canvas.collapseOne()
 		this.collapsed = true
 		this.next.updateOptions()
 		this.prev.updateOptions()
+		if (otherInstruments) {
+			otherInstruments.forEach((otherInstrument) => {
+				const tiles = otherInstrument.getTiles()
+				if (this.position < tiles.length)
+					tiles[this.position].updateOptions(undefined, [this.canvas])
+			})
+		}
 	}
 
 	public getNumOptions(): number {

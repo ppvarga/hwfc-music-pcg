@@ -12,6 +12,7 @@ import { SectionsPage } from "./components/SectionsPage"
 import { SectionTiles } from "./components/SectionTiles"
 import { Configs } from "./components/Configs"
 import { NumberOfInstruments } from "./components/NumberOfInstruments"
+import { InterMelodyConstraints } from "./components/InstrumentConstraints"
 
 function App() {
 
@@ -24,6 +25,7 @@ function App() {
 					<div className="main-column">
 						<SectionTiles />
 						<NumberOfInstruments />
+						<InterMelodyConstraints />
 					</div>
 					<div className="main-column">
 						<ChordTiles />

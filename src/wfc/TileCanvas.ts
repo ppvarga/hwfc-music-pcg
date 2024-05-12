@@ -105,6 +105,10 @@ export class TileCanvas<T> {
 		return this.random
 	}
 
+	public getTiles(): Tile<T>[] {
+		return this.tiles
+	}
+
 	public collapseNext(): Tile<T> {
 		if (this.collapsed >= this.size) throw new Error("Nothing to collapse")
 		const tileToCollapse = this.pq.poll()

@@ -99,6 +99,7 @@ export class ChordLevelNode {
 
 			if(useRhythm) {
 				let newestOffset = offset
+				let counter = 1
 				noteLevelNodes.forEach((noteLevelNode: NoteLevelNode) => {
 					const abstractResultBase = {
 						chord: chordValue,
@@ -118,14 +119,17 @@ export class ChordLevelNode {
 						abstractResult,
 						this.higherValues.bpm,
 						offset,
+						counter,
 					)
 					out.push(...subResult)
 					newestOffset = newerOffset
+					counter += 1
 				})
 				offset = newestOffset
 				
 			} else {
 				let newestOffset = offset
+				let counter = 1
 				noteLevelNodes.forEach((noteLevelNode: NoteLevelNode) => {
 					const abstractResultBase = {
 						chord: chordValue,
@@ -135,9 +139,11 @@ export class ChordLevelNode {
 						abstractResultBase,
 						this.higherValues.bpm,
 						offset,
+						counter,
 					)
 					out.push(...subResult)
 					newestOffset = newerOffset
+					counter += 1
 				})
 				offset = newestOffset
 			}
