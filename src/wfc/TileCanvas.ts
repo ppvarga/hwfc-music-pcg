@@ -11,12 +11,12 @@ import { HWFCNode } from "./hierarchy/HWFCNode"
 import { Section } from "./hierarchy/Section"
 import { SharedDecision } from "./hierarchy/backtracking"
 
-export interface TileCanvasProps<T extends Canvasable> {
+export interface TileCanvasProps<T extends Canvasable<T>> {
 	optionsPerCell: OptionsPerCell<T>
 	constraints: ConstraintSet<T>
 }
 
-export const unionOfTileCanvasProps = <T extends Equatable>(first: TileCanvasProps<T>, second: TileCanvasProps<T>) => {
+export const unionOfTileCanvasProps = <T extends Equatable<T>>(first: TileCanvasProps<T>, second: TileCanvasProps<T>) => {
 	return {
 		optionsPerCell: first.optionsPerCell.union(second.optionsPerCell),
 		constraints: first.constraints.union(second.constraints),
@@ -27,13 +27,13 @@ const optionsToWeighedOptions = <T>(options: Set<T>): Set<[T, number]> => {
 	return new Set([...options].map((option: T) => [option, 1]))
 }
 
-export type Decision<T extends Canvasable> = {
+export type Decision<T extends Canvasable<T>> = {
 	index : number
 	value : T
 	oldState : Tile<T>[]
 }
 
-export class TileCanvas<P extends Canvasable, T extends Canvasable, C extends Canvasable> {
+export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C extends Canvasable<C>> {
 	private collapsed: number
 	private tiles: Tile<T>[]
 	private pq: TileSelector<T>
@@ -58,7 +58,7 @@ export class TileCanvas<P extends Canvasable, T extends Canvasable, C extends Ca
 
 		const optionsPerCell = props.optionsPerCell
 
-		this.pq = new TileSelector<T>(random)
+		this.pq = new TileSelector<T>(random, this)
 		this.higherValues = higherValues
 		this.constraints = props.constraints
 		this.decisions = []
@@ -74,7 +74,9 @@ export class TileCanvas<P extends Canvasable, T extends Canvasable, C extends Ca
 		}
 
 		this.tiles[this.size - 1].setNext(Tile.trailer(this))
+	}
 
+	public initialize() {
 		this.tiles.forEach((tile) => {
 			tile.updateOptions()
 			this.pq.add(tile)
@@ -83,13 +85,8 @@ export class TileCanvas<P extends Canvasable, T extends Canvasable, C extends Ca
 
 	private createTile(optionsPerCell: OptionsPerCell<T>, i: number) {
 		const options = optionsPerCell.getOptions(i)
-		let status
-		if (options.length === 1) {
-			this.collapsed++
-			status = options[0]
-		} else {
-			status = optionsToWeighedOptions(new Set(options))
-		}
+		const status = optionsToWeighedOptions(new Set(options))
+		console.log(`Creating tile on level ${this.level} at position ${i}`)
 		return new Tile<T>({
 			status,
 			canvas: this,
@@ -133,6 +130,9 @@ export class TileCanvas<P extends Canvasable, T extends Canvasable, C extends Ca
 			return prevCanvasTiles[prevCanvasTiles.length - 1]
 		}
 		const prev = parent.getSubNodes()[prevIndex]
+		if(prev === undefined) {
+			console.log(this, prevIndex, parent)
+		}
 		const prevCanvas = prev.getCanvas()
 		return prevCanvas.tiles[prevCanvas.size - 1]
 	}
@@ -164,6 +164,8 @@ export class TileCanvas<P extends Canvasable, T extends Canvasable, C extends Ca
 	public collapseNext() {
 		if (this.collapsed >= this.size) throw new Error("Nothing to collapse")
 		const tileToCollapse = this.pq.poll()
+		console.log(`gonna collapse tile at pos ${tileToCollapse.getPosition()}:`)
+		console.log(tileToCollapse)
 
 		var numOptions = tileToCollapse.getNumOptions()
 		const oldState = this.tiles.map(t => t.clone())
@@ -171,7 +173,11 @@ export class TileCanvas<P extends Canvasable, T extends Canvasable, C extends Ca
 		while(numOptions > 0){
 			const value = tileToCollapse.chooseValue()
 			if (value === undefined) {
-				if(this.numDecisions == 0) alert("bozooo")
+				if(this.numDecisions == 0) {
+					console.log(this)
+					alert("bozooo")
+					
+				}
 				this.backtrack()
 				return
 			}
@@ -225,7 +231,6 @@ export class TileCanvas<P extends Canvasable, T extends Canvasable, C extends Ca
 			}
 		}
 		if(decision === undefined) throw new ConflictError() // no decisions on this level, need to deal with this elsewhere
-		
 		switch(decision.level){
 			case "section":
 				(this as unknown as TileCanvas<never, Section, Chordesque>).tiles = decision.oldState;
@@ -242,10 +247,15 @@ export class TileCanvas<P extends Canvasable, T extends Canvasable, C extends Ca
 		}
 		this.retractOne()
 		this.numDecisions--
+		const tile = this.tiles[decision.index].clone()
+		tile.decrementNumOptions()
+		this.pq.add(tile)
 	}
 
 	public generate(): T[] {
+		console.log("a")
 		while (this.collapsed < this.size) {
+			console.log("aaa")
 			this.collapseNext()
 		}
 		return this.tiles.map((tile) => tile.getValue())
@@ -253,6 +263,7 @@ export class TileCanvas<P extends Canvasable, T extends Canvasable, C extends Ca
 
 	public tryAnother(): T[] {
 		this.backtrack()
+		console.log("another")
 		return this.generate()
 	}
 
@@ -280,6 +291,10 @@ export class TileCanvas<P extends Canvasable, T extends Canvasable, C extends Ca
 
 	public getLevel() {
 		return this.level
+	}
+
+	public getTileAtPos(i: number) {
+		return this.tiles[i]
 	}
 	
 }

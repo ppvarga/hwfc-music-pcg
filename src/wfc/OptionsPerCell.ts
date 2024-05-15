@@ -1,7 +1,7 @@
 import { Equatable, unique } from "../util/utils"
 import { InfiniteArray } from "./InfiniteArray"
 
-export class OptionsPerCell<T extends Equatable> {
+export class OptionsPerCell<T extends Equatable<T>> {
 	cells: InfiniteArray<T[]>
 	allOptions: T[]
 

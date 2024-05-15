@@ -29,7 +29,7 @@ export interface SectionProps{
     bpm: number
 }
 
-export class Section implements Canvasable {
+export class Section implements Canvasable<Section> {
     constructor(
         private name: string, 
         private noteCanvasProps: TileCanvasProps<OctavedNote>, 
@@ -71,6 +71,13 @@ export class Section implements Canvasable {
             bpm: this.bpm,
             bpmStrategy: this.bpmStrategy
         }
+    }
+
+    clone(): Section {
+        return new Section(this.name, this.noteCanvasProps, this.chordesqueCanvasProps,
+             this.rhythmPatternOptions, this.melodyLength, this.melodyLengthStrategy, 
+             this.rhythmStrategy, this.useDifferentMelodyKey, this.melodyKey, this.numChordsStrategy,
+             this.numChords, this.bpmStrategy, this.bpm)
     }
 }
 

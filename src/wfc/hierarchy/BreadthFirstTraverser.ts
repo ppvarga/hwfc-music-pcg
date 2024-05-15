@@ -1,4 +1,3 @@
-import { Chord } from "../../music_theory/Chord"
 import { OctavedNote } from "../../music_theory/Note"
 import { Canvasable } from "../../util/utils"
 import { ConflictError } from "../Tile"
@@ -6,8 +5,6 @@ import { ChordLevelNode } from "./ChordLevelNode"
 import { Chordesque } from "./Chordesque"
 import { HWFCNode } from "./HWFCNode"
 import { NoteLevelNode } from "./NoteLevelNode"
-import { Section } from "./Section"
-import { SectionLevelNode } from "./SectionLevelNode"
 import { Result } from "./results"
 
 export class BreadthFirstTraverser {
@@ -50,7 +47,7 @@ export class BreadthFirstTraverser {
         }
     }
     
-    static solveAtPosition<P extends Canvasable, T extends Canvasable, C extends Canvasable>(
+    static solveAtPosition<P extends Canvasable<P>, T extends Canvasable<T>, C extends Canvasable<C>>(
             node: HWFCNode<P,T,C>,
             position : number, 
             sections : T[], 
@@ -60,6 +57,10 @@ export class BreadthFirstTraverser {
         try {
             const childNode = node.createChildNode(position)
             node.getSubNodes().push(childNode)
+            childNode.getCanvas().initialize()
+            if(childNode.getCanvas().getLevel() == "chord") {
+                console.log("wake up babe")
+            }
             const childResult = BreadthFirstTraverser.generate(childNode)
 
             const childLevel = childNode.getCanvas().getLevel()
@@ -86,16 +87,16 @@ export class BreadthFirstTraverser {
         }
     }
     
-    public static generate<P extends Canvasable, T extends Canvasable, C extends Canvasable>(node: HWFCNode<P,T,C>): Result<P> {
+    public static generate<P extends Canvasable<P>, T extends Canvasable<T>, C extends Canvasable<C>>(node: HWFCNode<P,T,C>): Result<P> {
         return this.generateCore(node,node.getCanvas().generate())
     }
         
 
-    public static tryAnother<P extends Canvasable, T extends Canvasable, C extends Canvasable>(node: HWFCNode<P,T,C>): Result<P> {
+    public static tryAnother<P extends Canvasable<P>, T extends Canvasable<T>, C extends Canvasable<C>>(node: HWFCNode<P,T,C>): Result<P> {
         return this.generateCore(node, node.getCanvas().tryAnother())
     }
 
-    private static generateCore<P extends Canvasable, T extends Canvasable, C extends Canvasable>(node: HWFCNode<P,T,C>, items: T[]): Result<P> {
+    private static generateCore<P extends Canvasable<P>, T extends Canvasable<T>, C extends Canvasable<C>>(node: HWFCNode<P,T,C>, items: T[]): Result<P> {
         if(node instanceof NoteLevelNode) return node.mergeResults(items)
         let isValid = true
         const results : Result<C>[] = []
@@ -111,6 +112,7 @@ export class BreadthFirstTraverser {
             for (let i = 0; i < items.length; i++) {
                 const subSolution: SubSolution<T,C,any> = BreadthFirstTraverser.solveAtPosition(node, i, items, prevNode, setResultAtPosition)
                 if(subSolution === "Fail") {
+                    if(node.getCanvas().getLevel() == "chord") console.log(node)
                     isValid = false
                     break
                 }
@@ -124,8 +126,8 @@ export class BreadthFirstTraverser {
     }
 }
 
-interface SubSolutionSuccess<P extends Canvasable, T extends Canvasable, C extends Canvasable> {
+interface SubSolutionSuccess<P extends Canvasable<P>, T extends Canvasable<T>, C extends Canvasable<C>> {
     result : Result<T>
 } 
 
-type SubSolution<P extends Canvasable, T extends Canvasable, C extends Canvasable> = SubSolutionSuccess<P,T,C> | "Fail"
+type SubSolution<P extends Canvasable<P>, T extends Canvasable<T>, C extends Canvasable<C>> = SubSolutionSuccess<P,T,C> | "Fail"

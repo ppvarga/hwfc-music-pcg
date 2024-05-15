@@ -71,8 +71,6 @@ export function Output() {
 		constraints: new ConstraintSet(noteConstraintSet.map(noteConstraint => convertIRToNoteConstraint(noteConstraint))),
 	}
 
-	
-
 	function parseSections(): [Section[], Constraint<Section>[]] {
 		const parsedSections = []
 		const sectionConstraints = []
@@ -159,9 +157,8 @@ export function Output() {
 				decisions
 			})
 
+			node.getCanvas().initialize()
 			const result = BreadthFirstTraverser.generate(node) as EntireResult
-			console.log(result)
-			console.log(entireResultToOutput(result, 0))
 			setOutput(entireResultToOutput(result, 0))
 		} catch (e) {
 			console.error(e)

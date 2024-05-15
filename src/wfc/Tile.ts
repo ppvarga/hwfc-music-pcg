@@ -1,7 +1,7 @@
 import { Equatable } from "../util/utils"
 import { TileCanvas } from "./TileCanvas"
 
-export interface TileProps<T extends Equatable> {
+export interface TileProps<T extends Equatable<T>> {
 	status: T | Set<[T, number]> | "header" | "trailer"
 	position: number
 	canvas: TileCanvas<any, T, any>
@@ -18,7 +18,7 @@ function getItemFromSet<T>(set: Set<T>, predicate: (item: T) => boolean): T | un
     return undefined; // Return undefined if no item matches the predicate
 }
 
-export class Tile<T extends Equatable> {
+export class Tile<T extends Equatable<T>> {
 	private prev!: Tile<T>
 	private next!: Tile<T>
 	private position: number
@@ -46,14 +46,15 @@ export class Tile<T extends Equatable> {
 	}
 
 	public clone(): Tile<T> {
-		const newStatus = this.status instanceof Set ? new Set(this.status) : this.status
-		return new Tile({
+		const newStatus = this.status instanceof Set ? new Set(this.status) : (this.status == "header" || this.status == "trailer") ? this.status : this.status.clone()
+		const out = new Tile({
 			status: newStatus,
 			position: this.position,
 			canvas: this.canvas,
 			prev: this.prev,
 			next: this.next
 		})
+		return out
 	}
 
 	public setPrev(prev: Tile<T>): void {
@@ -74,7 +75,7 @@ export class Tile<T extends Equatable> {
 		else return this.next
 	}
 
-	static header<T extends Equatable>(canvas: TileCanvas<any, T, any>): Tile<T> {
+	static header<T extends Equatable<T>>(canvas: TileCanvas<any, T, any>): Tile<T> {
 		return new Tile<T>({
 			status: "header",
 			position: -1,
@@ -82,7 +83,7 @@ export class Tile<T extends Equatable> {
 		})
 	}
 
-	static trailer<T extends Equatable>(canvas: TileCanvas<any, T, any>): Tile<T> {
+	static trailer<T extends Equatable<T>>(canvas: TileCanvas<any, T, any>): Tile<T> {
 		return new Tile<T>({
 			status: "trailer",
 			position: canvas.getSize(),
@@ -149,8 +150,8 @@ export class Tile<T extends Equatable> {
 		this.canvas.collapseOne()
 		this.collapsed = true
 		try {
-			this.next.updateOptions()
-			this.prev.updateOptions()
+			this.getPrev(true).updateOptions()
+			this.getNext(true).updateOptions()
 		} catch (e) {
 			if(! (e instanceof ConflictError)) throw e
 			this.collapsed = false
@@ -204,7 +205,10 @@ export class Tile<T extends Equatable> {
 	}
 
 	public getValue(): T {
-		if (!this.collapsed) throw new Error("Tile not collapsed")
+		if (!this.collapsed) {
+			console.log(this)
+			throw new Error(`Tile at ${this.position} not collapsed, has status ${this.status}`)
+		}
 		return this.status as T
 	}
 
@@ -220,6 +224,10 @@ export class Tile<T extends Equatable> {
 		if (this.status instanceof Set) return Array.from(this.status).map(a => a[0])
 		if (this.status == "header" || this.status == "trailer") throw new Error("HOW")
 		return [this.status]
+	}
+
+	public decrementNumOptions() {
+		this.numOptions--
 	}
 }
 

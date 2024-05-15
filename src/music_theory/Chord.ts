@@ -157,6 +157,10 @@ export class Chord extends NoteSet implements Chordesque {
 		if (res.includes(undefined)) return undefined
 		return res as Chord[]
 	}
+
+	clone(): Chordesque {
+		return new Chord(this.root, this.noteValues)
+	}
 }
 
 export class MajorChord extends Chord {

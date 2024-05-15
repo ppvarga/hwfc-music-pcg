@@ -32,10 +32,6 @@ export class NoteLevelNode extends HWFCNode<Chordesque, OctavedNote, any>{
 		)
 	}
 
-	public generate(): OctavedNote[] {
-		return this.canvas.generate()
-	}
-
 	public mergeResults(subResults: Result<OctavedNote>[]): Result<Chordesque> {
 		const chordResult: ChordResult = {
 			chord: this.higherValues.chord!,

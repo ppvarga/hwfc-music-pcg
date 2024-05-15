@@ -47,7 +47,7 @@ export type OctavedNoteIR = {
 	octave: number
 }
 
-export class OctavedNote implements Canvasable {
+export class OctavedNote implements Canvasable<OctavedNote> {
 	private note: Note
 	private octave: number
 
@@ -127,6 +127,10 @@ export class OctavedNote implements Canvasable {
 
 	public toY(unit: number): number {
 		return this.toMIDIValue() * unit
+	}
+
+	public clone(): OctavedNote {
+		return new OctavedNote(this.note, this.octave)
 	}
 }
 

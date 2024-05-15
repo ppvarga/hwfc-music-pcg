@@ -1,12 +1,13 @@
 import { Random } from "../util/Random"
 import { Equatable } from "../util/utils"
 import { Tile } from "./Tile"
+import { TileCanvas } from "./TileCanvas"
 
-export class TileSelector<T extends Equatable> {
+export class TileSelector<T extends Equatable<T>> {
 	private pq: [number, Tile<T>][] = []
 	private random: Random
 
-	constructor(random: Random) {
+	constructor(random: Random, private canvas: TileCanvas<any,T,any>) {
 		this.random = random
 	}
 
@@ -21,7 +22,9 @@ export class TileSelector<T extends Equatable> {
 
 		while (!found && this.pq.length > 0) {
 			pair = this.pq.shift() as [number, Tile<T>]
-			if (pair![1].isActive()) {
+			const tile = pair[1]
+
+			if (this.canvas.getTileAtPos(tile.getPosition()).isActive()) {
 				found = true
 			}
 		}

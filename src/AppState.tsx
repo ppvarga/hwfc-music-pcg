@@ -194,7 +194,7 @@ function AppState() {
 	}
 
 	//OUTPUT
-	const [output, setOutput] = useState<Output>({notes: [], duration: 0})
+	const [output, setOutput] = useState<Output>({notes: [], end: 0})
 
 	//STATE
 	const updateState = (newState: PassiveAppState): void => {
@@ -228,7 +228,7 @@ function AppState() {
 
 		setSections(newState.sections)
 
-		setOutput({notes: [], duration: 0})
+		setOutput({notes: [], end: 0})
 	}
 
 	return {

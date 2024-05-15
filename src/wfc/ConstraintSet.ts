@@ -19,7 +19,7 @@ function partition<T>(array: T[], isValid: (elem: T) => boolean): [T[], T[]] {
 	)
 }
 
-export class ConstraintSet<T extends Equatable> {
+export class ConstraintSet<T extends Equatable<T>> {
 	private softConstraints: SoftConstraint<T>[]
 	private hardConstraints: HardConstraint<T>[]
 

@@ -12,13 +12,14 @@ export const arrayEquals = <T>(a: T[], b: T[]) => {
 	return a.length === b.length && a.every((v, i) => v === b[i])
 }
 
-export interface Equatable {
+export interface Equatable<T> {
 	equals(other: any): boolean;
+	clone(): T
 }
 
-export interface Canvasable extends Equatable{}
+export interface Canvasable<T> extends Equatable<T>{}
 
-export function unique<T extends Equatable>(arr: T[]): T[] {
+export function unique<T extends Equatable<T>>(arr: T[]): T[] {
 	return arr.reduce((acc: T[], current: T) => {
 	  if (!acc.some(item => item.equals(current))) {
 		acc.push(current);

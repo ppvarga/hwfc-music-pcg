@@ -21,7 +21,7 @@ import {
 import { Canvasable } from "../../util/utils"
 import { Section } from "./Section"
 
-export interface Chordesque extends Canvasable {
+export interface Chordesque extends Canvasable<Chordesque> {
 	getName(): string
 	getChord: () => Chord
 	getBpm: (section: Section) => number
@@ -59,6 +59,12 @@ export class ChordPrototype implements Chordesque {
 	equals(other: any): boolean {
 		if(!(other instanceof ChordPrototype)) return false
 		return (this.chord.equals(other.chord) && this.name == other.name)
+	}
+
+	clone(): Chordesque {
+		return new ChordPrototype(this.name, this.noteCanvasProps, this.chord, this.rhythmStrategy,
+			 this.rhythmPatternOptions, this.melodyLength, this.useDifferentMelodyKey, this.melodyKey,
+			  this.melodyLengthStrategy, this.bpmStrategy, this.bpm)
 	}
 }
 
