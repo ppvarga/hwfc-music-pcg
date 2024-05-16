@@ -78,15 +78,15 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 
 	public initialize() {
 		this.tiles.forEach((tile) => {
+			if(tile.isCollapsed()) return
 			tile.updateOptions()
-			this.pq.add(tile)
+			// this.pq.add(tile)
 		})
 	}
 
 	private createTile(optionsPerCell: OptionsPerCell<T>, i: number) {
 		const options = optionsPerCell.getOptions(i)
 		const status = optionsToWeighedOptions(new Set(options))
-		console.log(`Creating tile on level ${this.level} at position ${i}`)
 		return new Tile<T>({
 			status,
 			canvas: this,
@@ -130,9 +130,6 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 			return prevCanvasTiles[prevCanvasTiles.length - 1]
 		}
 		const prev = parent.getSubNodes()[prevIndex]
-		if(prev === undefined) {
-			console.log(this, prevIndex, parent)
-		}
 		const prevCanvas = prev.getCanvas()
 		return prevCanvas.tiles[prevCanvas.size - 1]
 	}
@@ -153,19 +150,13 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 		return --this.collapsed
 	}
 
-	public addTileOption(tile: Tile<T>) {
-		this.pq.add(tile)
-	}
-
 	public getRandom(): Random {
 		return this.random
 	}
 
 	public collapseNext() {
 		if (this.collapsed >= this.size) throw new Error("Nothing to collapse")
-		const tileToCollapse = this.pq.poll()
-		console.log(`gonna collapse tile at pos ${tileToCollapse.getPosition()}:`)
-		console.log(tileToCollapse)
+		const tileToCollapse = this.pq.poll2()
 
 		var numOptions = tileToCollapse.getNumOptions()
 		const oldState = this.tiles.map(t => t.clone())
@@ -173,11 +164,6 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 		while(numOptions > 0){
 			const value = tileToCollapse.chooseValue()
 			if (value === undefined) {
-				if(this.numDecisions == 0) {
-					console.log(this)
-					alert("bozooo")
-					
-				}
 				this.backtrack()
 				return
 			}
@@ -212,12 +198,12 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 						})
 						break
 				}
+				this.tiles[tileToCollapse.getPosition()] = tileToCollapse
 				break
 			}
 			numOptions--
 		}
 		if(numOptions == 0) this.backtrack()
-
 		return
 	}
 
@@ -249,13 +235,11 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 		this.numDecisions--
 		const tile = this.tiles[decision.index].clone()
 		tile.decrementNumOptions()
-		this.pq.add(tile)
+		// this.pq.add(tile)
 	}
 
 	public generate(): T[] {
-		console.log("a")
 		while (this.collapsed < this.size) {
-			console.log("aaa")
 			this.collapseNext()
 		}
 		return this.tiles.map((tile) => tile.getValue())
@@ -263,7 +247,6 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 
 	public tryAnother(): T[] {
 		this.backtrack()
-		console.log("another")
 		return this.generate()
 	}
 

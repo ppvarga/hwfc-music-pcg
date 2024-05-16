@@ -21,9 +21,9 @@ export function SectionsPage() {
 			height: "70vh",
 		}}>
 			{sections.map((section, index) => {
-				const effectiveName = nameOfSectionIR(section)
+				const effectiveName = nameOfSectionIR(section).name
 				const chosen = chosenSectionIndex === index
-				const multipleWithSameName = sections.filter((proto2) => nameOfSectionIR(proto2) === effectiveName).length > 1
+				const multipleWithSameName = sections.filter((proto2) => nameOfSectionIR(proto2).name === effectiveName).length > 1
 				return <div key={index}
 					style={{
 						...buttonStyles,

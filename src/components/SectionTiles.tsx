@@ -36,7 +36,7 @@ const parseSections = (input: string, sections: SectionIR[]): SectionIR[] | unde
 	const items = input.split(" ").filter(item => item !== "")
 	const out = [] as SectionIR[]
 	for (const item of items) {
-		const section = sections.find(section => nameOfSectionIR(section) === item)
+		const section = sections.find(section => nameOfSectionIR(section).name === item)
 		if (section) {
 			out.push(section)
 		} else {
@@ -85,7 +85,7 @@ export function SectionTiles() {
 		<>
 			<H2tooltip title="Sections" hint="Set the options for each of the sections. Multiple options can be given per index. If left empty for a given index, all sections have a chance to be chosen."/>
 			{arr.map((_, i) => (
-				<SectionTile key={i} index={i} initialOptions={sectionOptionsPerCell.get(i)?.map(nameOfSectionIR)} />
+				<SectionTile key={i} index={i} initialOptions={sectionOptionsPerCell.get(i)?.map((s) => nameOfSectionIR(s).name)} />
 			))}
 		</>
 	)

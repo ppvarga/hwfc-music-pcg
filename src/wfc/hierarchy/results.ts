@@ -19,4 +19,4 @@ export type ChordResult = Result<Chordesque> & {
 
 export type MelodyResult = Result<OctavedNote> & OctavedNote
 
-export interface Result<T extends Canvasable> {}
+export interface Result<T extends Canvasable<T>> {}

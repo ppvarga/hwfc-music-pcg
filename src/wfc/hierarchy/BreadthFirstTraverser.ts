@@ -51,15 +51,12 @@ export class BreadthFirstTraverser {
             node: HWFCNode<P,T,C>,
             position : number, 
             sections : T[], 
-            prevNode: HWFCNode<T,C,any> | undefined, 
             setResultAtPosition : (position: number, newResult: Result<C>) => boolean
         ): SubSolution<T,C,any> {
         try {
-            const childNode = node.createChildNode(position)
-            node.getSubNodes().push(childNode)
+            const childNode = node.getSubNodes()[position]
             childNode.getCanvas().initialize()
             if(childNode.getCanvas().getLevel() == "chord") {
-                console.log("wake up babe")
             }
             const childResult = BreadthFirstTraverser.generate(childNode)
 
@@ -78,8 +75,8 @@ export class BreadthFirstTraverser {
                     BreadthFirstTraverser.backtrackPrevChord(setResultAtPosition, position - 1) :
                     BreadthFirstTraverser.backtrackPrevNote(setResultAtPosition, position - 1)
                 if (successfulBacktrack) {
-                    node.getSubNodes().pop()
-                    return BreadthFirstTraverser.solveAtPosition(node, position, sections, prevNode, setResultAtPosition)
+                    node.resetSubNodeAt(position)
+                    return BreadthFirstTraverser.solveAtPosition(node, position, sections, setResultAtPosition)
                 } else {
                     return "Fail"
                 }
@@ -98,7 +95,6 @@ export class BreadthFirstTraverser {
 
     private static generateCore<P extends Canvasable<P>, T extends Canvasable<T>, C extends Canvasable<C>>(node: HWFCNode<P,T,C>, items: T[]): Result<P> {
         if(node instanceof NoteLevelNode) return node.mergeResults(items)
-        let isValid = true
         const results : Result<C>[] = []
         const setResultAtPosition = (position: number, newResult: Result<C>) => {
             if(position < 0 || position >= results.length) return false
@@ -106,13 +102,13 @@ export class BreadthFirstTraverser {
             return true
         }
     
-        while(true){
-            let prevNode : HWFCNode<T,C,any> | undefined = undefined
-    
+        while(true){    
+            let isValid = true
+            node.clearSubNodes()
+            node.createSubNodes()
             for (let i = 0; i < items.length; i++) {
-                const subSolution: SubSolution<T,C,any> = BreadthFirstTraverser.solveAtPosition(node, i, items, prevNode, setResultAtPosition)
+                const subSolution: SubSolution<T,C,any> = BreadthFirstTraverser.solveAtPosition(node, i, items, setResultAtPosition)
                 if(subSolution === "Fail") {
-                    if(node.getCanvas().getLevel() == "chord") console.log(node)
                     isValid = false
                     break
                 }

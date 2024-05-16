@@ -11,7 +11,7 @@ import { TileCanvasProps } from "../TileCanvas"
 import { ChordConstraintIR, NoteConstraintIR, convertIRToChordConstraint, convertIRToNoteConstraint } from "../constraints/constraintUtils"
 import { ChordPrototypeIR, Chordesque, ChordesqueIR, chordesqueIRMapToChordesqueMap } from "./Chordesque"
 import { parseChordPrototypes } from "../../components/Output"
-import { Canvasable } from "../../util/utils"
+import { Canvasable, Name } from "../../util/utils"
 
 export interface SectionProps{
     name: string
@@ -122,8 +122,8 @@ export const SectionInit = (id: number) => {
 
 export type SectionIR = ReturnType<typeof SectionInit>
 
-export function nameOfSectionIR(sectionIR: SectionIR) {
-    return sectionIR.name === "" ? `Section${sectionIR.id}` : sectionIR.name
+export function nameOfSectionIR(sectionIR: SectionIR): Name {
+    return new Name(sectionIR.name === "" ? `Section${sectionIR.id}` : sectionIR.name)
 }
 
 export function sectionIRToSection(

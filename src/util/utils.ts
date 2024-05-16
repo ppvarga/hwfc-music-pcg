@@ -27,3 +27,17 @@ export function unique<T extends Equatable<T>>(arr: T[]): T[] {
 	  return acc;
 	}, []);
 }
+
+export class Name implements Equatable<Name> {
+	constructor(public name: string) {
+	}
+
+	clone(): Name {
+		return new Name(this.name)
+	}
+
+	equals(other: any): boolean {
+		if (!(other instanceof Name)) return false
+		return this.name == other.name 
+	}
+}

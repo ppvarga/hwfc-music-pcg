@@ -10,7 +10,7 @@ import { ChordRootAbsoluteStepSizeHardConstraintInit } from "./wfc/constraints/C
 import { ChordPrototypeIR, ChordesqueIR, nameOfChordPrototypeIR } from "./wfc/hierarchy/Chordesque"
 import { SectionIR, SectionInit, nameOfSectionIR } from "./wfc/hierarchy/Section"
 import { InfiniteArray } from "./wfc/InfiniteArray"
-import { unique } from "./util/utils"
+import { Equatable, unique } from "./util/utils"
 import { Output } from "./audio/midi"
 
 export interface PassiveAppState {
@@ -198,6 +198,7 @@ function AppState() {
 
 	//STATE
 	const updateState = (newState: PassiveAppState): void => {
+		console.log()
 		setBpm(newState.bpm)
 		setNumChords(newState.numChords)
 		setNumSections(newState.numSections)
@@ -374,7 +375,7 @@ export const SectionProvider = ({ children, env }: { children: React.ReactNode, 
 
 export const errorsInAppState = (appState: AppContextType): string[] => {
 	const errors: string[] = []
-	const hasDuplicates = (arr: any[]): boolean => {
+	function hasDuplicates<T extends Equatable<T>> (arr: T[]): boolean {
 		return unique(arr).length !== arr.length
 	}
 

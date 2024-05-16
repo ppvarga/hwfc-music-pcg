@@ -24,7 +24,7 @@ export function NeighborRulesChordPrototype({ inputLabel, checkboxLabel, restric
 		if (restrict && allowedSet.length === 0) return false
 		let out = true
 		allowedSet.forEach(s => {
-			if (chordPrototypes.some(p => nameOfChordPrototypeIR(p) === s)) return
+			if (chordPrototypes.some(p => nameOfChordPrototypeIR(p).name === s)) return
 			const chordIR = stringToChordIR(s)
 			if (chordIR) return
 			out = false
@@ -58,7 +58,7 @@ export function NeighborRulesSection({ inputLabel, checkboxLabel, restrict, setR
 		if (restrict && allowedSet.length === 0) return false
 		let out = true
 		allowedSet.forEach(s => {
-			if (sections.some(p => nameOfSectionIR(p) === s)) return
+			if (sections.some(p => nameOfSectionIR(p).name === s)) return
 			const chordIR = stringToChordIR(s)
 			if (chordIR) return
 			out = false

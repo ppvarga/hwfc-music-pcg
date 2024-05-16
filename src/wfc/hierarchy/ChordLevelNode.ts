@@ -59,7 +59,7 @@ export class ChordLevelNode extends HWFCNode<Section, Chordesque, OctavedNote> {
 
 		const chordValue = chord.getChord()
 		let actualNoteCanvasProps = this.noteCanvasProps
-		let actualMelodyLength = chord instanceof ChordPrototype ? chord.melodyLength : this.higherValues.melodyLength
+		let actualMelodyLength = (chord instanceof ChordPrototype && chord.melodyLengthStrategy == "Custom" ) ? chord.melodyLength : this.higherValues.melodyLength
 		let rhythmPatternOptions = this.higherValues.rhythmPatternOptions
 		
 		if (chord instanceof ChordPrototype) {

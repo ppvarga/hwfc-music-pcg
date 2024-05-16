@@ -6,7 +6,7 @@ type RhythmUnit = {
 	type: "note" | "rest"
 }
 
-export class RhythmPattern implements Equatable {
+export class RhythmPattern implements Equatable<RhythmPattern> {
 	constructor(
 		private units: RhythmUnit[]
 	) {}
@@ -18,6 +18,10 @@ export class RhythmPattern implements Equatable {
 
 	public getUnits(): RhythmUnit[] {
 		return this.units
+	}
+
+	clone(): RhythmPattern {
+		return new RhythmPattern([...this.units])
 	}
 }
 

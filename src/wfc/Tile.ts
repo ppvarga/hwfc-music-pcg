@@ -92,6 +92,7 @@ export class Tile<T extends Equatable<T>> {
 	}
 
 	public updateOptions(options?: T[]): number {
+		if(this.status == "header" || this.status == "trailer") return 0
 		if (options === undefined) {
 			if (!(this.status instanceof Set)) return -1
 			options = [...(this.status as Set<[T, number]>)].map(
@@ -127,7 +128,7 @@ export class Tile<T extends Equatable<T>> {
 		this.status = new Set(newOptionWeights)
 		this.numOptions = out
 
-		this.canvas.addTileOption(this)
+		// this.canvas.addTileOption(this)
 		return out
 	}
 
@@ -174,6 +175,13 @@ export class Tile<T extends Equatable<T>> {
 	}
 
 	public getNumOptions(): number {
+		if(this.status instanceof Set) {
+			this.numOptions = this.status.size
+		} else if (this.status == "header" || this.status == "trailer") {
+			this.numOptions = 0
+		} else {
+			this.numOptions = 1
+		}
 		return this.numOptions
 	}
 
@@ -206,7 +214,6 @@ export class Tile<T extends Equatable<T>> {
 
 	public getValue(): T {
 		if (!this.collapsed) {
-			console.log(this)
 			throw new Error(`Tile at ${this.position} not collapsed, has status ${this.status}`)
 		}
 		return this.status as T
@@ -228,6 +235,10 @@ export class Tile<T extends Equatable<T>> {
 
 	public decrementNumOptions() {
 		this.numOptions--
+	}
+
+	public getStatus() {
+		return this.status
 	}
 }
 

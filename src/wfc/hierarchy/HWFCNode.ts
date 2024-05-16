@@ -4,7 +4,7 @@ import { BreadthFirstTraverser } from "./BreadthFirstTraverser"
 import { SharedDecision } from "./backtracking"
 import { Result } from "./results"
 
-export abstract class HWFCNode<P extends Canvasable, T extends Canvasable, C extends Canvasable> {
+export abstract class HWFCNode<P extends Canvasable<P>, T extends Canvasable<T>, C extends Canvasable<C>> {
     protected parent?: HWFCNode<any,P,T>
     protected abstract canvas: TileCanvas<P, T, C>
     protected abstract position: number
@@ -29,6 +29,24 @@ export abstract class HWFCNode<P extends Canvasable, T extends Canvasable, C ext
 
 	public generate(): Result<T> {
         return BreadthFirstTraverser.generate(this)
+    }
+
+    public clearSubNodes() {
+        this.subNodes = []
+    }
+
+    public createSubNodes() {
+        for (let i = 0; i < this.canvas.getSize(); i++) {
+            this.subNodes.push(this.createChildNode(i))
+        }
+    }
+
+    public setSubNodeAt(position: number, newSubNode: HWFCNode<T, C, any>){
+        this.subNodes[position] = newSubNode
+    }
+
+    public resetSubNodeAt(position: number) {
+        this.setSubNodeAt(position, this.createChildNode(position))
     }
 
     public abstract mergeResults(subResults: Result<T>[]): Result<P>
