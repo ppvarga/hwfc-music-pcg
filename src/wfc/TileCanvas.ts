@@ -184,7 +184,7 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 							index: tileToCollapse.getPosition(),
 							value: tileToCollapse.getValue() as unknown as Chordesque,
 							oldState: oldState as unknown as Tile<Chordesque>[],
-							sectionNumber: this.node.getPosition()
+							sectionNumber: this.node.getPosition(),
 						})
 						break
 					case "melody":
@@ -194,7 +194,7 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 							value: tileToCollapse.getValue() as unknown as OctavedNote,
 							oldState: oldState as unknown as Tile<OctavedNote>[],
 							chordNumber: this.node.getPosition(),
-							sectionNumber: this.node.getParent()!.getPosition()
+							sectionNumber: this.node.getParent()!.getPosition(),
 						})
 						break
 				}
@@ -231,7 +231,7 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 				(this as unknown as TileCanvas<Chordesque, OctavedNote, never>).tiles[decision.index].removeValue(decision.value);
 				break
 		}
-		this.retractOne()
+		this.collapsed = this.tiles.filter(t => t.isCollapsed()).length
 		this.numDecisions--
 		const tile = this.tiles[decision.index].clone()
 		tile.decrementNumOptions()
