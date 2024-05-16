@@ -1,13 +1,13 @@
 {
 	"compilerOptions": {
-		"target": "ES2020",
+		"esModuleInterop": true,
 		"useDefineForClassFields": true,
 		"lib": ["ES2020", "DOM", "DOM.Iterable"],
-		"module": "ESNext",
 		"skipLibCheck": true,
-
+		"allowSyntheticDefaultImports": true,
+		"target": "ESNext",
+    	"module": "commonjs",
 		/* Bundler mode */
-		"moduleResolution": "bundler",
 		"allowImportingTsExtensions": true,
 		"resolveJsonModule": true,
 		"isolatedModules": true,
@@ -18,7 +18,8 @@
 		"strict": true,
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
-		"noFallthroughCasesInSwitch": true
+		"noFallthroughCasesInSwitch": true,
+		"types": ["multer"]
 	},
 	"include": ["src"],
 	"references": [{ "path": "./tsconfig.node.json" }]

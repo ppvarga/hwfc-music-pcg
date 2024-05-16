@@ -2,7 +2,7 @@ import { useRef, useState, useEffect } from "react"
 import * as Tone from "tone"
 import { OctavedNote } from "../music_theory/Note"
 import MidiWriter, { Pitch } from 'midi-writer-js';
-
+import { FileUpload } from './FileUpload'
 const normalizeYPositions = (yPositions: number[]): number[] => {
 	const maxY = Math.max(...yPositions)
 	return yPositions.map(y => maxY - y)
@@ -131,6 +131,7 @@ export function MidiPlayer({ notes, length, isPlaying, setIsPlaying, updatePlaye
 	return (
 		<div style={{ paddingTop: "1em" , display: "flex", flexDirection: "row", maxWidth: "90vw", alignItems:"center"}}>
 			<div>
+				<FileUpload/>
 				<button onClick={updatePlayer} disabled={isPlaying}>
 					Generate
 				</button>

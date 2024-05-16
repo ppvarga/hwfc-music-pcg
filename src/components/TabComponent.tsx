@@ -4,7 +4,7 @@ import Tab from "./Tab"
 interface TabItem {
 	title: string;
 	content: JSX.Element;
-}
+} 
 
 interface TabComponentProps {
 	tabs: TabItem[];

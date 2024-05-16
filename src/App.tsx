@@ -11,6 +11,7 @@ import { ChordPrototypesPage } from "./components/ChordPrototypesPage"
 import { SectionsPage } from "./components/SectionsPage"
 import { SectionTiles } from "./components/SectionTiles"
 import { Configs } from "./components/Configs"
+import { MidiAnalyser } from "./components/MidiAnalyser"
 
 function App() {
 
@@ -35,7 +36,7 @@ function App() {
 			</>
 		},
 		{
-			title: "Sections",
+			title: "Sections", 
 			content: <SectionsPage />
 		},
 		{
@@ -45,6 +46,10 @@ function App() {
 		{
 			title: "Configs",
 			content: <Configs />
+		},
+		{
+			title: "MidiAnalyser",
+			content: <MidiAnalyser />
 		}
 	]
 

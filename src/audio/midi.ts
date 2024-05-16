@@ -1,5 +1,5 @@
 import MidiWriter, { Pitch } from "midi-writer-js"
-import { OctavedNote } from "../music_theory/Note"
+import { OctavedNote, Note } from "../music_theory/Note"
 import {
 	ChordResult,
 	ChordResultWithRhythm,
@@ -7,7 +7,10 @@ import {
 import { Chord } from "../music_theory/Chord"
 import { durationOfRhythmPattern } from "../music_theory/Rhythm"
 import { NoteOutput } from "../components/MidiPlayer"
-
+import * as midiManager from 'midi-file';
+import { parseArrayBuffer } from 'midi-json-parser';
+import { read, MidiFile } from "midifile-ts"
+import { intToNote } from "../music_theory/Note"
 const baseDuration = (bpm: number) =>  60 / bpm
 
 function noteToPitch(note: OctavedNote): Pitch {
@@ -49,7 +52,45 @@ function finishMidi(
 
 	setSrc(url)
 }
+export function MidiToNoteOutput(midiFile: ArrayBuffer): NoteOutput[] { 
+    const noteOutputs: NoteOutput[] = [];
+	//const textEncoder = new TextEncoder()
+    //console.log(new ArrayBuffer(midiFile))
+	//const encoded = textEncoder.encode(midiFile)
+	//const parsed = midiManager.parseMidi(midiFile);
+	//const midi = read(encoded)
+	const midi = read(midiFile)
+	midi.tracks.forEach(track => {
+		track.forEach(event => {
+			if (event.type == "channel" && event.subtype == "noteOn" ) {
+				// Extract note information
+				
+				const noteNumber = event.noteNumber;
+				const startTime = event.deltaTime; // Assuming delta time represents start time
+				const duration = event.velocity; // Assuming duration is available
 
+				// Convert note number to pitch and octave
+				const octave = Math.floor(noteNumber / 12) - 1; // MIDI octave starts from -1
+
+				// Create OctavedNote object
+				const octavedNote = new OctavedNote(intToNote(noteNumber % 12), octave)// Assuming OctavedNote structure
+
+				const noteOutput: NoteOutput = {
+					octavedNote: octavedNote,
+					startTime: startTime,
+					duration: duration
+				};
+				// Create NoteOutput object and push it to the array
+				noteOutputs.push(noteOutput);
+			}
+		});
+	});
+	
+	
+    
+	//console.log(midi)
+    return noteOutputs;
+}
 export function chordResultToMidi(
 	chordResult: ChordResult,
 	setSrc: (url: string) => void,
