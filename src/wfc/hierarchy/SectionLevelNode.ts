@@ -5,6 +5,7 @@ import { HigherValues } from "../HigherValues"
 import { TileCanvasProps, TileCanvas, unionOfTileCanvasProps } from "../TileCanvas"
 import { ChordLevelNode } from "./ChordLevelNode"
 import { Chordesque } from "./Chordesque"
+import { HWFCNode } from "./HWFCNode"
 import { Section } from "./Section"
 
 interface SectionLevelNodeProps {
@@ -13,33 +14,41 @@ interface SectionLevelNodeProps {
 	chordesqueCanvasProps: TileCanvasProps<Chordesque>
 	sectionCanvasProps: TileCanvasProps<Section>
 	random: Random
+	position: number
 }
 
-export class SectionLevelNode {
+export class SectionLevelNode extends HWFCNode<any, Section> {
 	private higherValues: HigherValues
 	private noteCanvasProps: TileCanvasProps<OctavedNote>
 	private chordesqueCanvasProps: TileCanvasProps<Chordesque>
-	private sectionCanvas: TileCanvas<Section>
+	protected canvas: TileCanvas<never, Section>
 	private random: Random
+	protected position: number
+	protected subNodes: HWFCNode<Section, Chordesque>[]
 
 	constructor(props: SectionLevelNodeProps) {
+		super()
 		this.higherValues = props.higherValues
 		this.noteCanvasProps = props.noteCanvasProps
 		this.chordesqueCanvasProps = props.chordesqueCanvasProps
-		this.sectionCanvas = new TileCanvas(
+		this.random = props.random
+		this.position = props.position
+		this.subNodes = []
+		this.canvas = new TileCanvas(
 			this.higherValues.numSections,
 			props.sectionCanvasProps,
 			this.higherValues,
 			props.random,
+			this
 		)
-		this.random = props.random
 	}
 
-	private createChordLevelNode(section: Section) {
+	private createChordLevelNode(sectionc: Section, position: number) {
+		const section = sectionc.getObj()
 		return new ChordLevelNode({
 			higherValues: {
 				...this.higherValues, 
-				section, 
+				section: sectionc, 
 				bpm: section.bpmStrategy === "Custom" ? section.bpm : this.higherValues.bpm,
 				numChords: section.numChordsStrategy === "Custom" ? section.numChords : this.higherValues.numChords,
 				useRhythm: section.rhythmStrategy === "On" || (section.rhythmStrategy === "Inherit" && this.higherValues.useRhythm),
@@ -55,16 +64,19 @@ export class SectionLevelNode {
 				section.chordesqueCanvasProps
 			),
 			random: this.random,
+			parent: this,
+			position
 		})
 	}
 
-	public generate(numInstruments: number): [NoteOutput[], number] {
-		const sections = this.sectionCanvas.generate()
+	public generate(): [NoteOutput[], number] {
+		const sections = this.canvas.generate()
 		const noteOutputs: NoteOutput[] = []
 		let totalDuration = 0
-		for (const section of sections) {
-			const chordLevelNode = this.createChordLevelNode(section)
-			const [sectionNoteOutputs, sectionDuration] = chordLevelNode.generate(numInstruments)
+		for (const [position,section] of sections.entries()) {
+			const chordLevelNode = this.createChordLevelNode(section, position)
+			this.subNodes.push(chordLevelNode)
+			const [sectionNoteOutputs, sectionDuration] = chordLevelNode.generate()
 
 			noteOutputs.push(...(sectionNoteOutputs.map((noteOutput) => {
 				noteOutput.startTime += totalDuration

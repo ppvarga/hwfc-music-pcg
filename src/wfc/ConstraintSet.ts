@@ -1,3 +1,4 @@
+import { Equatable } from "../util/utils"
 import { HigherValues } from "./HigherValues"
 import { Tile } from "./Tile"
 import { TileCanvas } from "./TileCanvas"
@@ -20,7 +21,7 @@ function partition<T>(array: T[], isValid: (elem: T) => boolean): [T[], T[]] {
 	)
 }
 
-export class ConstraintSet<T> {
+export class ConstraintSet<T extends Equatable> {
 	private softConstraints: SoftConstraint<T>[]
 	private hardConstraints: HardConstraint<T>[]
 	private interMelodyConstraints: InterMelodyConstraint<T>[]

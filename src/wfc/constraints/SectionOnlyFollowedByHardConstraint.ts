@@ -10,15 +10,16 @@ export class SectionOnlyFollowedByHardConstraint
 	private sectionName: string
 	private grabber: Grabber<string[]>
 	name = "Section Only Followed By"
-	constructor(sectionName: string, grabber: Grabber<string[]>) {
+	constructor(sectionName: string, grabber: Grabber<string[]>,
+		private reachOver: boolean) {
 		this.sectionName = sectionName
 		this.grabber = grabber
 	}
 
 	check(tile: Tile<Section>, higherValues: HigherValues): boolean {
 		const section = tile.getValue()
-		const prev = tile.getPrev()
-		const next = tile.getNext()
+		const prev = tile.getPrev(this.reachOver)
+		const next = tile.getNext(this.reachOver)
 		
 		let out = true
 		if(prev.isCollapsed()){
@@ -35,8 +36,8 @@ export class SectionOnlyFollowedByHardConstraint
 		second: Section,
 		higherValues: HigherValues,
 	): boolean {
-		if (first.name != this.sectionName) return true
+		if (first.getName() != this.sectionName) return true
 		const sectionSet = this.grabber(higherValues)
-		return sectionSet.some((sectionName) => sectionName === second.name)
+		return sectionSet.some((sectionName) => sectionName === second.getName())
 	}
 }

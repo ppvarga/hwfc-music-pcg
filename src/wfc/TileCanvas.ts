@@ -1,16 +1,18 @@
 import { Random } from "../util/Random"
+import { Equatable } from "../util/utils"
 import { ConstraintSet } from "./ConstraintSet"
 import { HigherValues } from "./HigherValues"
 import { OptionsPerCell } from "./OptionsPerCell"
 import { Tile } from "./Tile"
 import { TileSelector } from "./TileSelector"
+import { HWFCNode } from "./hierarchy/HWFCNode"
 
-export interface TileCanvasProps<T> {
+export interface TileCanvasProps<T extends Equatable> {
 	optionsPerCell: OptionsPerCell<T>
 	constraints: ConstraintSet<T>
 }
 
-export const unionOfTileCanvasProps = <T>(first: TileCanvasProps<T>, second: TileCanvasProps<T>) => {
+export const unionOfTileCanvasProps = <T extends Equatable>(first: TileCanvasProps<T>, second: TileCanvasProps<T>) => {
 	return {
 		optionsPerCell: first.optionsPerCell.union(second.optionsPerCell),
 		constraints: first.constraints.union(second.constraints),
@@ -21,34 +23,39 @@ const optionsToWeighedOptions = <T>(options: Set<T>): Set<[T, number]> => {
 	return new Set([...options].map((option: T) => [option, 1]))
 }
 
-export class TileCanvas<T> {
-	private size: number
+type Decision<T extends Equatable> = {
+	index : number
+	value : T
+	oldState : Tile<T>[]
+}
+
+export class TileCanvas<P extends Equatable, T extends Equatable> {
 	private collapsed: number
 	private tiles: Tile<T>[]
 	private pq: TileSelector<T>
-	private random: Random
 	private higherValues: HigherValues
 	private constraints: ConstraintSet<T>
+	private decisions: Decision<T>[]
 
 	public getSize(): number {
 		return this.size
 	}
 
 	constructor(
-		size: number,
+		private size: number,
 		props: TileCanvasProps<T>,
 		higherValues: HigherValues,
-		random: Random,
+		private random: Random,
+		private node: HWFCNode<P, T>
 	) {
-		this.size = size
 		this.collapsed = 0
 
 		const optionsPerCell = props.optionsPerCell
 
 		this.pq = new TileSelector<T>(random)
-		this.random = random
 		this.higherValues = higherValues
 		this.constraints = props.constraints
+		this.decisions = []
 
 		this.tiles = [this.createTile(optionsPerCell, 0)]
 
@@ -85,6 +92,45 @@ export class TileCanvas<T> {
 		})
 	}
 
+	firstTileOfNext(): Tile<T> {
+		const nextIndex = this.node.getPosition() + 1
+		const parent: HWFCNode<any, P> | undefined = this.node.getParent()
+		if (parent === undefined) return Tile.trailer(this)
+		if (nextIndex >= parent.getSubNodes().length) {
+			const grandparent = parent.getParent()
+			if(grandparent === undefined) return Tile.trailer(this)
+			const parentNextIndex = parent.getPosition() + 1
+			if (parentNextIndex >= grandparent.getSubNodes().length) return Tile.trailer(this)
+			const uncle = grandparent.getSubNodes()[parentNextIndex]
+			if (uncle === undefined || uncle.getSubNodes().length == 0) return Tile.trailer(this)
+			return uncle.getSubNodes()[0].getCanvas().tiles[0]
+		}
+		const next: HWFCNode<P, T> = parent.getSubNodes()[nextIndex]
+		const nextCanvas = next.getCanvas()
+		return nextCanvas.tiles[0]
+	}
+
+	lastTileOfPrevious(): Tile<T> {
+		const prevIndex = this.node.getPosition() - 1
+		const parent = this.node.getParent()
+		if (parent === undefined) return Tile.header(this)
+		if (prevIndex < 0)  {
+			const grandparent = parent.getParent()
+			if(grandparent === undefined) return Tile.trailer(this)
+			const parentPrevIndex = parent.getPosition() - 1
+			if (parentPrevIndex < 0) return Tile.trailer(this)
+			const uncle = grandparent.getSubNodes()[parentPrevIndex]
+			if (uncle === undefined) return Tile.trailer(this)
+			const uncleLength = uncle.getSubNodes().length
+			if (uncleLength == 0) return Tile.trailer(this)
+			const prevCanvasTiles = uncle.getSubNodes()[uncleLength - 1].getCanvas().tiles
+			return prevCanvasTiles[prevCanvasTiles.length - 1]
+		}
+		const prev = parent.getSubNodes()[prevIndex]
+		const prevCanvas = prev.getCanvas()
+		return prevCanvas.tiles[prevCanvas.size - 1]
+	}
+
 	public getConstraints(): ConstraintSet<T> {
 		return this.constraints
 	}
@@ -97,6 +143,10 @@ export class TileCanvas<T> {
 		return ++this.collapsed
 	}
 
+	public retractOne(): number {
+		return --this.collapsed
+	}
+
 	public addTileOption(tile: Tile<T>) {
 		this.pq.add(tile)
 	}
@@ -105,19 +155,50 @@ export class TileCanvas<T> {
 		return this.random
 	}
 
-	public getTiles(): Tile<T>[] {
-		return this.tiles
-	}
-
-	public collapseNext(): Tile<T> {
+	public collapseNext() {
 		if (this.collapsed >= this.size) throw new Error("Nothing to collapse")
 		const tileToCollapse = this.pq.poll()
-		tileToCollapse.collapse()
-		return tileToCollapse
+
+		var numOptions = tileToCollapse.getNumOptions()
+		const oldState = this.tiles.map(t => t.clone())
+
+		while(numOptions > 0){
+			const value = tileToCollapse.chooseValue()
+			if (value === undefined) {
+				this.backtrack()
+				return
+			}
+			if (tileToCollapse.collapse(value)){
+				this.decisions.push({
+					index: tileToCollapse.getPosition(),
+					value: tileToCollapse.getValue(),
+					oldState
+				})
+				break
+			}
+			numOptions--
+		}
+		if(numOptions == 0) this.backtrack()
+
+		return
+	}
+
+	private backtrack() {
+		const decision = this.decisions.pop()
+		if(decision === undefined) throw new Error("You've run out of options :(")
+		this.tiles = decision.oldState
+		this.tiles[decision.index].removeValue(decision.value)
+		this.retractOne()
 	}
 
 	public generate(): T[] {
-		while (this.collapsed < this.size) this.collapseNext()
+		while (this.collapsed < this.size) {
+			this.collapseNext()
+		}
 		return this.tiles.map((tile) => tile.getValue())
+	}
+
+	public getNode(): HWFCNode<P,T> {
+		return this.node
 	}
 }

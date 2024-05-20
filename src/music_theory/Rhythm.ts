@@ -1,21 +1,35 @@
 import { Random } from "../util/Random"
+import { Equatable, arrayEquals } from "../util/utils"
 
 type RhythmUnit = {
 	duration: number
 	type: "note" | "rest"
 }
 
-export type RhythmPattern = RhythmUnit[]
+export class RhythmPattern implements Equatable {
+	constructor(
+		private units: RhythmUnit[]
+	) {}
+
+	public equals(other: any): boolean {
+		if(!(other instanceof RhythmPattern)) return false
+		return arrayEquals(this.units, other.units)
+	}
+
+	public getUnits(): RhythmUnit[] {
+		return this.units
+	}
+}
 
 export function durationOfRhythmPattern(pattern: RhythmPattern) {
-	return pattern.reduce((sum, unit) => sum + unit.duration, 0)
+	return pattern.getUnits().reduce((sum, unit) => sum + unit.duration, 0)
 }
 
 export function numberOfNotesInRhythmPattern(pattern: RhythmPattern) {
-	return pattern.filter((unit) => unit.type == "note").length
+	return pattern.getUnits().filter((unit) => unit.type == "note").length
 }
 
-function abstractPatternsForLength(length: number) {
+function abstractPatternsForLength(length: number): number[][] {
 	if (length < 0) throw new Error("Pattern can't have negative length")
 
 	const out: number[][] = []
@@ -46,7 +60,7 @@ export function generateRhythmPatterns(
 		minimumNumberOfNotes,
 		maximumRestLength,
 	}: RhythmPatternOptions,
-) {
+): RhythmPattern[] {
 	const abstractPatterns = abstractPatternsForLength(length).filter(
 		(pattern) => pattern.length >= minimumNumberOfUnits,
 	)
@@ -58,21 +72,21 @@ export function generateRhythmPatterns(
 			minimumNumberOfNotes,
 			maximumRestLength,
 		}),
-	)
+	).map(us => new RhythmPattern(us))
 }
 
 export function getRandomRhythmPattern(
 	length: number,
 	options: RhythmPatternOptions,
 	random: Random,
-) {
+): RhythmPattern {
 	const patterns = generateRhythmPatterns(length, options)
 	if (patterns.length == 0) throw new Error("No possible patterns")
 	return patterns[random.nextInt(patterns.length)]
 }
 
 interface RhytmicCombinationOptions {
-	prefix: RhythmPattern
+	prefix: RhythmUnit[]
 	abstractPattern: number[]
 	onlyStartOnNote: boolean
 	minimumNumberOfNotes: number
@@ -85,10 +99,10 @@ function allRhythmicCombinations({
 	onlyStartOnNote,
 	minimumNumberOfNotes,
 	maximumRestLength,
-}: RhytmicCombinationOptions) {
+}: RhytmicCombinationOptions):RhythmUnit[][] {
 	if (minimumNumberOfNotes > abstractPattern.length) return []
 	if (abstractPattern.length == 0) return [prefix]
-	const out: RhythmPattern[] = []
+	const out: RhythmUnit[][] = []
 	const unitLength = abstractPattern[0]
 	const restOfPattern = abstractPattern.slice(1)
 

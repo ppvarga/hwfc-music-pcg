@@ -7,6 +7,7 @@ export const AscendingMelodySoftConstraintInit = {
 	type: "AscendingMelodySoftConstraint" as const,
 	bonus: 1,
 	validByDefault: true as const,
+	reachOver: true
 }
 
 export type AscendingMelodySoftConstraintIR =
@@ -16,14 +17,16 @@ export class AscendingMelodySoftConstraint extends SoftConstraint<OctavedNote> {
 		AscendingMelodySoftConstraintInit.type,
 	)!.name as string
 
-	constructor(bonus: number) {
+
+
+	constructor(bonus: number, private reachOver: boolean) {
 		super(bonus)
 	}
 
 	weight(tile: Tile<OctavedNote>): number {
 		const note = tile.getValue()
-		const prev = tile.getPrev()
-		const next = tile.getNext()
+		const prev = tile.getPrev(this.reachOver)
+		const next = tile.getNext(this.reachOver)
 
 		let out = 0
 

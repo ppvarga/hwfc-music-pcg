@@ -40,7 +40,7 @@ export function parseChordPrototypes(chordPrototypes: ChordPrototypeIR[]): Parse
 				if (properlyNamedChordPrototypes.some(proto => proto.name === chordName)) return true
 				return (Chord.parseChordString(chordName) !== undefined)
 			})) {
-				chordPrototypeConstraints.push(new ChordPrototypeOnlyPrecededByConstraint(protoIR.name, constantStringArrayGrabber(protoIR.allowedPrecedingChords)))
+				chordPrototypeConstraints.push(new ChordPrototypeOnlyPrecededByConstraint(protoIR.name, constantStringArrayGrabber(protoIR.allowedPrecedingChords), true))
 			}
 		}
 
@@ -49,7 +49,7 @@ export function parseChordPrototypes(chordPrototypes: ChordPrototypeIR[]): Parse
 				if (properlyNamedChordPrototypes.some(proto => proto.name === chordName)) return true
 				return (Chord.parseChordString(chordName) !== undefined)
 			})) {
-				chordPrototypeConstraints.push(new ChordPrototypeOnlyFollowedByConstraint(protoIR.name, constantStringArrayGrabber(protoIR.allowedFollowingChords)))
+				chordPrototypeConstraints.push(new ChordPrototypeOnlyFollowedByConstraint(protoIR.name, constantStringArrayGrabber(protoIR.allowedFollowingChords), true))
 			}
 		}
 	}
@@ -60,7 +60,7 @@ export function parseChordPrototypes(chordPrototypes: ChordPrototypeIR[]): Parse
 export function Output() {
 	const [isPlaying, setIsPlaying] = useState(false)
 	const appState = useAppContext()
-	const { output, setOutput, onlyUseChordPrototypes, chordPrototypes, inferKey, inferMelodyKey, differentMelodyKey, numChords, chordOptionsPerCell, chordConstraintSet, melodyLength, noteOptionsPerCell, noteConstraintSet, minNumNotes, startOnNote, maxRestLength, useRhythm, sections, sectionOptionsPerCell, numSections, bpm, numInstruments } = appState
+	const { output, setOutput, onlyUseChordPrototypes, chordPrototypes, inferKey, inferMelodyKey, differentMelodyKey, numChords, chordOptionsPerCell, chordConstraintSet, melodyLength, noteOptionsPerCell, noteConstraintSet, minNumNotes, startOnNote, maxRestLength, useRhythm, sections, sectionOptionsPerCell, numSections, bpm } = appState
 
 	const noteCanvasProps: TileCanvasProps<OctavedNote> = {
 		optionsPerCell: new OptionsPerCell(OctavedNote.all(), noteOptionsPerCell.transform(OctavedNote.multipleFromIRs)),
@@ -87,7 +87,7 @@ export function Output() {
 					if (properlyNamedSections.some(section => section.name === sectionName)) return true
 					return (Chord.parseChordString(sectionName) !== undefined)
 				})) {
-					sectionConstraints.push(new SectionOnlyPrecededByHardConstraint(sectionIR.name, constantStringArrayGrabber(sectionIR.allowedPrecedingSections)))
+					sectionConstraints.push(new SectionOnlyPrecededByHardConstraint(sectionIR.name, constantStringArrayGrabber(sectionIR.allowedPrecedingSections), true))
 				}
 			}
 
@@ -96,7 +96,7 @@ export function Output() {
 					if (properlyNamedSections.some(section => section.name === sectionName)) return true
 					return (Chord.parseChordString(sectionName) !== undefined)
 				})) {
-					sectionConstraints.push(new SectionOnlyFollowedByHardConstraint(sectionIR.name, constantStringArrayGrabber(sectionIR.allowedFollowingSections)))
+					sectionConstraints.push(new SectionOnlyFollowedByHardConstraint(sectionIR.name, constantStringArrayGrabber(sectionIR.allowedFollowingSections), true))
 				}
 			}
 		}
@@ -114,8 +114,6 @@ export function Output() {
 		try {
 			const {parsedChordPrototypes, chordPrototypeConstraints} = parseChordPrototypes(chordPrototypes)
 			const [parsedSections, sectionConstraints] = parseSections()
-
-			console.log(numChords)
 
 			const chordesqueCanvasProps: TileCanvasProps<Chordesque> = {
 				optionsPerCell: new OptionsPerCell([
@@ -151,12 +149,10 @@ export function Output() {
 						maximumRestLength: maxRestLength,
 					},
 				},
-				
+				position: 0
 			})
 
-			console.log(node)
-
-			setOutput(node.generate(numInstruments))
+			setOutput(node.generate())
 		} catch (e) {
 			console.error(e)
 			alert(e)

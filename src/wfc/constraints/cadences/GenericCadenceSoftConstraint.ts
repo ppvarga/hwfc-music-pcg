@@ -21,6 +21,7 @@ export abstract class GenericCadenceSoftConstraint extends SoftConstraint<Chorde
 		firstChordGrabber: Grabber<ChordQuality>,
 		secondChordGrabber: Grabber<ChordQuality>,
 		keyGrabber: Grabber<MusicalKey>,
+		private reachOver: boolean
 	) {
 		super(bonus)
 		this.firstOffsetGrabber = firstOffsetGrabber
@@ -54,7 +55,7 @@ export abstract class GenericCadenceSoftConstraint extends SoftConstraint<Chorde
 		)
 
 		if (chord == secondChord) {
-			const prev = tile.getPrev()
+			const prev = tile.getPrev(this.reachOver)
 			if (
 				prev.isCollapsed() &&
 				prev.getValue().getChord() == firstChord
@@ -62,7 +63,7 @@ export abstract class GenericCadenceSoftConstraint extends SoftConstraint<Chorde
 				return this.bonus
 			}
 		} else if (chord == firstChord) {
-			const next = tile.getNext()
+			const next = tile.getNext(this.reachOver)
 			if (
 				next.isCollapsed() &&
 				next.getValue().getChord() == secondChord

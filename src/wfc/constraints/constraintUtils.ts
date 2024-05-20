@@ -171,12 +171,12 @@ export const convertIRToChordConstraint = (
 			return new ChordInKeyHardConstraint(keyGrabber)
 		case "ChordRootAbsoluteStepSizeHardConstraint":
 			return new ChordRootAbsoluteStepSizeHardConstraint(
-				constantNumberArrayGrabber(ir.stepSizes),
+				constantNumberArrayGrabber(ir.stepSizes), ir.reachOver,
 			)
 		case "PlagalCadenceSoftConstraint":
-			return new PlagalCadenceSoftConstraint(ir.bonus, keyGrabber)
+			return new PlagalCadenceSoftConstraint(ir.bonus, keyGrabber, ir.reachOver)
 		case "PerfectCadenceSoftConstraint":
-			return new PlagalCadenceSoftConstraint(ir.bonus, keyGrabber)
+			return new PlagalCadenceSoftConstraint(ir.bonus, keyGrabber, ir.reachOver)
 	}
 }
 
@@ -190,12 +190,12 @@ export const convertIRToNoteConstraint = (
 			)
 		case "MelodyAbsoluteStepSizeHardConstraint":
 			return new MelodyAbsoluteStepSizeHardConstraint(
-				constantNumberArrayGrabber(ir.stepSizes),
+				constantNumberArrayGrabber(ir.stepSizes), ir.reachOver
 			)
 		case "AscendingMelodySoftConstraint":
-			return new AscendingMelodySoftConstraint(ir.bonus)
+			return new AscendingMelodySoftConstraint(ir.bonus, ir.reachOver)
 		case "DescendingMelodySoftConstraint":
-			return new DescendingMelodySoftConstraint(ir.bonus)
+			return new DescendingMelodySoftConstraint(ir.bonus, ir.reachOver)
 		case "MelodyEndsOnNoteHardConstraint":
 			return new MelodyEndsOnNoteHardConstraint(noteGrabberIRToGrabber(ir.noteGrabber))
 		case "MelodyStartsOnNoteHardConstraint":
@@ -206,7 +206,7 @@ export const convertIRToNoteConstraint = (
 				constantOctavedNoteGrabber(OctavedNote.fromIR(ir.higherNoteIR)),
 			)
 		case "MelodyShapeHardConstraint":
-			return new MelodyShapeHardConstraint(constantMelodyShapeGrabber(ir.shape))
+			return new MelodyShapeHardConstraint(constantMelodyShapeGrabber(ir.shape), ir.reachOver)
 	}
 }
 

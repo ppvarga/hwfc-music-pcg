@@ -1,20 +1,30 @@
+import { Equatable } from "../util/utils"
 import { TileCanvas } from "./TileCanvas"
 
-export interface TileProps<T> {
+export interface TileProps<T extends Equatable> {
 	status: T | Set<[T, number]> | "header" | "trailer"
 	position: number
-	canvas: TileCanvas<T>
+	canvas: TileCanvas<any, T>
 	prev?: Tile<T>
 	next?: Tile<T>
 }
 
-export class Tile<T> {
+function getItemFromSet<T>(set: Set<T>, predicate: (item: T) => boolean): T | undefined {
+    for (const item of set) {
+        if (predicate(item)) {
+            return item;
+        }
+    }
+    return undefined; // Return undefined if no item matches the predicate
+}
+
+export class Tile<T extends Equatable> {
 	private prev!: Tile<T>
 	private next!: Tile<T>
 	private position: number
 	private numOptions: number
 	private status: T | Set<[T, number]> | "header" | "trailer"
-	private canvas: TileCanvas<T>
+	private canvas: TileCanvas<any, T>
 	private collapsed: boolean
 
 	constructor(props: TileProps<T>) {
@@ -35,6 +45,17 @@ export class Tile<T> {
 		this.next = props.next!
 	}
 
+	public clone(): Tile<T> {
+		const newStatus = this.status instanceof Set ? new Set(this.status) : this.status
+		return new Tile({
+			status: newStatus,
+			position: this.position,
+			canvas: this.canvas,
+			prev: this.prev,
+			next: this.next
+		})
+	}
+
 	public setPrev(prev: Tile<T>): void {
 		this.prev = prev
 	}
@@ -43,15 +64,17 @@ export class Tile<T> {
 		this.next = next
 	}
 
-	public getPrev(): Tile<T> {
-		return this.prev
+	public getPrev(reachOver: boolean): Tile<T> {
+		if (reachOver && this.prev.status == "header") return this.canvas.lastTileOfPrevious()
+		else return this.prev
 	}
 
-	public getNext(): Tile<T> {
-		return this.next
+	public getNext(reachOver: boolean): Tile<T> {
+		if (reachOver && this.next.status == "trailer") return this.canvas.firstTileOfNext()
+		else return this.next
 	}
 
-	static header<T>(canvas: TileCanvas<T>): Tile<T> {
+	static header<T extends Equatable>(canvas: TileCanvas<any, T>): Tile<T> {
 		return new Tile<T>({
 			status: "header",
 			position: -1,
@@ -59,7 +82,7 @@ export class Tile<T> {
 		})
 	}
 
-	static trailer<T>(canvas: TileCanvas<T>): Tile<T> {
+	static trailer<T extends Equatable>(canvas: TileCanvas<any, T>): Tile<T> {
 		return new Tile<T>({
 			status: "trailer",
 			position: canvas.getSize(),
@@ -67,7 +90,7 @@ export class Tile<T> {
 		})
 	}
 
-	public updateOptions(options?: T[], otherInstruments?: TileCanvas<T>[]): number {
+	public updateOptions(options?: T[]): number {
 		if (options === undefined) {
 			if (!(this.status instanceof Set)) return -1
 			options = [...(this.status as Set<[T, number]>)].map(
@@ -84,7 +107,6 @@ export class Tile<T> {
 				.weight(
 					this.hypotheticalTile(option),
 					this.canvas.getHigherValues(),
-					otherInstruments
 				)
 			if (weight <= 0) return
 			const optionWeightPair: [T, number] = [option, weight]
@@ -93,9 +115,11 @@ export class Tile<T> {
 		})
 
 		if (out === 0) {
-			throw new Error("No valid options left")
+			throw new ConflictError()
 		} else if (out === 1) {
-			this.finishCollapse(newOptionWeights[0][0])
+			if (!this.collapse(newOptionWeights[0][0])){
+				throw new ConflictError()
+			}
 			return 1
 		}
 
@@ -117,19 +141,35 @@ export class Tile<T> {
 		return out
 	}
 
-	private finishCollapse(value: T, otherInstruments?: TileCanvas<T>[]): void {
+	// returns whether it was a successful collapse
+	public collapse(value: T): boolean {
+		if(! (this.status instanceof Set)) throw new Error("Already collapsed, bozo")
+ 		const oldStatus = this.status
 		this.status = value
 		this.canvas.collapseOne()
 		this.collapsed = true
-		this.next.updateOptions()
-		this.prev.updateOptions()
-		if (otherInstruments) {
-			otherInstruments.forEach((otherInstrument) => {
-				const tiles = otherInstrument.getTiles()
-				if (this.position < tiles.length)
-					tiles[this.position].updateOptions(undefined, [this.canvas])
-			})
+		try {
+			this.next.updateOptions()
+			this.prev.updateOptions()
+		} catch (e) {
+			if(! (e instanceof ConflictError)) throw e
+			this.collapsed = false
+			this.canvas.retractOne()
+			this.status = oldStatus
+			this.removeValue(value)
+
+			return false
 		}
+		return true
+	}
+
+	public removeValue(value: T) {
+		if(!(this.status instanceof Set)){
+			throw new Error("Can't remove from non-set status")
+		}
+		const valuePair = getItemFromSet(this.status, t => t[0] == value)
+		if (valuePair === undefined) throw new Error("This wasn't in the set")
+		this.status.delete(valuePair)
 	}
 
 	public getNumOptions(): number {
@@ -144,9 +184,8 @@ export class Tile<T> {
 		return this.collapsed
 	}
 
-	public collapse(): void {
-		if (!(this.status instanceof Set)) return
-		const options = [...(this.status as Set<[T, number]>)]
+	public chooseValue(): T | undefined {
+		const options = Array.from(this.status as Set<[T, number]>)
 		const totalWeight = options.reduce(
 			(acc, [_, weight]) => acc + weight,
 			0,
@@ -161,8 +200,7 @@ export class Tile<T> {
 				break
 			}
 		}
-		if (out === undefined) throw new Error("No valid options left")
-		this.finishCollapse(out)
+		return out
 	}
 
 	public getValue(): T {
@@ -174,7 +212,19 @@ export class Tile<T> {
 		return this.position
 	}
 
-	public getCanvas(): TileCanvas<T> {
+	public getCanvas(): TileCanvas<any, T> {
 		return this.canvas
+	}
+
+	public getOptions(): T[] {
+		if (this.status instanceof Set) return Array.from(this.status).map(a => a[0])
+		if (this.status == "header" || this.status == "trailer") throw new Error("HOW")
+		return [this.status]
+	}
+}
+
+export class ConflictError extends Error{
+	constructor() {
+		super("No valid options left")
 	}
 }

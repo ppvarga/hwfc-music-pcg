@@ -19,7 +19,6 @@ const UploadButton: React.FC<UploadButtonProps> = ({ onUpload }) => {
     reader.onload = (e) => {
       try {
         const json = parseWithInfiniteArray(e.target?.result as string);
-        console.log(json)
         onUpload(json);
       } catch (err) {
         console.error("Error parsing JSON:", err);

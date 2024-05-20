@@ -11,6 +11,7 @@ import { ChordPrototypeIR, ChordesqueIR, nameOfChordPrototypeIR } from "./wfc/hi
 import { NoteOutput } from "./components/MidiPlayer"
 import { SectionIR, SectionInit, nameOfSectionIR } from "./wfc/hierarchy/Section"
 import { InfiniteArray } from "./wfc/InfiniteArray"
+import { unique } from "./util/utils"
 
 export interface PassiveAppState {
 	bpm: number;
@@ -402,7 +403,7 @@ export const SectionProvider = ({ children, env }: { children: React.ReactNode, 
 export const errorsInAppState = (appState: AppContextType): string[] => {
 	const errors: string[] = []
 	const hasDuplicates = (arr: any[]): boolean => {
-		return (new Set(arr)).size !== arr.length
+		return unique(arr).length !== arr.length
 	}
 
 	if (hasDuplicates(appState.sections.map(nameOfSectionIR))) {

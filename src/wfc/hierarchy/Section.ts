@@ -11,8 +11,9 @@ import { TileCanvasProps } from "../TileCanvas"
 import { ChordConstraintIR, NoteConstraintIR, convertIRToChordConstraint, convertIRToNoteConstraint } from "../constraints/constraintUtils"
 import { ChordPrototypeIR, Chordesque, ChordesqueIR, chordesqueIRMapToChordesqueMap } from "./Chordesque"
 import { parseChordPrototypes } from "../../components/Output"
+import { Equatable } from "../../util/utils"
 
-export interface Section {
+export interface SectionProps{
     name: string
     noteCanvasProps: TileCanvasProps<OctavedNote>
     chordesqueCanvasProps: TileCanvasProps<Chordesque>
@@ -26,6 +27,51 @@ export interface Section {
     numChords: number
     bpmStrategy: LengthStrategy
     bpm: number
+}
+
+export class Section implements Equatable {
+    constructor(
+        private name: string, 
+        private noteCanvasProps: TileCanvasProps<OctavedNote>, 
+        private chordesqueCanvasProps: TileCanvasProps<Chordesque>, 
+        private rhythmPatternOptions: RhythmPatternOptions, 
+        private melodyLength: number, 
+        private melodyLengthStrategy: LengthStrategy,
+        private rhythmStrategy: RhythmStrategy,
+        private useDifferentMelodyKey: boolean,
+        private melodyKey: MusicalKey,
+        private numChordsStrategy: LengthStrategy,
+        private numChords: number,
+        private bpmStrategy: LengthStrategy,
+        private bpm: number
+    ) {}
+
+    equals(other: any): boolean {
+        if(!(other instanceof Section)) return false
+        return this.name == other.name
+    }
+
+    public getName(): string {
+        return this.name
+    }
+
+    public getObj(): SectionProps {
+        return {
+            name: this.name,
+            noteCanvasProps: this.noteCanvasProps,
+            chordesqueCanvasProps: this.chordesqueCanvasProps,
+            rhythmPatternOptions: this.rhythmPatternOptions,
+            melodyLength: this.melodyLength,
+            melodyLengthStrategy: this.melodyLengthStrategy,
+            rhythmStrategy: this.rhythmStrategy,
+            useDifferentMelodyKey: this.useDifferentMelodyKey,
+            melodyKey: this.melodyKey,
+            numChords: this.numChords,
+            numChordsStrategy: this.numChordsStrategy,
+            bpm: this.bpm,
+            bpmStrategy: this.bpmStrategy
+        }
+    }
 }
 
 export const SectionInit = (id: number) => {
@@ -104,15 +150,24 @@ export function sectionIRToSection(
         )
         }
 
-    return {
-        ...sectionIR,
+    return new Section(
+        sectionIR.name,
         noteCanvasProps,
         chordesqueCanvasProps,
-        melodyKey: MusicalKey.fromRootAndType(
+        sectionIR.rhythmPatternOptions,
+        sectionIR.melodyLength,
+        sectionIR.melodyLengthStrategy,
+        sectionIR.rhythmStrategy,
+        sectionIR.useDifferentMelodyKey,
+        MusicalKey.fromRootAndType(
             sectionIR.melodyKeyRoot,
             sectionIR.melodyKeyType,
         ),
-    }
+        sectionIR.numChordsStrategy,
+        sectionIR.numChords,
+        sectionIR.bpmStrategy,
+        sectionIR.bpm
+    )
 }
 
 export function sectionIRMapToSectionMap(

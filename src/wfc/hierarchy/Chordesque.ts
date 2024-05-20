@@ -18,8 +18,9 @@ import {
 	NoteConstraintIR,
 	convertIRToNoteConstraint,
 } from "../constraints/constraintUtils"
+import { Equatable } from "../../util/utils"
 
-export interface Chordesque {
+export interface Chordesque extends Equatable {
 	getName(): string
 	getChord: () => Chord
 }
@@ -47,6 +48,11 @@ export class ChordPrototype implements Chordesque {
 
 	getName(): string {
 		return this.name;
+	}
+
+	equals(other: any): boolean {
+		if(!(other instanceof ChordPrototype)) return false
+		return (this.chord.equals(other.chord) && this.name == other.name)
 	}
 }
 

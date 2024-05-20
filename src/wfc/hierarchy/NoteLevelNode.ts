@@ -2,20 +2,28 @@ import { OctavedNote } from "../../music_theory/Note"
 import { Random } from "../../util/Random"
 import { HigherValues } from "../HigherValues"
 import { TileCanvas, TileCanvasProps } from "../TileCanvas"
+import { ChordLevelNode } from "./ChordLevelNode"
+import { Chordesque } from "./Chordesque"
+import { HWFCNode } from "./HWFCNode"
 
-export class NoteLevelNode {
-	private canvas: TileCanvas<OctavedNote>
+export class NoteLevelNode extends HWFCNode<Chordesque, OctavedNote>{
+	protected canvas: TileCanvas<Chordesque, OctavedNote>
+	protected subNodes: HWFCNode<OctavedNote, any>[] = []
 
 	constructor(
 		canvasProps: TileCanvasProps<OctavedNote>,
 		higherValues: HigherValues,
 		random: Random,
+		protected parent: ChordLevelNode,
+		protected position: number
 	) {
-		this.canvas = new TileCanvas<OctavedNote>(
+		super()
+		this.canvas = new TileCanvas<Chordesque, OctavedNote>(
 			higherValues.melodyLength,
 			canvasProps,
 			higherValues,
 			random,
+			this
 		)
 	}
 

@@ -34,7 +34,7 @@ The base directory contains some meta stuff, I doubt you will have to change any
 - if the parameter is relevant in chord prototypes and sections, put it (only!) into the `ChordPrototypeEnvironment` type. If it's not relevant in chord prototypes but it is in sections, put it into the `SectionEnvironment` type.
 - if there are some easy checks for whether the value of this parameter is 'valid', please add them into the `errorsInAppState` function.
 
-Now, you can use these parameters by calling the `useAppState` function in your component and taking the relevant parameters from the massive object that it returns. See the `components` directory for example usage.
+Now, you can use these parameters by calling the `useAppContext` function in your component and taking the relevant parameters from the massive object that it returns. See the `components` directory for example usage.
 
 The rest of the files in the base of the `src` directory aren't too relevant. Let's break down the subdirectories!
 
