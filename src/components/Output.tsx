@@ -134,11 +134,14 @@ export function Output() {
 
 			const decisions : SharedDecision[] = []
 
+			const random = new Random(0.40601020707693947)
+			console.log(random.getSeed())
+
 			const node = new SectionLevelNode({
 				noteCanvasProps,
 				chordesqueCanvasProps,
 				sectionCanvasProps,
-				random: new Random(),
+				random,
 				higherValues: {
 					key: inferredKey, 
 					melodyKey: differentMelodyKey ? inferMelodyKey() : inferredKey,

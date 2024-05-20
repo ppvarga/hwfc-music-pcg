@@ -56,8 +56,6 @@ export class BreadthFirstTraverser {
         try {
             const childNode = node.getSubNodes()[position]
             childNode.getCanvas().initialize()
-            if(childNode.getCanvas().getLevel() == "chord") {
-            }
             const childResult = BreadthFirstTraverser.generate(childNode)
 
             const childLevel = childNode.getCanvas().getLevel()
@@ -70,7 +68,7 @@ export class BreadthFirstTraverser {
             return {result: childResult}
             
         } catch (e) {
-            if (e instanceof ConflictError){		
+            if (e instanceof ConflictError){
                 const successfulBacktrack = node.getCanvas().getLevel() == "section" ?
                     BreadthFirstTraverser.backtrackPrevChord(setResultAtPosition, position - 1) :
                     BreadthFirstTraverser.backtrackPrevNote(setResultAtPosition, position - 1)
@@ -95,7 +93,10 @@ export class BreadthFirstTraverser {
 
     private static generateCore<P extends Canvasable<P>, T extends Canvasable<T>, C extends Canvasable<C>>(node: HWFCNode<P,T,C>, items: T[]): Result<P> {
         if(node instanceof NoteLevelNode) return node.mergeResults(items)
-        const results : Result<C>[] = []
+        const results : (Result<C> | undefined)[] = []
+        for(let i = 0; i < node.getCanvas().getSize(); i++){
+            results.push(undefined)
+        }
         const setResultAtPosition = (position: number, newResult: Result<C>) => {
             if(position < 0 || position >= results.length) return false
             results[position] = newResult
@@ -113,12 +114,12 @@ export class BreadthFirstTraverser {
                     break
                 }
                 const result = subSolution.result
-                results.push(result)
+                setResultAtPosition(i, result)
             }
             if (isValid) break
             items = node.getCanvas().tryAnother()
         }
-        return node.mergeResults(results)
+        return node.mergeResults(results.map(r => r as Result<T>))
     }
 }
 

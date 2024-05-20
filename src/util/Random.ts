@@ -24,4 +24,8 @@ export class Random {
 
 		return Math.floor(randomNumber / (4294967296 / n))
 	}
+
+	public getSeed() {
+		return this.seed
+	}
 }
