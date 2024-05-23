@@ -1,7 +1,6 @@
 import { Canvasable } from "../../util/utils"
 import { TileCanvas } from "../TileCanvas"
-import { BreadthFirstTraverser } from "./BreadthFirstTraverser"
-import { SharedDecision } from "./backtracking"
+import { DecisionManager } from "./backtracking"
 import { Result } from "./results"
 
 export abstract class HWFCNode<P extends Canvasable<P>, T extends Canvasable<T>, C extends Canvasable<C>> {
@@ -9,7 +8,7 @@ export abstract class HWFCNode<P extends Canvasable<P>, T extends Canvasable<T>,
     protected abstract canvas: TileCanvas<P, T, C>
     protected abstract position: number
     protected abstract subNodes: HWFCNode<T, C, any>[]
-    protected abstract decisions: SharedDecision[]
+    protected abstract decisionManager: DecisionManager
 
     public getParent(): HWFCNode<any,P,T> | undefined {
         return this.parent
@@ -19,16 +18,16 @@ export abstract class HWFCNode<P extends Canvasable<P>, T extends Canvasable<T>,
         return this.canvas
     }
 
+    public getLevel() {
+        return this.canvas.getLevel()
+    }
+
     public getPosition(): number {
         return this.position
     }
 
     public getSubNodes(): HWFCNode<T, C, any>[] {
         return this.subNodes
-    }
-
-	public generate(): Result<T> {
-        return BreadthFirstTraverser.generate(this)
     }
 
     public clearSubNodes() {

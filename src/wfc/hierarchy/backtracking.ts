@@ -13,3 +13,23 @@ export type SharedDecision = ({
     sectionNumber : number;
     chordNumber : number;
 } & Decision<OctavedNote>)
+
+export class DecisionManager {
+    private sectionDecisions : SharedDecision[] = []
+	private chordDecisions : SharedDecision[] = []
+	private melodyDecisions : SharedDecision[] = []
+
+    constructor(){}
+    
+    public getSectionDecisions() {
+		return this.sectionDecisions
+	}
+
+	public getChordDecisions() {
+		return this.chordDecisions
+	}
+
+	public getMelodyDecisions() {
+		return this.melodyDecisions
+	}
+}

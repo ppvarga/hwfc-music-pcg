@@ -8,8 +8,8 @@ import { ChordPrototype, Chordesque } from "./Chordesque"
 import { SectionLevelNode } from "./SectionLevelNode"
 import { HWFCNode } from "./HWFCNode"
 import { Section } from "./Section"
-import { SharedDecision } from "./backtracking"
 import { Result } from "./results"
+import { DecisionManager } from "./backtracking"
 
 interface ChordLevelNodeProps {
 	higherValues: HigherValues
@@ -18,7 +18,7 @@ interface ChordLevelNodeProps {
 	random: Random
 	parent: SectionLevelNode
 	position: number
-	decisions: SharedDecision[]
+	decisionManager: DecisionManager
 }
 
 export class ChordLevelNode extends HWFCNode<Section, Chordesque, OctavedNote> {
@@ -28,7 +28,7 @@ export class ChordLevelNode extends HWFCNode<Section, Chordesque, OctavedNote> {
 	private random: Random
 	protected position: number
 	protected subNodes: HWFCNode<Chordesque, OctavedNote, any>[]
-	protected decisions: SharedDecision[]
+	protected decisionManager: DecisionManager
 
 	constructor(props: ChordLevelNodeProps) {
 		super()
@@ -38,14 +38,14 @@ export class ChordLevelNode extends HWFCNode<Section, Chordesque, OctavedNote> {
 		this.parent = props.parent
 		this.position = props.position
 		this.subNodes = []
-		this.decisions = props.decisions
+		this.decisionManager = props.decisionManager
 		this.canvas = new TileCanvas(
 			this.higherValues.numChords,
 			props.chordesqueCanvasProps,
 			this.higherValues,
 			props.random,
 			this,
-			props.decisions,
+			this.decisionManager.getChordDecisions(),
 			"chord"
 		)
 	}
@@ -98,7 +98,7 @@ export class ChordLevelNode extends HWFCNode<Section, Chordesque, OctavedNote> {
 			this.random,
 			this,
 			position,
-			this.decisions
+			this.decisionManager
 		)
 	}
 	

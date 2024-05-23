@@ -198,7 +198,6 @@ function AppState() {
 
 	//STATE
 	const updateState = (newState: PassiveAppState): void => {
-		console.log()
 		setBpm(newState.bpm)
 		setNumChords(newState.numChords)
 		setNumSections(newState.numSections)

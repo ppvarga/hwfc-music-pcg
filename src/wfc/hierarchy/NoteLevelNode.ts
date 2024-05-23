@@ -5,7 +5,7 @@ import { TileCanvas, TileCanvasProps } from "../TileCanvas"
 import { ChordLevelNode } from "./ChordLevelNode"
 import { Chordesque } from "./Chordesque"
 import { HWFCNode } from "./HWFCNode"
-import { SharedDecision } from "./backtracking"
+import { DecisionManager } from "./backtracking"
 import { ChordResult, MelodyResult, Result } from "./results"
 
 export class NoteLevelNode extends HWFCNode<Chordesque, OctavedNote, any>{
@@ -18,7 +18,7 @@ export class NoteLevelNode extends HWFCNode<Chordesque, OctavedNote, any>{
 		random: Random,
 		protected parent: ChordLevelNode,
 		protected position: number,
-		protected decisions: SharedDecision[]
+		protected decisionManager: DecisionManager
 	) {
 		super()
 		this.canvas = new TileCanvas<Chordesque, OctavedNote, any>(
@@ -27,7 +27,7 @@ export class NoteLevelNode extends HWFCNode<Chordesque, OctavedNote, any>{
 			higherValues,
 			random,
 			this,
-			decisions,
+			decisionManager.getMelodyDecisions(),
 			"melody"
 		)
 	}

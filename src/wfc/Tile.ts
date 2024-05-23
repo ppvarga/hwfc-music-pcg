@@ -5,8 +5,6 @@ export interface TileProps<T extends Equatable<T>> {
 	status: T | Set<[T, number]> | "header" | "trailer"
 	position: number
 	canvas: TileCanvas<any, T, any>
-	prev?: Tile<T>
-	next?: Tile<T>
 }
 
 function getItemFromSet<T>(set: Set<T>, predicate: (item: T) => boolean): T | undefined {
@@ -19,8 +17,6 @@ function getItemFromSet<T>(set: Set<T>, predicate: (item: T) => boolean): T | un
 }
 
 export class Tile<T extends Equatable<T>> {
-	private prev!: Tile<T>
-	private next!: Tile<T>
 	private position: number
 	private numOptions: number
 	private status: T | Set<[T, number]> | "header" | "trailer"
@@ -41,8 +37,6 @@ export class Tile<T extends Equatable<T>> {
 			this.numOptions = 1
 			this.collapsed = true
 		}
-		this.prev = props.prev!
-		this.next = props.next!
 	}
 
 	public clone(): Tile<T> {
@@ -50,29 +44,19 @@ export class Tile<T extends Equatable<T>> {
 		const out = new Tile({
 			status: newStatus,
 			position: this.position,
-			canvas: this.canvas,
-			prev: this.prev,
-			next: this.next
+			canvas: this.canvas
 		})
 		return out
 	}
 
-	public setPrev(prev: Tile<T>): void {
-		this.prev = prev
-	}
-
-	public setNext(next: Tile<T>): void {
-		this.next = next
-	}
-
 	public getPrev(reachOver: boolean): Tile<T> {
-		if (reachOver && this.prev.status == "header") return this.canvas.lastTileOfPrevious()
-		else return this.prev
+		if (reachOver && this.position == 0) return this.canvas.lastTileOfPrevious()
+		else return this.canvas.getTileAtPos(this.position - 1)
 	}
 
 	public getNext(reachOver: boolean): Tile<T> {
-		if (reachOver && this.next.status == "trailer") return this.canvas.firstTileOfNext()
-		else return this.next
+		if (reachOver && this.position == this.canvas.getSize() - 1) return this.canvas.firstTileOfNext()
+		else return this.canvas.getTileAtPos(this.position + 1)
 	}
 
 	static header<T extends Equatable<T>>(canvas: TileCanvas<any, T, any>): Tile<T> {
@@ -138,14 +122,17 @@ export class Tile<T extends Equatable<T>> {
 			position: this.position,
 			status: value,
 		})
-		out.setPrev(this.prev)
-		out.setNext(this.next)
 		return out
 	}
 
 	// returns whether it was a successful collapse
 	public collapse(value: T): boolean {
-		if(! (this.status instanceof Set)) throw new Error("Already collapsed, bozo")
+		if(! (this.status instanceof Set)) {
+			if(value.equals(this.status)){
+				return true
+			}
+			throw new Error("Already collapsed, bozo")
+		}
  		const oldStatus = this.status
 		this.status = value
 		this.canvas.collapseOne()
@@ -162,6 +149,7 @@ export class Tile<T extends Equatable<T>> {
 
 			return false
 		}
+		
 		return true
 	}
 
@@ -194,6 +182,13 @@ export class Tile<T extends Equatable<T>> {
 	}
 
 	public chooseValue(): T | undefined {
+		try{
+			this.updateOptions()
+		} catch (e) {
+			if(e instanceof ConflictError) return undefined
+			throw e
+		}
+		if(!(this.status instanceof Set)) return this.status as T
 		const options = Array.from(this.status as Set<[T, number]>)
 		const totalWeight = options.reduce(
 			(acc, [_, weight]) => acc + weight,
@@ -243,7 +238,7 @@ export class Tile<T extends Equatable<T>> {
 }
 
 export class ConflictError extends Error{
-	constructor() {
-		super("No valid options left")
+	constructor(m?: string) {
+		super(m ?? "No valid options left")
 	}
 }

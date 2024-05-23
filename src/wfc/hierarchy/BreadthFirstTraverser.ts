@@ -1,130 +1,84 @@
-import { OctavedNote } from "../../music_theory/Note"
 import { Canvasable } from "../../util/utils"
 import { ConflictError } from "../Tile"
 import { ChordLevelNode } from "./ChordLevelNode"
-import { Chordesque } from "./Chordesque"
 import { HWFCNode } from "./HWFCNode"
 import { NoteLevelNode } from "./NoteLevelNode"
-import { Result } from "./results"
+import { ResultManager } from "./results"
 
 export class BreadthFirstTraverser {
-    private static lastChordNode?: ChordLevelNode = undefined
-    private static lastNoteNode?: NoteLevelNode = undefined
-    
-    static backtrackPrevChord(
-        setResultAtPosition : (position: number, newResult: Result<Chordesque>) => boolean,
-        prevPosition : number
-    ): boolean {
-        const prevNode = this.lastChordNode
-        if(prevNode === undefined) return false
-        try {
-            const prevResult = this.tryAnother(prevNode)
-            if(!setResultAtPosition(prevPosition, prevResult)) throw new Error("Looking into the future")
-            return true
-        } catch (e) {
-            if(e instanceof ConflictError) {
-                return false
-            }
-            throw e
-        }
-    }
-
-    static backtrackPrevNote(
-        setResultAtPosition : (position: number, newResult: Result<OctavedNote>) => boolean,
-        prevPosition : number
-    ): boolean {
-        const prevNode = this.lastNoteNode
-        if(prevNode === undefined) return false
-        try {
-            const prevResult = this.tryAnother(prevNode)
-            if(!setResultAtPosition(prevPosition, prevResult)) throw new Error("Looking into the future")
-            return true
-        } catch (e) {
-            if(e instanceof ConflictError) {
-                return false
-            }
-            throw e
-        }
-    }
     
     static solveAtPosition<P extends Canvasable<P>, T extends Canvasable<T>, C extends Canvasable<C>>(
             node: HWFCNode<P,T,C>,
             position : number, 
-            sections : T[], 
-            setResultAtPosition : (position: number, newResult: Result<C>) => boolean
-        ): SubSolution<T,C,any> {
+            resultManager: ResultManager
+        ): boolean {
         try {
             const childNode = node.getSubNodes()[position]
             childNode.getCanvas().initialize()
-            const childResult = BreadthFirstTraverser.generate(childNode)
+            BreadthFirstTraverser.generate(childNode, resultManager)
 
-            const childLevel = childNode.getCanvas().getLevel()
-            if(childLevel == "chord"){
-                this.lastChordNode = childNode as unknown as ChordLevelNode
-            } else if (childLevel == "melody"){
-                this.lastNoteNode = childNode as unknown as NoteLevelNode
-            } else throw new Error("This is not a child")
-
-            return {result: childResult}
+            return true
             
         } catch (e) {
             if (e instanceof ConflictError){
-                const successfulBacktrack = node.getCanvas().getLevel() == "section" ?
-                    BreadthFirstTraverser.backtrackPrevChord(setResultAtPosition, position - 1) :
-                    BreadthFirstTraverser.backtrackPrevNote(setResultAtPosition, position - 1)
-                if (successfulBacktrack) {
-                    node.resetSubNodeAt(position)
-                    return BreadthFirstTraverser.solveAtPosition(node, position, sections, setResultAtPosition)
-                } else {
-                    return "Fail"
+                node.resetSubNodeAt(position)
+                if(node.getLevel() == "section") {
+                    resultManager.chordLevelNodes[position] = node.getSubNodes()[position] as unknown as ChordLevelNode
+                } else if (node.getLevel() == "chord") {
+                    resultManager.noteLevelNodes[node.getPosition()][position] = node.getSubNodes()[position] as unknown as NoteLevelNode
                 }
+                return false
             } else throw e
         }
     }
     
-    public static generate<P extends Canvasable<P>, T extends Canvasable<T>, C extends Canvasable<C>>(node: HWFCNode<P,T,C>): Result<P> {
-        return this.generateCore(node,node.getCanvas().generate())
+    public static generate<P extends Canvasable<P>, T extends Canvasable<T>, C extends Canvasable<C>>(node: HWFCNode<P,T,C>, resultManager: ResultManager) {
+        if(node.getPosition() == 3){
+            console.log("fakka")
+        }
+        this.generateCore(node,node.getCanvas().generate(), resultManager)
     }
         
 
-    public static tryAnother<P extends Canvasable<P>, T extends Canvasable<T>, C extends Canvasable<C>>(node: HWFCNode<P,T,C>): Result<P> {
-        return this.generateCore(node, node.getCanvas().tryAnother())
+    public static tryAnother<P extends Canvasable<P>, T extends Canvasable<T>, C extends Canvasable<C>>(node: HWFCNode<P,T,C>, resultManager: ResultManager) {
+        this.generateCore(node, node.getCanvas().tryAnother(), resultManager)
     }
 
-    private static generateCore<P extends Canvasable<P>, T extends Canvasable<T>, C extends Canvasable<C>>(node: HWFCNode<P,T,C>, items: T[]): Result<P> {
-        if(node instanceof NoteLevelNode) return node.mergeResults(items)
-        const results : (Result<C> | undefined)[] = []
-        for(let i = 0; i < node.getCanvas().getSize(); i++){
-            results.push(undefined)
+    private static generateCore<P extends Canvasable<P>, T extends Canvasable<T>, C extends Canvasable<C>>(node: HWFCNode<P,T,C>, items: T[], resultManager: ResultManager) {
+        console.log(items)
+        
+        if(node.getLevel() == "section") {
+            for(let i = 0; i < node.getCanvas().getSize(); i++){
+                resultManager.chordLevelNodes.push(undefined)
+            }
+        } else if(node.getLevel() == "chord") {
+            resultManager.chordLevelNodes[node.getPosition()] = (node as unknown as ChordLevelNode)
+            const skeleton = []
+            for(let i = 0; i < node.getCanvas().getSize(); i++){
+                skeleton.push(undefined)
+            }
+            resultManager.noteLevelNodes[node.getPosition()] = skeleton
+        } else if (node.getLevel() == "melody") {
+            const melodyPosition = node.getPosition()
+            const chordPosition = node.getParent()!.getPosition()
+            resultManager.noteLevelNodes[chordPosition][melodyPosition] = (node as unknown as NoteLevelNode)
+            return
         }
-        const setResultAtPosition = (position: number, newResult: Result<C>) => {
-            if(position < 0 || position >= results.length) return false
-            results[position] = newResult
-            return true
-        }
-    
+
         while(true){    
             let isValid = true
             node.clearSubNodes()
             node.createSubNodes()
+            
             for (let i = 0; i < items.length; i++) {
-                const subSolution: SubSolution<T,C,any> = BreadthFirstTraverser.solveAtPosition(node, i, items, setResultAtPosition)
-                if(subSolution === "Fail") {
+                const subSolution: boolean = BreadthFirstTraverser.solveAtPosition(node, i, resultManager)
+                if(!subSolution) {
                     isValid = false
                     break
                 }
-                const result = subSolution.result
-                setResultAtPosition(i, result)
             }
             if (isValid) break
             items = node.getCanvas().tryAnother()
         }
-        return node.mergeResults(results.map(r => r as Result<T>))
     }
 }
-
-interface SubSolutionSuccess<P extends Canvasable<P>, T extends Canvasable<T>, C extends Canvasable<C>> {
-    result : Result<T>
-} 
-
-type SubSolution<P extends Canvasable<P>, T extends Canvasable<T>, C extends Canvasable<C>> = SubSolutionSuccess<P,T,C> | "Fail"

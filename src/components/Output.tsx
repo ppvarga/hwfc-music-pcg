@@ -17,9 +17,9 @@ import { Section, sectionIRMapToSectionMap, sectionIRToSection } from "../wfc/hi
 import { SectionOnlyPrecededByHardConstraint } from "../wfc/constraints/SectionOnlyPrecededByHardConstraint"
 import { SectionOnlyFollowedByHardConstraint } from "../wfc/constraints/SectionOnlyFollowedByHardConstraint"
 import { SectionLevelNode } from "../wfc/hierarchy/SectionLevelNode"
-import { SharedDecision } from "../wfc/hierarchy/backtracking"
+import { DecisionManager } from "../wfc/hierarchy/backtracking"
 import { BreadthFirstTraverser } from "../wfc/hierarchy/BreadthFirstTraverser"
-import { EntireResult } from "../wfc/hierarchy/results"
+import { ResultManager } from "../wfc/hierarchy/results"
 import { entireResultToOutput } from "../audio/midi"
 
 interface ParseChordPrototypesReturn {
@@ -132,11 +132,10 @@ export function Output() {
 
 			const inferredKey = inferKey()
 
-			const decisions : SharedDecision[] = []
+			const decisionManager = new DecisionManager()
 
-			const random = new Random(0.40601020707693947)
+			const random = new Random(0.054070303318218826)
 			console.log(random.getSeed())
-
 			const node = new SectionLevelNode({
 				noteCanvasProps,
 				chordesqueCanvasProps,
@@ -157,11 +156,13 @@ export function Output() {
 					},
 				},
 				position: 0,
-				decisions
+				decisionManager
 			})
 
 			node.getCanvas().initialize()
-			const result = BreadthFirstTraverser.generate(node) as EntireResult
+			const resultManager = new ResultManager(node)
+			BreadthFirstTraverser.generate(node, resultManager)
+			const result = resultManager.generate()
 			setOutput(entireResultToOutput(result, 0))
 		} catch (e) {
 			console.error(e)
