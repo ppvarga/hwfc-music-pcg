@@ -131,7 +131,6 @@ export function MidiPlayer({ notes, length, isPlaying, setIsPlaying, updatePlaye
 	return (
 		<div style={{ paddingTop: "1em" , display: "flex", flexDirection: "row", maxWidth: "90vw", alignItems:"center"}}>
 			<div>
-				<FileUpload/>
 				<button onClick={updatePlayer} disabled={isPlaying}>
 					Generate
 				</button>

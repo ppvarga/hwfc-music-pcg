@@ -155,15 +155,16 @@ export function Output() {
 			})
 
 			console.log(node)
-
-			setOutput(node.generate())
+			const generatedNotes = node.generate()
+			console.log(generatedNotes[0])
+			setOutput(generatedNotes)
 		} catch (e) {
 			console.error(e)
 			alert(e)
 		}
 	}
 
-	return <div style={{
+	 return <div style={{
 			display: "flex",
 			flexDirection:"row", 
 			justifyContent:"center", 
@@ -177,7 +178,7 @@ export function Output() {
 			padding:10, 
 			backgroundColor: "rgba(0,0,0,0.75)",
 			maxWidth:"90vw",
-		}}>
-		<MidiPlayer notes={output[0]} length={output[1]} isPlaying={isPlaying} setIsPlaying={setIsPlaying} updatePlayer={updatePlayer}/>
-	</div>
+		}}> 
+		<MidiPlayer notes={output[0]} length={output[1]} isPlaying={isPlaying} setIsPlaying={setIsPlaying} updatePlayer={updatePlayer}/> 
+	</div> 
 }

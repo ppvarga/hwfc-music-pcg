@@ -52,6 +52,10 @@ function finishMidi(
 
 	setSrc(url)
 }
+
+
+
+
 export function MidiToNoteOutput(midiFile: ArrayBuffer): NoteOutput[] { 
     const noteOutputs: NoteOutput[] = [];
 	//const textEncoder = new TextEncoder()
@@ -60,31 +64,40 @@ export function MidiToNoteOutput(midiFile: ArrayBuffer): NoteOutput[] {
 	//const parsed = midiManager.parseMidi(midiFile);
 	//const midi = read(encoded)
 	const midi = read(midiFile)
+	console.log("donwloaded midi")
+	console.log(midi)
+	//let currentTime = 0
 	midi.tracks.forEach(track => {
-		track.forEach(event => {
-			if (event.type == "channel" && event.subtype == "noteOn" ) {
-				// Extract note information
-				
-				const noteNumber = event.noteNumber;
-				const startTime = event.deltaTime; // Assuming delta time represents start time
-				const duration = event.velocity; // Assuming duration is available
+        const activeNotes: { [key: number]: { startTime: number, deltaTime: number } } = {};
+        let currentTime = 0;
 
-				// Convert note number to pitch and octave
-				const octave = Math.floor(noteNumber / 12) - 1; // MIDI octave starts from -1
+        track.forEach(event => {
+            currentTime += event.deltaTime;
 
-				// Create OctavedNote object
-				const octavedNote = new OctavedNote(intToNote(noteNumber % 12), octave)// Assuming OctavedNote structure
+            if (event.type == "channel" && event.subtype == "noteOn" && event.velocity > 0) {
+                // Note on event
+                const noteNumber = event.noteNumber;
+                activeNotes[noteNumber] = { startTime: currentTime, deltaTime: event.deltaTime };
+            } else if (event.type == "channel" && (event.subtype == "noteOff" || (event.subtype == "noteOn" && event.velocity === 0))) {
+                // Note off event
+                const noteNumber = event.noteNumber;
+                if (activeNotes[noteNumber]) {
+                    const { startTime, deltaTime } = activeNotes[noteNumber];
+                    const duration = currentTime - startTime;
+					const octave = Math.floor(noteNumber / 12) - 1;
+                    const octavedNote = new OctavedNote(intToNote(noteNumber % 12), octave)
+                    const noteOutput: NoteOutput = {
+                        octavedNote: octavedNote,
+                        startTime: startTime / (2 * midi.header.ticksPerBeat),
+                        duration: duration / (2 * midi.header.ticksPerBeat) 
+                    };
 
-				const noteOutput: NoteOutput = {
-					octavedNote: octavedNote,
-					startTime: startTime,
-					duration: duration
-				};
-				// Create NoteOutput object and push it to the array
-				noteOutputs.push(noteOutput);
-			}
-		});
-	});
+                    noteOutputs.push(noteOutput);
+                    delete activeNotes[noteNumber];
+                }
+            }
+        });
+    });
 	
 	
     
