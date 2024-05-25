@@ -1,4 +1,3 @@
-import { Chord } from "../music_theory/Chord"
 import { OctavedNote } from "../music_theory/Note"
 import { Random } from "../util/Random"
 import { Canvasable, Equatable } from "../util/utils"
@@ -29,7 +28,6 @@ const optionsToWeighedOptions = <T>(options: Set<T>): Set<[T, number]> => {
 }
 
 export type Decision<T extends Canvasable<T>> = {
-	canvas : TileCanvas<any, T, any>
 	index : number
 	value : T
 	oldState : Tile<T>[]
@@ -87,6 +85,24 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 			canvas: this,
 			position: i,
 		})
+	}
+
+	public prevCanvas(): TileCanvas<P,T,C> | undefined {
+		const prevIndex = this.node.getPosition() - 1
+		const parent = this.node.getParent()
+		if (parent === undefined) return undefined
+		if (prevIndex < 0)  {
+			const grandparent = parent.getParent()
+			if(grandparent === undefined) return undefined
+			const parentPrevIndex = parent.getPosition() - 1
+			if (parentPrevIndex < 0) return undefined
+			const uncle = grandparent.getSubNodes()[parentPrevIndex]
+			if (uncle === undefined) return undefined
+			const uncleLength = uncle.getSubNodes().length
+			if (uncleLength == 0) return undefined
+			return uncle.getSubNodes()[uncleLength - 1].getCanvas()
+		}
+		return parent.getSubNodes()[prevIndex].getCanvas()
 	}
 
 	firstTileOfNext(): Tile<T> {
@@ -148,6 +164,15 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 		return this.random
 	}
 
+	public getState(): Tile<T>[] {
+		return this.tiles.map(t => t.clone())
+	}
+
+	public setState(state: Tile<T>[]) {
+		this.tiles = state
+		this.collapsed = state.filter(t => t.isCollapsed()).length
+	}
+
 	public collapseNext() {
 		if (this.collapsed >= this.size) throw new Error("Nothing to collapse")
 		const tileToCollapse = this.pq.poll2()
@@ -167,7 +192,6 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 					case "section":
 						this.decisions.push({
 							level: "section",
-							canvas: this as unknown as TileCanvas<any, Section, Chordesque>,
 							index: tileToCollapse.getPosition(),
 							value: tileToCollapse.getValue() as unknown as Section,
 							oldState: oldState as unknown as Tile<Section>[],
@@ -176,7 +200,6 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 					case "chord":
 						this.decisions.push({
 							level: "chord",
-							canvas: this as unknown as TileCanvas<Section, Chordesque, OctavedNote>,
 							index: tileToCollapse.getPosition(),
 							value: tileToCollapse.getValue() as unknown as Chordesque,
 							oldState: oldState as unknown as Tile<Chordesque>[],
@@ -186,7 +209,6 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 					case "melody":
 						this.decisions.push({
 							level: "melody",
-							canvas: this as unknown as TileCanvas<Chordesque, OctavedNote, any>,
 							index: tileToCollapse.getPosition(),
 							value: tileToCollapse.getValue() as unknown as OctavedNote,
 							oldState: oldState as unknown as Tile<OctavedNote>[],
@@ -205,29 +227,33 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 	}
 
 	private backtrack() {
+		if(this.numDecisions < 1) throw new ConflictError
 		const decision = this.decisions.pop()
-		if(decision === undefined) throw new ConflictError()
-		const canvas = decision.canvas
+		if(decision === undefined) throw new Error("Decision should exist")
+		if(!this.isDecisionAboutThis(decision)) throw new ConflictError("Order between canvases has been broken")
+		this.numDecisions--
 		
 		switch(decision.level){
 			case "section":
-				(canvas as unknown as TileCanvas<never, Section, Chordesque>).tiles = decision.oldState;
-				(canvas as unknown as TileCanvas<never, Section, Chordesque>).tiles[decision.index].removeValue(decision.value);
+				(this as unknown as TileCanvas<never, Section, Chordesque>).tiles = decision.oldState;
+				(this as unknown as TileCanvas<never, Section, Chordesque>).tiles[decision.index].removeValue(decision.value);
 				break
 			case "chord":
-				(canvas as unknown as TileCanvas<Section, Chordesque, OctavedNote>).tiles = decision.oldState;
-				(canvas as unknown as TileCanvas<Section, Chordesque, OctavedNote>).tiles[decision.index].removeValue(decision.value);
+				(this as unknown as TileCanvas<Section, Chordesque, OctavedNote>).tiles = decision.oldState;
+				(this as unknown as TileCanvas<Section, Chordesque, OctavedNote>).tiles[decision.index].removeValue(decision.value);
 				break
 			case "melody":
-				(canvas as unknown as TileCanvas<Chordesque, OctavedNote, never>).tiles = decision.oldState;
-				(canvas as unknown as TileCanvas<Chordesque, OctavedNote, never>).tiles[decision.index].removeValue(decision.value);
+				(this as unknown as TileCanvas<Chordesque, OctavedNote, never>).tiles = decision.oldState;
+				(this as unknown as TileCanvas<Chordesque, OctavedNote, never>).tiles[decision.index].removeValue(decision.value);
 				break
 		}
-		canvas.initialize()
-		canvas.collapsed = canvas.tiles.filter(t => t.isCollapsed()).length
-		canvas.numDecisions--
-		const tile = canvas.tiles[decision.index].clone()
-		tile.decrementNumOptions()
+		try{
+			this.initialize()
+		} catch (e) {
+			if(!(e instanceof ConflictError)) throw e
+			this.backtrack()
+		}
+		this.collapsed = this.tiles.filter(t => t.isCollapsed()).length
 	}
 
 	public generate(): T[] {
@@ -251,6 +277,10 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 		return this.tiles[position].getValue()
 	}
 
+	public getLastValue(): T {
+		return this.tiles[this.size - 1].getValue()
+	}
+
 	public getLevel() {
 		return this.level
 	}
@@ -258,5 +288,17 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 	public getTileAtPos(i: number) {
 		return this.tiles[i]
 	}
-	
+
+	private isDecisionAboutThis(decision: SharedDecision): boolean {
+		if (this.level != decision.level) return false
+		switch(decision.level){
+			case "section":
+				return true
+			case "chord":
+				return this.node.getPosition() == decision.sectionNumber
+			case "melody":
+				return this.node.getParent()!.getPosition() == decision.sectionNumber && this.node.getPosition() == decision.chordNumber
+
+		}
+	}
 }

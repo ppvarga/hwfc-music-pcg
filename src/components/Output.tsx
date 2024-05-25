@@ -134,8 +134,8 @@ export function Output() {
 
 			const decisionManager = new DecisionManager()
 
-			const random = new Random(0.054070303318218826)
-			console.log(random.getSeed())
+			const random = new Random(1234)
+
 			const node = new SectionLevelNode({
 				noteCanvasProps,
 				chordesqueCanvasProps,
