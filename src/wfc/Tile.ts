@@ -1,5 +1,6 @@
 import { Equatable } from "../util/utils"
 import { TileCanvas } from "./TileCanvas"
+import { NoteLevelNode } from "./hierarchy/NoteLevelNode"
 
 export interface TileProps<T extends Equatable> {
 	status: T | Set<[T, number]> | "header" | "trailer"
@@ -161,6 +162,71 @@ export class Tile<T extends Equatable> {
 			return false
 		}
 		return true
+	}
+
+	public collapseOtherInstruments(value: T, otherInstruments: NoteLevelNode[]) {
+		if(! (this.status instanceof Set)) throw new Error("Already collapsed, bozo")
+			const oldStatus = this.status
+		   this.status = value
+		   this.canvas.collapseOne()
+		   this.collapsed = true
+		   try {
+			   this.next.updateOptions()
+			   this.prev.updateOptions()
+			   otherInstruments.forEach((otherInstrument) => {
+					otherInstrument.getCanvas().getTiles()[this.position].updateOptionsOtherInstruments(otherInstruments)
+			   })
+		   } catch (e) {
+			   if(! (e instanceof ConflictError)) throw e
+			   this.collapsed = false
+			   this.canvas.retractOne()
+			   this.status = oldStatus
+			   this.removeValue(value)
+   
+			   return false
+		   }
+		   return true
+	}
+
+	public updateOptionsOtherInstruments(otherInstruments: NoteLevelNode[], options?: T[]) {
+		if (options === undefined) {
+			if (!(this.status instanceof Set)) return -1
+			options = [...(this.status as Set<[T, number]>)].map(
+				([option, _weight]) => option,
+			)
+		}
+
+		const newOptionWeights: [T, number][] = []
+		let out = 0
+
+		options.forEach((option: T) => {
+			const weight = this.canvas
+				.getConstraints()
+				.weightOtherInstruments(
+					this.hypotheticalTile(option),
+					this.canvas.getHigherValues(),
+					otherInstruments,
+				)
+			if (weight <= 0) return
+			const optionWeightPair: [T, number] = [option, weight]
+			newOptionWeights.push(optionWeightPair)
+			out++
+		})
+
+		if (out === 0) {
+			throw new ConflictError()
+		} else if (out === 1) {
+			if (!this.collapse(newOptionWeights[0][0])){
+				throw new ConflictError()
+			}
+			return 1
+		}
+
+		this.status = new Set(newOptionWeights)
+		this.numOptions = out
+
+		this.canvas.addTileOption(this)
+		return out
 	}
 
 	public removeValue(value: T) {

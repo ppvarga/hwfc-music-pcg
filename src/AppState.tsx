@@ -134,6 +134,7 @@ function AppState() {
 	const [interMelodyConstraintSet, setInterMelodyConstraintSet] = useState(basicInterMelodyConstraintSet)
 	const addInterMelodyConstraint = (constraint: InterMelodyConstraintIR) => {
 		setInterMelodyConstraintSet([...interMelodyConstraintSet, constraint])
+		console.log(interMelodyConstraintSet)
 	}
 	const removeInterMelodyConstraint = (index: number) => {
 		const newConstraintSet = [...interMelodyConstraintSet]

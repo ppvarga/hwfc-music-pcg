@@ -6,6 +6,7 @@ import { OptionsPerCell } from "./OptionsPerCell"
 import { Tile } from "./Tile"
 import { TileSelector } from "./TileSelector"
 import { HWFCNode } from "./hierarchy/HWFCNode"
+import { NoteLevelNode } from "./hierarchy/NoteLevelNode"
 
 export interface TileCanvasProps<T extends Equatable> {
 	optionsPerCell: OptionsPerCell<T>
@@ -131,6 +132,10 @@ export class TileCanvas<P extends Equatable, T extends Equatable> {
 		return prevCanvas.tiles[prevCanvas.size - 1]
 	}
 
+	public getTiles(): Tile<T>[] {
+		return this.tiles
+	}
+
 	public getConstraints(): ConstraintSet<T> {
 		return this.constraints
 	}
@@ -183,6 +188,35 @@ export class TileCanvas<P extends Equatable, T extends Equatable> {
 		return
 	}
 
+	public collapseNextOtherInstruments(otherInstruments: NoteLevelNode[]) {
+		if (this.collapsed >= this.size) throw new Error("Nothing to collapse")
+			const tileToCollapse = this.pq.poll()
+
+			tileToCollapse.updateOptionsOtherInstruments(otherInstruments)
+
+			var numOptions = tileToCollapse.getNumOptions()
+			const oldState = this.tiles.map(t => t.clone())
+	
+			while(numOptions > 0){
+				const value = tileToCollapse.chooseValue()
+				if (value === undefined) {
+					return
+				}
+				if (tileToCollapse.collapse(value)){
+					this.decisions.push({
+						index: tileToCollapse.getPosition(),
+						value: tileToCollapse.getValue(),
+						oldState
+					})
+					break
+				}
+				numOptions--
+			}
+			if(numOptions == 0) throw new Error("You've run out of options (ignoring backtracking)")
+	
+			return
+	}
+
 	private backtrack() {
 		const decision = this.decisions.pop()
 		if(decision === undefined) throw new Error("You've run out of options :(")
@@ -194,6 +228,13 @@ export class TileCanvas<P extends Equatable, T extends Equatable> {
 	public generate(): T[] {
 		while (this.collapsed < this.size) {
 			this.collapseNext()
+		}
+		return this.tiles.map((tile) => tile.getValue())
+	}
+
+	public generateOtherInstruments(otherInstruments: NoteLevelNode[]) {
+		while (this.collapsed < this.size) {
+			this.collapseNextOtherInstruments(otherInstruments)
 		}
 		return this.tiles.map((tile) => tile.getValue())
 	}

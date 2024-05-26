@@ -7,7 +7,7 @@ import { Random } from "../util/Random"
 import { ConstraintSet } from "../wfc/ConstraintSet"
 import { OptionsPerCell } from "../wfc/OptionsPerCell"
 import { TileCanvasProps } from "../wfc/TileCanvas"
-import { convertIRToChordConstraint, convertIRToNoteConstraint } from "../wfc/constraints/constraintUtils"
+import { convertIRToChordConstraint, convertIRToInterMelodyConstraint, convertIRToNoteConstraint } from "../wfc/constraints/constraintUtils"
 import { ChordPrototype, ChordPrototypeIR, Chordesque, chordPrototypeIRToChordPrototype, chordesqueIRMapToChordesqueMap } from "../wfc/hierarchy/Chordesque"
 import { ChordPrototypeOnlyFollowedByConstraint } from "../wfc/constraints/ChordPrototypeOnlyFollowedByConstraint"
 import { constantStringArrayGrabber } from "../wfc/grabbers/constantGrabbers"
@@ -60,11 +60,11 @@ export function parseChordPrototypes(chordPrototypes: ChordPrototypeIR[]): Parse
 export function Output() {
 	const [isPlaying, setIsPlaying] = useState(false)
 	const appState = useAppContext()
-	const { output, setOutput, onlyUseChordPrototypes, chordPrototypes, inferKey, inferMelodyKey, differentMelodyKey, numChords, chordOptionsPerCell, chordConstraintSet, melodyLength, noteOptionsPerCell, noteConstraintSet, minNumNotes, startOnNote, maxRestLength, useRhythm, sections, sectionOptionsPerCell, numSections, bpm } = appState
+	const { output, setOutput, onlyUseChordPrototypes, chordPrototypes, inferKey, inferMelodyKey, differentMelodyKey, numChords, chordOptionsPerCell, chordConstraintSet, melodyLength, noteOptionsPerCell, noteConstraintSet, interMelodyConstraintSet, minNumNotes, startOnNote, maxRestLength, useRhythm, sections, sectionOptionsPerCell, numSections, bpm, numInstruments } = appState
 
 	const noteCanvasProps: TileCanvasProps<OctavedNote> = {
 		optionsPerCell: new OptionsPerCell(OctavedNote.all(), noteOptionsPerCell.transform(OctavedNote.multipleFromIRs)),
-		constraints: new ConstraintSet(noteConstraintSet.map(noteConstraint => convertIRToNoteConstraint(noteConstraint))),
+		constraints: new ConstraintSet(noteConstraintSet.map(noteConstraint => convertIRToNoteConstraint(noteConstraint))).union(new ConstraintSet(interMelodyConstraintSet.map(interMelodyConstraint => convertIRToInterMelodyConstraint(interMelodyConstraint)))),
 	}
 
 	
@@ -130,6 +130,8 @@ export function Output() {
 
 			const inferredKey = inferKey()
 
+			console.log(noteCanvasProps)
+
 			const node = new SectionLevelNode({
 				noteCanvasProps,
 				chordesqueCanvasProps,
@@ -152,7 +154,7 @@ export function Output() {
 				position: 0
 			})
 
-			setOutput(node.generate())
+			setOutput(node.generateOtherInstruments(numInstruments))
 		} catch (e) {
 			console.error(e)
 			alert(e)

@@ -178,7 +178,7 @@ export function chordResultToOutput(
 	let time = offset
 	const out: NoteOutput[] = []
 	chordResult.notes.forEach((octavedNote) => {
-		out.push({ octavedNote, startTime: time, duration: baseDuration(bpm) })
+		out.push({ octavedNote, startTime: time, duration: baseDuration(bpm), instrument: instrument })
 		time += baseDuration(bpm)
 	})
 

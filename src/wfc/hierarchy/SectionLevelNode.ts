@@ -87,4 +87,23 @@ export class SectionLevelNode extends HWFCNode<any, Section> {
 		}
 		return [noteOutputs, totalDuration]
 	}
+
+	public generateOtherInstruments(numInstruments: number): [NoteOutput[], number] {
+		const sections = this.canvas.generate()
+		const noteOutputs: NoteOutput[] = []
+		let totalDuration = 0
+		for (const [position,section] of sections.entries()) {
+			const chordLevelNode = this.createChordLevelNode(section, position)
+			this.subNodes.push(chordLevelNode)
+			const [sectionNoteOutputs, sectionDuration] = chordLevelNode.generateSevInstruments(numInstruments)
+
+			noteOutputs.push(...(sectionNoteOutputs.map((noteOutput) => {
+				noteOutput.startTime += totalDuration
+				return noteOutput
+			})))
+
+			totalDuration += sectionDuration
+		}
+		return [noteOutputs, totalDuration]
+	}
 }

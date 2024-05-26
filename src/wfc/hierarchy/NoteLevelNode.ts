@@ -31,7 +31,11 @@ export class NoteLevelNode extends HWFCNode<Chordesque, OctavedNote>{
 		return this.canvas.generate()
 	}
 
-	public getCanvas(): TileCanvas<OctavedNote> {
+	public generateOtherInstruments(otherInstruments: NoteLevelNode[]) {
+		return this.canvas.generateOtherInstruments(otherInstruments)
+	}
+
+	public getCanvas(): TileCanvas<Chordesque, OctavedNote> {
 		return this.canvas
 	}
 }

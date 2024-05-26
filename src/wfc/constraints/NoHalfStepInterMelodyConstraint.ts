@@ -1,6 +1,7 @@
 import { OctavedNote, noteToInt } from "../../music_theory/Note";
 import { Tile } from "../Tile";
 import { TileCanvas } from "../TileCanvas";
+import { Chordesque } from "../hierarchy/Chordesque";
 import { InterMelodyConstraint } from "./concepts/Constraint";
 
 export const NoHalfStepInterMelodyConstraintInit = {
@@ -18,7 +19,7 @@ export class NoHalfStepInterMelodyConstraint implements InterMelodyConstraint<Oc
         this.name = "NoHalfStepInterMelodyConstraint"
     }
 
-    public checkIM(tile: Tile<OctavedNote>, otherInstrument: TileCanvas<OctavedNote>) {
+    public checkIM(tile: Tile<OctavedNote>, otherInstrument: TileCanvas<Chordesque, OctavedNote>) {
         const otherTile = tile.getPosition() < otherInstrument.getTiles().length ? otherInstrument.getTiles()[tile.getPosition()] : undefined
         if (!otherTile || !otherTile.isCollapsed()) {
             return true

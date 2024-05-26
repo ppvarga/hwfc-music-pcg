@@ -1,6 +1,7 @@
 import { OctavedNote, noteToInt } from "../../music_theory/Note";
 import { Tile } from "../Tile";
 import { TileCanvas } from "../TileCanvas";
+import { Chordesque } from "../hierarchy/Chordesque";
 import { InterMelodyConstraint } from "./concepts/Constraint";
 
 export const NoSameNoteInterMelodyConstraintInit = {
@@ -18,12 +19,14 @@ export class NoSameNoteInterMelodyConstraint implements InterMelodyConstraint<Oc
         this.name = "NoSameNoteInterMelodyConstraint"
     }
 
-    public checkIM(tile: Tile<OctavedNote>, otherInstrument: TileCanvas<OctavedNote>) {
+    public checkIM(tile: Tile<OctavedNote>, otherInstrument: TileCanvas<Chordesque, OctavedNote>) {
+        console.log("checkin")
         const otherTile = tile.getPosition() < otherInstrument.getTiles().length ? otherInstrument.getTiles()[tile.getPosition()] : undefined
         if (!otherTile || !otherTile.isCollapsed()) {
             return true
         }
         if (tile.isCollapsed() && noteToInt(tile.getValue().getNote()) == noteToInt(otherTile.getValue().getNote())) {
+            console.log("im here:", tile)
             return false
         }
         return true

@@ -8,7 +8,9 @@ import {
 	Constraint,
 	isHardConstraint,
 	InterMelodyConstraint,
+	isInterMelodyConstraint,
 } from "./constraints/concepts/Constraint"
+import { NoteLevelNode } from "./hierarchy/NoteLevelNode"
 
 function partition<T>(array: T[], isValid: (elem: T) => boolean): [T[], T[]] {
 	return array.reduce<[T[], T[]]>(
@@ -35,13 +37,15 @@ export class ConstraintSet<T extends Equatable> {
 			constraints ?? [],
 			(constraint) => isHardConstraint(constraint)
 		) as [HardConstraint<T>[], InterMelodyConstraint<T>[]]
+		console.log(constraints)
+		console.log(this.interMelodyConstraints)
 	}
 
-	public weight(tile: Tile<T>, higherValues: HigherValues, otherInstruments?: TileCanvas<T>[]): number {
+	public weight(tile: Tile<T>, higherValues: HigherValues): number {
 		if (
 			!this.hardConstraints.every((hardConstraint) =>
 				hardConstraint.check(tile, higherValues)
-			) || (otherInstruments && !this.interMelodyConstraints.every((interMelodyConstraint) => otherInstruments.every((otherInstrument) => interMelodyConstraint.checkIM(tile, otherInstrument))))
+			) 
 		)
 			return 0
 		let out = 1
@@ -51,8 +55,23 @@ export class ConstraintSet<T extends Equatable> {
 		return out
 	}
 
+	public weightOtherInstruments(tile: Tile<T>, higherValues: HigherValues, otherInstruments: NoteLevelNode[]): number {
+		if (
+			!this.hardConstraints.every((hardConstraint) =>
+				hardConstraint.check(tile, higherValues)
+			) || !this.interMelodyConstraints.every((interMelodyConstraint) => otherInstruments.every((otherInstrument) => interMelodyConstraint.checkIM(tile, otherInstrument.getCanvas() as unknown as TileCanvas<any, T>)))
+		)
+			return 0
+		let out = 1
+		console.log("weightfunc")
+		this.softConstraints.forEach((softConstraint) => {
+			out += softConstraint.weight(tile, higherValues)
+		})
+		return out
+	}
+
 	public getAllConstraints(): Constraint<T>[] {
-		return [...this.softConstraints, ...this.hardConstraints]
+		return [...this.softConstraints, ...this.hardConstraints, ...this.interMelodyConstraints]
 	}
 
 	public addConstraint(constraint: Constraint<T>): void {
@@ -60,6 +79,8 @@ export class ConstraintSet<T extends Equatable> {
 			this.softConstraints.push(constraint)
 		else if (isHardConstraint(constraint))
 			this.hardConstraints.push(constraint)
+		else if (isInterMelodyConstraint(constraint))
+			this.interMelodyConstraints.push(constraint)
 		else throw new Error(`Unknown constraint: ${constraint}`)
 	}
 
@@ -102,6 +123,7 @@ export class ConstraintSet<T extends Equatable> {
 			)
 		)
 		out.addConstraints(other.getAllConstraints())
+		console.log(out)
 		return out
 	}
 }
