@@ -255,7 +255,7 @@ export class ChordLevelNode extends HWFCNode<Section, Chordesque> {
 					this.subNodes.push(noteLevelNode)
 					chordChildren.push(noteLevelNode)
 				}
-				const abstractResultBases = this.generateRandomCollapse(chordChildren, chordValue)
+				const abstractResultBases = this.generateJamCollapse(chordChildren, chordValue, 3)
 
 				let counter = 1
 				let tempOffset = offset
@@ -325,13 +325,57 @@ export class ChordLevelNode extends HWFCNode<Section, Chordesque> {
 		}
 	}
 
-	// private generateKCollapse(nodes: NoteLevelNode[], chordValue: Chord, k: number, rhythmPattern?: RhythmPattern): ResultBase {
+	private generateKCollapse(nodes: NoteLevelNode[], chordValue: Chord, k: number, rhythmPattern?: RhythmPattern): ResultBase[] {
+		if (rhythmPattern) {
+			throw new Error("haha bozo")
+		} else {
+			let collapsedNodesSet = new Set()
+			const random = new Random()
+			while (collapsedNodesSet.size < nodes.length) {
+				const nextNode = nodes[random.nextInt(nodes.length)]
+				if (!nextNode.getCanvas().isCollapsed()) {
+					for (let i = 0; i < k; i++) {
+						try {
+							nextNode.getCanvas().collapseNextOtherInstruments(nodes)
+						} catch (e) {
+							break
+						}
+						
+					}
+				} else {
+					collapsedNodesSet.add(nextNode)
+				}
+			}
 
-	// }
+			const abstractResultBases = []
+			for (let i = 0; i < nodes.length; i++) {
+				const curNode: NoteLevelNode = nodes.shift()!
+				const abstractResultBase = {
+					chord: chordValue,
+					notes: curNode.generateOtherInstruments(nodes)
+				}
+				abstractResultBases.push(abstractResultBase)
+				nodes.push(curNode)
+			}
+			return abstractResultBases
+		}
+	}
 
-	// private generateJamCollapse(nodes: NoteLevelNode[], chordValue: Chord, k: number = 1, rhythmPattern?: RhythmPattern): ResultBase {
-
-	// }
+	private generateJamCollapse(nodes: NoteLevelNode[], chordValue: Chord, k: number = 1, rhythmPattern?: RhythmPattern): ResultBase[] {
+		if (rhythmPattern) {
+			throw new Error("haha boze")
+		} else {
+			const abstractResultBases: ResultBase[] = []
+			const curNode: NoteLevelNode = nodes.shift()!
+			const abstractResultBase = {
+				chord: chordValue,
+				notes: curNode.generateOtherInstruments(nodes)
+			}
+			abstractResultBases.push(abstractResultBase)
+			nodes.push(curNode)
+			return [...abstractResultBases, ...this.generateKCollapse(nodes, chordValue, k)]
+		}
+	}
 }
 
 export type ResultBase = {
