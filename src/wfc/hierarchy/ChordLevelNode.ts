@@ -11,6 +11,7 @@ import { SectionLevelNode } from "./SectionLevelNode"
 import { HWFCNode } from "./HWFCNode"
 import { Section } from "./Section"
 import { Chord } from "../../music_theory/Chord"
+import { CollapseType } from "../../components/CollapseType"
 
 interface ChordLevelNodeProps {
 	higherValues: HigherValues
@@ -158,7 +159,7 @@ export class ChordLevelNode extends HWFCNode<Section, Chordesque> {
 
 	}
 
-	public generateSevInstruments(numInstruments: number): [NoteOutput[], number] {
+	public generateSevInstruments(numInstruments: number, collapseType: CollapseType, k?: number): [NoteOutput[], number] {
 		const chords = this.canvas.generate()
 
 		let offset = 0
@@ -255,7 +256,11 @@ export class ChordLevelNode extends HWFCNode<Section, Chordesque> {
 					this.subNodes.push(noteLevelNode)
 					chordChildren.push(noteLevelNode)
 				}
-				const abstractResultBases = this.generateJamCollapse(chordChildren, chordValue, 3)
+
+				const abstractResultBases = collapseType == "Naive collapse" ?
+					this.generateNaiveCollapse(chordChildren, chordValue) : collapseType == "Random collapse" ?
+					this.generateRandomCollapse(chordChildren, chordValue) : collapseType == "Random k collapse" ?
+					this.generateKCollapse(chordChildren, chordValue, k ? k : 1) : this.generateJamCollapse(chordChildren, chordValue, k ? k : 1)
 
 				let counter = 1
 				let tempOffset = offset

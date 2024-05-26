@@ -12,6 +12,7 @@ import { NoteOutput } from "./components/MidiPlayer"
 import { SectionIR, SectionInit, nameOfSectionIR } from "./wfc/hierarchy/Section"
 import { InfiniteArray } from "./wfc/InfiniteArray"
 import { unique } from "./util/utils"
+import { CollapseType } from "./components/CollapseType"
 
 export interface PassiveAppState {
 	bpm: number;
@@ -36,7 +37,9 @@ export interface PassiveAppState {
     maxRestLength: number;
     chordPrototypes: ChordPrototypeIR[];  
     onlyUseChordPrototypes: boolean;
-    sections: SectionIR[];     
+    sections: SectionIR[];
+	collapseType: CollapseType;
+	collapseTypeK: number | undefined;     
 };
 
 function AppState() {
@@ -215,6 +218,8 @@ function AppState() {
 
 	//OUTPUT
 	const [output, setOutput] = useState<[NoteOutput[], number]>([[], 0])
+	const [collapseType, setCollapseType] = useState<CollapseType>("Naive collapse")
+	const [collapseTypeK, setCollapseTypeK] = useState<number | undefined>(undefined)
 
 	//STATE
 	const updateState = (newState: PassiveAppState): void => {
@@ -251,6 +256,8 @@ function AppState() {
 		setSections(newState.sections)
 
 		setOutput([[], 0])
+		setCollapseType(newState.collapseType)
+		setCollapseTypeK(newState.collapseTypeK)
 	}
 
 	return {
@@ -328,6 +335,10 @@ function AppState() {
 
 		output,
 		setOutput,
+		collapseType,
+		setCollapseType,
+		collapseTypeK,
+		setCollapseTypeK,
 
 		updateState,
 	}

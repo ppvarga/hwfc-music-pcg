@@ -13,6 +13,7 @@ import { SectionTiles } from "./components/SectionTiles"
 import { Configs } from "./components/Configs"
 import { NumberOfInstruments } from "./components/NumberOfInstruments"
 import { InterMelodyConstraints } from "./components/InstrumentConstraints"
+import { CollapseType } from "./components/CollapseType"
 
 function App() {
 
@@ -25,6 +26,7 @@ function App() {
 					<div className="main-column">
 						<SectionTiles />
 						<NumberOfInstruments />
+						<CollapseType />
 						<InterMelodyConstraints />
 					</div>
 					<div className="main-column">
