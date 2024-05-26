@@ -28,6 +28,7 @@ const optionsToWeighedOptions = <T>(options: Set<T>): Set<[T, number]> => {
 }
 
 export type Decision<T extends Canvasable<T>> = {
+	canvas: TileCanvas<any, T, any>
 	index : number
 	value : T
 	oldState : Tile<T>[]
@@ -40,6 +41,7 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 	private higherValues: HigherValues
 	private constraints: ConstraintSet<T>
 	private numDecisions: number = 0
+	private initialState: Tile<T>[]
 
 	public getSize(): number {
 		return this.size
@@ -68,6 +70,8 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 			const tile = this.createTile(optionsPerCell, i)
 			this.tiles.push(tile)
 		}
+
+		this.initialState = this.tiles.map(t => t.clone())
 	}
 
 	public initialize() {
@@ -191,6 +195,7 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 				switch(this.level){
 					case "section":
 						this.decisions.push({
+							canvas: this as unknown as TileCanvas<any, Section, Chordesque>,
 							level: "section",
 							index: tileToCollapse.getPosition(),
 							value: tileToCollapse.getValue() as unknown as Section,
@@ -199,6 +204,7 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 						break
 					case "chord":
 						this.decisions.push({
+							canvas: this as unknown as TileCanvas<Section, Chordesque, OctavedNote>,
 							level: "chord",
 							index: tileToCollapse.getPosition(),
 							value: tileToCollapse.getValue() as unknown as Chordesque,
@@ -208,6 +214,7 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 						break
 					case "melody":
 						this.decisions.push({
+							canvas: this as unknown as TileCanvas<Chordesque, OctavedNote, any>,
 							level: "melody",
 							index: tileToCollapse.getPosition(),
 							value: tileToCollapse.getValue() as unknown as OctavedNote,
@@ -227,10 +234,16 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 	}
 
 	private backtrack() {
-		if(this.numDecisions < 1) throw new ConflictError
+		if(this.decisions.length < 1) throw new ConflictError()
 		const decision = this.decisions.pop()
 		if(decision === undefined) throw new Error("Decision should exist")
-		if(!this.isDecisionAboutThis(decision)) throw new ConflictError("Order between canvases has been broken")
+		if(!this.isDecisionAboutThis(decision)) {
+			this.setState(this.initialState.map(t => t.clone()))
+			this.decisions.push(decision)
+			this.prevCanvas()!.tryAnother()
+			this.initialize()
+			return
+		}
 		this.numDecisions--
 		
 		switch(decision.level){

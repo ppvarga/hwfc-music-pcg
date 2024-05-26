@@ -134,7 +134,7 @@ export function Output() {
 
 			const decisionManager = new DecisionManager()
 
-			const random = new Random(1234)
+			const random = new Random()
 
 			const node = new SectionLevelNode({
 				noteCanvasProps,

@@ -189,11 +189,11 @@ export function sectionIRMapToSectionMap(
 		const sectionList: Section[] = sectionIRs.map(
 			(sectionIR) => {
                 const section = sections.find(
-                    (section) => section.name === sectionIR.name,
+                    (section) => section.id === sectionIR.id,
                 )
                 if (section === undefined)
                     throw new Error(
-                        `Section ${sectionIR.name} not found`,
+                        `Section ${nameOfSectionIR(sectionIR).name} not found`,
                     )
                 return sectionIRToSection(section, chordPrototypes, onlyUseChordPrototypes)
             }
