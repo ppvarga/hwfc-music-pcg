@@ -242,4 +242,8 @@ export class TileCanvas<P extends Equatable, T extends Equatable> {
 	public getNode(): HWFCNode<P,T> {
 		return this.node
 	}
+
+	public isCollapsed(): boolean {
+		return this.size <= this.collapsed
+	}
 }

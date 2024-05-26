@@ -59,7 +59,7 @@ export class ConstraintSet<T extends Equatable> {
 		if (
 			!this.hardConstraints.every((hardConstraint) =>
 				hardConstraint.check(tile, higherValues)
-			) || !this.interMelodyConstraints.every((interMelodyConstraint) => otherInstruments.every((otherInstrument) => interMelodyConstraint.checkIM(tile, otherInstrument.getCanvas() as unknown as TileCanvas<any, T>)))
+			) || !this.interMelodyConstraints.every((interMelodyConstraint) => otherInstruments.every((otherInstrument) => tile.getCanvas().getNode() as unknown as NoteLevelNode == otherInstrument || interMelodyConstraint.checkIM(tile, otherInstrument.getCanvas() as unknown as TileCanvas<any, T>)))
 		)
 			return 0
 		let out = 1

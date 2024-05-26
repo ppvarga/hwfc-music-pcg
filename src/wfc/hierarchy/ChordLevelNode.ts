@@ -255,7 +255,7 @@ export class ChordLevelNode extends HWFCNode<Section, Chordesque> {
 					this.subNodes.push(noteLevelNode)
 					chordChildren.push(noteLevelNode)
 				}
-				const abstractResultBases = this.generateNaiveCollapse(chordChildren, chordValue)
+				const abstractResultBases = this.generateRandomCollapse(chordChildren, chordValue)
 
 				let counter = 1
 				let tempOffset = offset
@@ -296,9 +296,34 @@ export class ChordLevelNode extends HWFCNode<Section, Chordesque> {
 		}
 	}
 
-	// private generateRandomCollapse(nodes: NoteLevelNode[], chordValue: Chord, rhythmPattern?: RhythmPattern): ResultBase {
-	// 	return true
-	// }
+	private generateRandomCollapse(nodes: NoteLevelNode[], chordValue: Chord, rhythmPattern?: RhythmPattern): ResultBase[] {
+		if (rhythmPattern) {
+			throw new Error("haha bozo")
+		} else {
+			let collapsedNodesSet = new Set()
+			const random = new Random()
+			while (collapsedNodesSet.size < nodes.length) {
+				const nextNode = nodes[random.nextInt(nodes.length)]
+				if (!nextNode.getCanvas().isCollapsed()) {
+					nextNode.getCanvas().collapseNextOtherInstruments(nodes)
+				} else {
+					collapsedNodesSet.add(nextNode)
+				}
+			}
+
+			const abstractResultBases = []
+			for (let i = 0; i < nodes.length; i++) {
+				const curNode: NoteLevelNode = nodes.shift()!
+				const abstractResultBase = {
+					chord: chordValue,
+					notes: curNode.generateOtherInstruments(nodes)
+				}
+				abstractResultBases.push(abstractResultBase)
+				nodes.push(curNode)
+			}
+			return abstractResultBases
+		}
+	}
 
 	// private generateKCollapse(nodes: NoteLevelNode[], chordValue: Chord, k: number, rhythmPattern?: RhythmPattern): ResultBase {
 
