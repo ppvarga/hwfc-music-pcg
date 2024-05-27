@@ -11,6 +11,12 @@ import * as midiManager from 'midi-file';
 import { parseArrayBuffer } from 'midi-json-parser';
 import { read, MidiFile } from "midifile-ts"
 import { intToNote } from "../music_theory/Note"
+import { TileCanvas, TileCanvasProps } from "../wfc/TileCanvas"
+import { ConstraintSet } from "../wfc/ConstraintSet"
+import { Random } from "../util/Random"
+import { OptionsPerCell } from "../wfc/OptionsPerCell"
+import { Tile } from "../wfc/Tile"
+import { MelodyEndsOnNoteHardConstraint } from "../wfc/constraints/MelodyEndsOnNoteHardConstraint"
 const baseDuration = (bpm: number) =>  60 / bpm
 
 function noteToPitch(note: OctavedNote): Pitch {
@@ -64,9 +70,10 @@ export function MidiToNoteOutput(midiFile: ArrayBuffer): NoteOutput[] {
 	//const parsed = midiManager.parseMidi(midiFile);
 	//const midi = read(encoded)
 	const midi = read(midiFile)
-	console.log("donwloaded midi")
+	console.log("downloaded midi")
 	console.log(midi)
 	//let currentTime = 0
+	
 	midi.tracks.forEach(track => {
         const activeNotes: { [key: number]: { startTime: number, deltaTime: number } } = {};
         let currentTime = 0;
@@ -103,6 +110,12 @@ export function MidiToNoteOutput(midiFile: ArrayBuffer): NoteOutput[] {
     
 	//console.log(midi)
     return noteOutputs;
+}
+
+
+
+export function noteOutputToTileCanvas(noteOutput: NoteOutput[], constraints: ConstraintSet<NoteOutput>): void {
+	
 }
 export function chordResultToMidi(
 	chordResult: ChordResult,

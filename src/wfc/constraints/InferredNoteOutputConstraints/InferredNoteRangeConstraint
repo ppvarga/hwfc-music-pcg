@@ -1,0 +1,21 @@
+import { NoteOutput } from "../../../components/MidiPlayer";
+import { RhythmPattern } from "../../../music_theory/Rhythm";
+import { Grabber } from "../../Grabber";
+import { MinimumNumberOfNotesHardConstraint } from "../MinimumNumberOfNotesHardConstraint";
+import { InferredConstraint } from "../concepts/InferredConstraints";
+
+export class InferredNoteRangeConstraint implements InferredConstraint<RhythmPattern>{
+    private grabber: Grabber<NoteOutput>
+
+    constructor(grabber: Grabber<NoteOutput>) {
+		this.grabber = grabber
+	}
+    name = "NotesInRange";
+
+
+    Infer(notes: NoteOutput[]){
+        notes.forEach(note => note)
+        return new MinimumNumberOfNotesHardConstraint(notes.length)
+    };
+    
+}

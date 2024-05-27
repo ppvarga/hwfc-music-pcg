@@ -3,6 +3,7 @@ import { OctavedNote } from "../../music_theory/Note"
 import { Random } from "../../util/Random"
 import { HigherValues } from "../HigherValues"
 import { TileCanvasProps, TileCanvas, unionOfTileCanvasProps } from "../TileCanvas"
+import { ConstraintHierarchy } from "../constraints/ConstraintInferrer/ConstraintHierarchy"
 import { ChordLevelNode } from "./ChordLevelNode"
 import { Chordesque } from "./Chordesque"
 import { Section } from "./Section"
@@ -34,7 +35,7 @@ export class SectionLevelNode {
 		)
 		this.random = props.random
 	}
-
+	
 	private createChordLevelNode(section: Section) {
 		return new ChordLevelNode({
 			higherValues: {
@@ -60,10 +61,12 @@ export class SectionLevelNode {
 
 	public generate(): [NoteOutput[], number] {
 		const sections = this.sectionCanvas.generate()
+		//console.log(sections)
 		const noteOutputs: NoteOutput[] = []
 		let totalDuration = 0
 		for (const section of sections) {
 			const chordLevelNode = this.createChordLevelNode(section)
+			//console.log(constraintHierarchy.checkChords(chordLevelNode, this.chordesqueCanvasProps.constraints.getAllHardConstraints()))
 			const [sectionNoteOutputs, sectionDuration] = chordLevelNode.generate()
 
 			noteOutputs.push(...(sectionNoteOutputs.map((noteOutput) => {
@@ -74,5 +77,24 @@ export class SectionLevelNode {
 			totalDuration += sectionDuration
 		}
 		return [noteOutputs, totalDuration]
+	}
+	public getHigherValues(): HigherValues {
+		return this.higherValues
+	}
+
+	public getNoteCanvasProps(): TileCanvasProps<OctavedNote> {
+		return this.noteCanvasProps
+	}
+
+	public getChordesqueCanvasProps(): TileCanvasProps<Chordesque> {
+		return this.chordesqueCanvasProps
+	}
+
+	public getSectionCanvas(): TileCanvas<Section> {
+		return this.sectionCanvas
+	}
+
+	public getRandom(): Random {
+		return this.random
 	}
 }

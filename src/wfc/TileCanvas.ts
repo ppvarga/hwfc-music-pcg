@@ -4,6 +4,7 @@ import { HigherValues } from "./HigherValues"
 import { OptionsPerCell } from "./OptionsPerCell"
 import { Tile } from "./Tile"
 import { TileSelector } from "./TileSelector"
+import { ConstraintHierarchy } from "./constraints/ConstraintInferrer/ConstraintHierarchy"
 
 export interface TileCanvasProps<T> {
 	optionsPerCell: OptionsPerCell<T>
@@ -84,7 +85,9 @@ export class TileCanvas<T> {
 			prev: i === 0 ? Tile.header(this) : this.tiles[i - 1],
 		})
 	}
-
+	public getTiles(): Tile<T>[] {
+		return this.tiles
+	}
 	public getConstraints(): ConstraintSet<T> {
 		return this.constraints
 	}
@@ -114,6 +117,10 @@ export class TileCanvas<T> {
 
 	public generate(): T[] {
 		while (this.collapsed < this.size) this.collapseNext()
+		//console.log(this.constraints)
+		//console.log(this.tiles)
+		const constraintHierarchy: ConstraintHierarchy<T> = new ConstraintHierarchy<T>(this.higherValues)
+		console.log(constraintHierarchy.checkConstraintsGeneric(this.constraints, this.tiles))
 		return this.tiles.map((tile) => tile.getValue())
 	}
 }

@@ -17,6 +17,7 @@ import { Section, sectionIRMapToSectionMap, sectionIRToSection } from "../wfc/hi
 import { SectionOnlyPrecededByHardConstraint } from "../wfc/constraints/SectionOnlyPrecededByHardConstraint"
 import { SectionOnlyFollowedByHardConstraint } from "../wfc/constraints/SectionOnlyFollowedByHardConstraint"
 import { SectionLevelNode } from "../wfc/hierarchy/SectionLevelNode"
+import { ConstraintHierarchy } from "../wfc/constraints/ConstraintInferrer/ConstraintHierarchy"
 
 interface ParseChordPrototypesReturn {
 	parsedChordPrototypes: ChordPrototype[]
@@ -100,7 +101,7 @@ export function Output() {
 				}
 			}
 		}
-
+		console.log([parsedSections, sectionConstraints])
 		return [parsedSections, sectionConstraints]
 	}
 
@@ -115,7 +116,7 @@ export function Output() {
 			const {parsedChordPrototypes, chordPrototypeConstraints} = parseChordPrototypes(chordPrototypes)
 			const [parsedSections, sectionConstraints] = parseSections()
 
-			console.log(numChords)
+		//	console.log(numChords)
 
 			const chordesqueCanvasProps: TileCanvasProps<Chordesque> = {
 				optionsPerCell: new OptionsPerCell([
@@ -153,10 +154,14 @@ export function Output() {
 				},
 				
 			})
-
-			console.log(node)
-			const generatedNotes = node.generate()
-			console.log(generatedNotes[0])
+			let hierarchyConstraints = new ConstraintSet<Section>()
+			hierarchyConstraints.addConstraints(sectionConstraints)
+			const constraintHierarchy = new ConstraintHierarchy(parsedSections, node, hierarchyConstraints, node.getHigherValues())
+		
+		//	console.log(constraintHierarchy.check())
+			//console.log(node)
+			const generatedNotes = node.generate(constraintHierarchy)
+			//console.log(generatedNotes[0])
 			setOutput(generatedNotes)
 		} catch (e) {
 			console.error(e)

@@ -7,6 +7,7 @@ import { HigherValues } from "../HigherValues"
 import { TileCanvasProps, TileCanvas, unionOfTileCanvasProps } from "../TileCanvas"
 import { NoteLevelNode } from "./NoteLevelNode"
 import { ChordPrototype, Chordesque } from "./Chordesque"
+import { ConstraintHierarchy } from "../constraints/ConstraintInferrer/ConstraintHierarchy"
 
 interface ChordLevelNodeProps {
 	higherValues: HigherValues
@@ -32,7 +33,21 @@ export class ChordLevelNode {
 		)
 		this.random = props.random
 	}
+	public getHigherValues(): HigherValues {
+		return this.higherValues
+	}
 
+	public getNoteCanvasProps(): TileCanvasProps<OctavedNote> {
+		return this.noteCanvasProps
+	}
+
+	public getChordesqueCanvas(): TileCanvas<Chordesque> {
+		return this.chordesqueCanvas
+	}
+ 
+	public getRandom(): Random {
+		return this.random
+	}
 	public generate(): [NoteOutput[], number] {
 		const chords = this.chordesqueCanvas.generate()
 

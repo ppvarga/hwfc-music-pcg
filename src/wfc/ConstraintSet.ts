@@ -46,7 +46,14 @@ export class ConstraintSet<T> {
 	public getAllConstraints(): Constraint<T>[] {
 		return [...this.softConstraints, ...this.hardConstraints]
 	}
+	
+	public getAllSoftConstraints(): SoftConstraint<T>[] {
+		return [...this.softConstraints]
+	}
 
+	public getAllHardConstraints(): HardConstraint<T>[] {
+		return [...this.hardConstraints]
+	}
 	public addConstraint(constraint: Constraint<T>): void {
 		if (constraint instanceof SoftConstraint)
 			this.softConstraints.push(constraint)
