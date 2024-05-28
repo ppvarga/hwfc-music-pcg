@@ -14,6 +14,7 @@ import { Configs } from "./components/Configs"
 import { NumberOfInstruments } from "./components/NumberOfInstruments"
 import { InterMelodyConstraints } from "./components/InstrumentConstraints"
 import { CollapseType } from "./components/CollapseType"
+import { InstrumentSelector } from "./components/InstrumentSelector"
 
 function App() {
 
@@ -34,6 +35,7 @@ function App() {
 						<ChordConstraints />
 					</div>
 					<div className="main-column">
+						<InstrumentSelector />
 						<NoteTiles />
 						<NoteConstraints />
 					</div>

@@ -15,7 +15,7 @@ import { CollapseType } from "../../components/CollapseType"
 
 interface ChordLevelNodeProps {
 	higherValues: HigherValues
-	noteCanvasProps: TileCanvasProps<OctavedNote>
+	noteCanvasProps: TileCanvasProps<OctavedNote>[]
 	chordesqueCanvasProps: TileCanvasProps<Chordesque>
 	random: Random
 	parent: SectionLevelNode
@@ -24,7 +24,7 @@ interface ChordLevelNodeProps {
 
 export class ChordLevelNode extends HWFCNode<Section, Chordesque> {
 	private higherValues: HigherValues
-	private noteCanvasProps: TileCanvasProps<OctavedNote>
+	private noteCanvasProps: TileCanvasProps<OctavedNote>[]
 	protected canvas: TileCanvas<Section, Chordesque>
 	private random: Random
 	protected position: number
@@ -59,10 +59,10 @@ export class ChordLevelNode extends HWFCNode<Section, Chordesque> {
 			let rhythmPatternOptions = this.higherValues.rhythmPatternOptions
 			
 			if (chord instanceof ChordPrototype) {
-				actualNoteCanvasProps = unionOfTileCanvasProps (
-					this.noteCanvasProps, 
+				actualNoteCanvasProps = this.noteCanvasProps.map((noteCanvasPropsItem) => unionOfTileCanvasProps (
+					noteCanvasPropsItem, 
 					chord.noteCanvasProps,
-				)
+				))
 				if (chord.melodyLengthStrategy === "Custom") actualMelodyLength = chord.melodyLength
 				if (chord.rhythmStrategy === "On") rhythmPatternOptions = chord.rhythmPatternOptions
 			}
@@ -91,7 +91,7 @@ export class ChordLevelNode extends HWFCNode<Section, Chordesque> {
 				}
 
 				const noteLevelNode = new NoteLevelNode(
-					actualNoteCanvasProps,
+					actualNoteCanvasProps[0],
 					newHigherValues,
 					this.random,
 					this,
@@ -130,7 +130,7 @@ export class ChordLevelNode extends HWFCNode<Section, Chordesque> {
 				}
 
 				const noteLevelNode = new NoteLevelNode(
-					actualNoteCanvasProps,
+					actualNoteCanvasProps[0],
 					newHigherValues,
 					this.random,
 					this,
@@ -171,10 +171,10 @@ export class ChordLevelNode extends HWFCNode<Section, Chordesque> {
 			let rhythmPatternOptions = this.higherValues.rhythmPatternOptions
 			
 			if (chord instanceof ChordPrototype) {
-				actualNoteCanvasProps = unionOfTileCanvasProps (
-					this.noteCanvasProps, 
+				actualNoteCanvasProps = this.noteCanvasProps.map((noteCanvasPropsItem) => unionOfTileCanvasProps (
+					noteCanvasPropsItem, 
 					chord.noteCanvasProps,
-				)
+				))
 				if (chord.melodyLengthStrategy === "Custom") actualMelodyLength = chord.melodyLength
 				if (chord.rhythmStrategy === "On") rhythmPatternOptions = chord.rhythmPatternOptions
 			}
@@ -246,7 +246,7 @@ export class ChordLevelNode extends HWFCNode<Section, Chordesque> {
 
 				for (let i = 0; i < numInstruments; i++) {
 					const noteLevelNode = new NoteLevelNode(
-						actualNoteCanvasProps,
+						actualNoteCanvasProps[i],
 						newHigherValues,
 						this.random,
 						this,

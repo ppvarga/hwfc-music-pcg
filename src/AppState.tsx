@@ -17,7 +17,8 @@ import { CollapseType } from "./components/CollapseType"
 export interface PassiveAppState {
 	bpm: number;
     numChords: number;
-	numInstruments: number;    
+	numInstruments: number;
+	selectedInstrument: number;    
     numSections: number;
     melodyLength: number;
     keyRoot: Note;
@@ -29,7 +30,7 @@ export interface PassiveAppState {
     chordOptionsPerCell: InfiniteArray<ChordesqueIR[]>;
     noteOptionsPerCell: InfiniteArray<OctavedNoteIR[]>; 
     chordConstraintSet: ChordConstraintIR[]; 
-    noteConstraintSet: NoteConstraintIR[]; 
+    noteConstraintSet: NoteConstraintIR[][]; 
 	interMelodyConstraintSet: InterMelodyConstraintIR[]; 
     useRhythm: boolean;
     minNumNotes: number;
@@ -49,6 +50,7 @@ function AppState() {
 		tempSetNumChords(newNumChords)
 	}
 	const [numInstruments, setNumInstruments] = useState(1)
+	const [selectedInstrument, setSelectedInstrument] = useState(1)
 	const [melodyLength, tempSetMelodyLength] = useState(4)
 	const setMelodyLength = (newLength: number) => {
 		tempSetMelodyLength(newLength)
@@ -118,19 +120,57 @@ function AppState() {
 	}
 
 	const basicNoteConstraintSet = [MelodyInKeyHardConstraintInit, MelodyInRangeHardConstraintInit] as NoteConstraintIR[]
-	const [noteConstraintSet, setNoteConstraintSet] = useState(basicNoteConstraintSet)
-	const addNoteConstraint = (constraint: NoteConstraintIR) => {
-		setNoteConstraintSet([...noteConstraintSet, constraint])
+	
+	const [noteConstraintSet, setNoteConstraintSet] = useState([basicNoteConstraintSet])
+	const addNoteConstraint = (constraint: NoteConstraintIR, instrument: number) => {
+		if (instrument < 1 || instrument > numInstruments) throw new Error("Invalid instrument")
+		const oldConstraintSet = [...noteConstraintSet]
+		const newNoteConstraintSetList = []
+		for (let i = 1; i <= numInstruments; i++) {
+			if (i == instrument)
+				oldConstraintSet[i - 1].push(constraint)
+			newNoteConstraintSetList.push(oldConstraintSet[i - 1])
+		}
+		setNoteConstraintSet(newNoteConstraintSetList)
+		console.log(newNoteConstraintSetList)
 	}
-	const removeNoteConstraint = (index: number) => {
-		const newConstraintSet = [...noteConstraintSet]
+	const removeNoteConstraint = (index: number, instrument: number) => {
+		if (instrument < 1 || instrument > numInstruments) throw new Error("Invalid instrument")
+		const newConstraintSet = [...noteConstraintSet[instrument - 1]]
 		newConstraintSet.splice(index, 1)
-		setNoteConstraintSet(newConstraintSet)
+		const newNoteConstraints = []
+		for (let i = 1; i <= numInstruments; i++) {
+			if (i == instrument)
+				newNoteConstraints.push(newConstraintSet)
+			else
+				newNoteConstraints.push(noteConstraintSet[i - 1])
+		}
+		setNoteConstraintSet(newNoteConstraints)
 	}
-	const handleNoteConstraintChange = (index: number, constraint: NoteConstraintIR) => {
-		const newConstraintSet = [...noteConstraintSet]
+	const handleNoteConstraintChange = (index: number, constraint: NoteConstraintIR, instrument: number) => {
+		if (instrument < 1 || instrument > numInstruments) throw new Error("Invalid instrument")
+		const newConstraintSet = [...noteConstraintSet[instrument - 1]]
 		newConstraintSet[index] = constraint
-		setNoteConstraintSet(newConstraintSet)
+		const newNoteConstraints = []
+		for (let i = 1; i <= numInstruments; i++) {
+			if (i == instrument)
+				newNoteConstraints.push(newConstraintSet)
+			else
+				newNoteConstraints.push(noteConstraintSet[i - 1])
+		}
+		setNoteConstraintSet(newNoteConstraints)
+	}
+
+	const handleInstrumentNumberChange = (amount: number) => {
+		const newNoteConstraintSet = [...noteConstraintSet]
+		for (let i = 1; i <= amount; i++) {
+			if (newNoteConstraintSet.length < amount) {
+				newNoteConstraintSet.push([...basicNoteConstraintSet])
+			}
+		}
+		setNumInstruments(amount)
+		setNoteConstraintSet(newNoteConstraintSet)
+		console.log(noteConstraintSet)
 	}
 
 	const basicInterMelodyConstraintSet = [] as InterMelodyConstraintIR[]
@@ -226,6 +266,7 @@ function AppState() {
 		setBpm(newState.bpm)
 		setNumChords(newState.numChords)
 		setNumInstruments(newState.numInstruments)
+		setSelectedInstrument(newState.selectedInstrument)
 		setNumSections(newState.numSections)
 
 		setMelodyLength(newState.melodyLength)
@@ -268,6 +309,8 @@ function AppState() {
 		setNumChords,
 		numInstruments,
 		setNumInstruments,
+		selectedInstrument,
+		setSelectedInstrument,
 		numSections,
 		setNumSections,
 
@@ -304,6 +347,7 @@ function AppState() {
 		addNoteConstraint,
 		removeNoteConstraint,
 		handleNoteConstraintChange,
+		handleInstrumentNumberChange,
 
 		interMelodyConstraintSet,
 		addInterMelodyConstraint,
@@ -366,7 +410,7 @@ type ChordPrototypeEnvironment = {
 	handleNoteOptionsPerCellChange: (index: number, noteOptions: OctavedNoteIR[]) => void,
 	melodyLength: number,
 	setMelodyLength: (newLength: number) => void,
-	noteConstraintSet: NoteConstraintIR[],
+	noteConstraintSet: NoteConstraintIR[][],
 	addNoteConstraint: (constraint: NoteConstraintIR) => void,
 	removeNoteConstraint: (index: number) => void,
 	handleNoteConstraintChange: (index: number, constraint: NoteConstraintIR) => void,

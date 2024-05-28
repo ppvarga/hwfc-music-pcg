@@ -155,19 +155,19 @@ function NoteConstraintDiv({ constraintIR, onConstraintChange, onRemove }: NoteC
 type NoteConstraintTypeOption = { value: NoteConstraintType, label: string }
 
 interface AddNoteConstraintProps {
-	onAddConstraint: (constraintIR: NoteConstraintIR) => void
+	onAddConstraint: (constraintIR: NoteConstraintIR, instrument: number) => void
 }
 
 function AddNoteConstraint({ onAddConstraint }: AddNoteConstraintProps) {
-	const { noteConstraintSet } = useAppContext()
+	const { noteConstraintSet, selectedInstrument } = useAppContext()
 	const [selectedType, setSelectedType] = useState<NoteConstraintTypeOption | null>(null)
 
-	const getNoteConstraintOptions = () => noteConstraintOptions.filter(option => !noteConstraintSet.map(constraint => constraint.type).includes(option.value)).map(option => ({ value: option.value, label: option.label.name }))
+	const getNoteConstraintOptions = () => noteConstraintOptions.filter(option => !noteConstraintSet[selectedInstrument - 1].map(constraint => constraint.type).includes(option.value)).map(option => ({ value: option.value, label: option.label.name }))
 
 	const handleAddButtonClick = () => {
 		if (!selectedType) return
 
-		onAddConstraint(initializeNoteConstraint(selectedType.value))
+		onAddConstraint(initializeNoteConstraint(selectedType.value), selectedInstrument)
 		setSelectedType(null)
 	}
 
@@ -186,18 +186,20 @@ function AddNoteConstraint({ onAddConstraint }: AddNoteConstraintProps) {
 }
 
 export function NoteConstraints() {
-	const { noteConstraintSet, addNoteConstraint, removeNoteConstraint, handleNoteConstraintChange } = useAppContext()
+	const { noteConstraintSet, addNoteConstraint, removeNoteConstraint, handleNoteConstraintChange, selectedInstrument } = useAppContext()
+
+	console.log(noteConstraintSet)
 
 	return (
 		<div style={{ flex: 1 }}>
 			<h3>Melody constraints</h3>
 			<AddNoteConstraint onAddConstraint={addNoteConstraint} />
-			{noteConstraintSet.map((constraintIR, index) => (
+			{noteConstraintSet[selectedInstrument - 1].map((constraintIR, index) => (
 				<NoteConstraintDiv
 					key={index}
 					constraintIR={constraintIR}
-					onConstraintChange={(updatedIR) => handleNoteConstraintChange(index, updatedIR)}
-					onRemove={() => removeNoteConstraint(index)}
+					onConstraintChange={(updatedIR) => handleNoteConstraintChange(index, updatedIR, selectedInstrument)}
+					onRemove={() => removeNoteConstraint(index, selectedInstrument)}
 				/>
 			))}
 		</div>

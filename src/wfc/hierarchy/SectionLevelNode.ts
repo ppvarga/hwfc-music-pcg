@@ -11,7 +11,7 @@ import { Section } from "./Section"
 
 interface SectionLevelNodeProps {
 	higherValues: HigherValues
-	noteCanvasProps: TileCanvasProps<OctavedNote>
+	noteCanvasProps: TileCanvasProps<OctavedNote>[]
 	chordesqueCanvasProps: TileCanvasProps<Chordesque>
 	sectionCanvasProps: TileCanvasProps<Section>
 	random: Random
@@ -20,7 +20,7 @@ interface SectionLevelNodeProps {
 
 export class SectionLevelNode extends HWFCNode<any, Section> {
 	private higherValues: HigherValues
-	private noteCanvasProps: TileCanvasProps<OctavedNote>
+	private noteCanvasProps: TileCanvasProps<OctavedNote>[]
 	private chordesqueCanvasProps: TileCanvasProps<Chordesque>
 	protected canvas: TileCanvas<never, Section>
 	private random: Random
@@ -56,10 +56,10 @@ export class SectionLevelNode extends HWFCNode<any, Section> {
 				rhythmPatternOptions: section.rhythmStrategy === "On" ? section.rhythmPatternOptions : this.higherValues.rhythmPatternOptions,
 				melodyLength: section.melodyLengthStrategy === "Custom" ? section.melodyLength : this.higherValues.melodyLength,
 			},
-			noteCanvasProps: unionOfTileCanvasProps( 
-				this.noteCanvasProps, 
+			noteCanvasProps: this.noteCanvasProps.map((noteCanvasPropsItem) => unionOfTileCanvasProps( 
+				noteCanvasPropsItem, 
 				section.noteCanvasProps
-			),
+			)),
 			chordesqueCanvasProps: unionOfTileCanvasProps(
 				this.chordesqueCanvasProps,
 				section.chordesqueCanvasProps

@@ -4,7 +4,7 @@ import { selectStyles } from "../styles"
 
 export function NumberOfInstruments() {
 
-    const { numInstruments, setNumInstruments } = useAppContext()
+    const { numInstruments, handleInstrumentNumberChange } = useAppContext()
     const options = [
         { value: 1, label: '1' },
         { value: 2, label: '2' },
@@ -19,7 +19,7 @@ export function NumberOfInstruments() {
                 options={options}
                 value={options[numInstruments - 1]}
                 placeholder={numInstruments}
-                onChange={(option) => !option ? setNumInstruments(1) : setNumInstruments(option.value)}
+                onChange={(option) => !option ? handleInstrumentNumberChange(1) : handleInstrumentNumberChange(option.value)}
                 styles={selectStyles}
             />
         </>

@@ -62,10 +62,10 @@ export function Output() {
 	const appState = useAppContext()
 	const { output, setOutput, collapseType, collapseTypeK, onlyUseChordPrototypes, chordPrototypes, inferKey, inferMelodyKey, differentMelodyKey, numChords, chordOptionsPerCell, chordConstraintSet, melodyLength, noteOptionsPerCell, noteConstraintSet, interMelodyConstraintSet, minNumNotes, startOnNote, maxRestLength, useRhythm, sections, sectionOptionsPerCell, numSections, bpm, numInstruments } = appState
 
-	const noteCanvasProps: TileCanvasProps<OctavedNote> = {
+	const noteCanvasProps: TileCanvasProps<OctavedNote>[] = noteConstraintSet.map((noteConstraints) => { return {
 		optionsPerCell: new OptionsPerCell(OctavedNote.all(), noteOptionsPerCell.transform(OctavedNote.multipleFromIRs)),
-		constraints: new ConstraintSet(noteConstraintSet.map(noteConstraint => convertIRToNoteConstraint(noteConstraint))).union(new ConstraintSet(interMelodyConstraintSet.map(interMelodyConstraint => convertIRToInterMelodyConstraint(interMelodyConstraint)))),
-	}
+		constraints: new ConstraintSet(noteConstraints.map(noteConstraint => convertIRToNoteConstraint(noteConstraint))).union(new ConstraintSet(interMelodyConstraintSet.map(interMelodyConstraint => convertIRToInterMelodyConstraint(interMelodyConstraint)))),
+	}})
 
 	
 
@@ -129,8 +129,6 @@ export function Output() {
 			}
 
 			const inferredKey = inferKey()
-
-			console.log(noteCanvasProps)
 
 			const node = new SectionLevelNode({
 				noteCanvasProps,
