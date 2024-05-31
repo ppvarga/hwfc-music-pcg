@@ -67,8 +67,6 @@ export function Output() {
 		constraints: new ConstraintSet(noteConstraintSet.map(noteConstraint => convertIRToNoteConstraint(noteConstraint))),
 	}
 
-	
-
 	function parseSections(): [Section[], Constraint<Section>[]] {
 		const parsedSections = []
 		const sectionConstraints = []
@@ -114,8 +112,6 @@ export function Output() {
 		try {
 			const {parsedChordPrototypes, chordPrototypeConstraints} = parseChordPrototypes(chordPrototypes)
 			const [parsedSections, sectionConstraints] = parseSections()
-
-			console.log(numChords)
 
 			const chordesqueCanvasProps: TileCanvasProps<Chordesque> = {
 				optionsPerCell: new OptionsPerCell([

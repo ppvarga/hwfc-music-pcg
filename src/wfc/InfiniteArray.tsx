@@ -51,6 +51,12 @@ export class InfiniteArray<T> {
 		}
 		return newArray;
 	}
+
+	copy(): InfiniteArray<T> {
+		const ret = new InfiniteArray<T>();
+		ret.data = { ...this.data };
+		return ret;
+	}
 }
 
 export function parseWithInfiniteArray(json: string) {

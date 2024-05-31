@@ -7,12 +7,14 @@ import { HigherValues } from "../HigherValues"
 import { TileCanvasProps, TileCanvas, unionOfTileCanvasProps } from "../TileCanvas"
 import { NoteLevelNode } from "./NoteLevelNode"
 import { ChordPrototype, Chordesque } from "./Chordesque"
+import { lastChords, lockedChords } from "../../util/utils"
 
 interface ChordLevelNodeProps {
 	higherValues: HigherValues
 	noteCanvasProps: TileCanvasProps<OctavedNote>
 	chordesqueCanvasProps: TileCanvasProps<Chordesque>
 	random: Random
+	sectionNumber: number
 }
 
 export class ChordLevelNode {
@@ -20,10 +22,18 @@ export class ChordLevelNode {
 	private noteCanvasProps: TileCanvasProps<OctavedNote>
 	private chordesqueCanvas: TileCanvas<Chordesque>
 	private random: Random
+	private sectionNumber: number
 
 	constructor(props: ChordLevelNodeProps) {
 		this.higherValues = props.higherValues 
 		this.noteCanvasProps = props.noteCanvasProps
+		if (lockedChords[props.sectionNumber] !== undefined && lockedChords[props.sectionNumber].length > 0) {
+			for (let i = 0; i < lockedChords[props.sectionNumber].length; i++) {
+				if (lockedChords[props.sectionNumber][i] !== undefined) {
+					props.chordesqueCanvasProps.optionsPerCell.setValue(i, lockedChords[props.sectionNumber][i])
+				}
+			}
+		}
 		this.chordesqueCanvas = new TileCanvas(
 			this.higherValues.numChords,
 			props.chordesqueCanvasProps,
@@ -31,12 +41,17 @@ export class ChordLevelNode {
 			props.random,
 		)
 		this.random = props.random
+		this.sectionNumber = props.sectionNumber
 	}
 
 	public generate(): [NoteOutput[], number] {
 		const chords = this.chordesqueCanvas.generate()
 
+		lastChords[this.sectionNumber] = []
+		lastChords[this.sectionNumber].push(...chords.map(chord => chord.getChord()))
+
 		let offset = 0
+		let chordNumber = 0
 		const out: NoteOutput[] = []
 		for (const chord of chords) {
 			const chordValue = chord.getChord()
@@ -74,6 +89,8 @@ export class ChordLevelNode {
 				actualNoteCanvasProps,
 				newHigherValues,
 				this.random,
+				this.sectionNumber,
+				chordNumber,
 			)
 
 			const abstractResultBase = {
@@ -108,6 +125,7 @@ export class ChordLevelNode {
 				out.push(...subResult)
 				offset = newOffset
 			}
+			chordNumber++
 		}
 
 		return [out, offset]

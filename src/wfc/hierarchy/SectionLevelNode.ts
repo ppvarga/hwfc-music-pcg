@@ -35,7 +35,7 @@ export class SectionLevelNode {
 		this.random = props.random
 	}
 
-	private createChordLevelNode(section: Section) {
+	private createChordLevelNode(section: Section, sectionNumber: number) {
 		return new ChordLevelNode({
 			higherValues: {
 				...this.higherValues, 
@@ -55,6 +55,7 @@ export class SectionLevelNode {
 				section.chordesqueCanvasProps
 			),
 			random: this.random,
+			sectionNumber: sectionNumber,
 		})
 	}
 
@@ -62,8 +63,10 @@ export class SectionLevelNode {
 		const sections = this.sectionCanvas.generate()
 		const noteOutputs: NoteOutput[] = []
 		let totalDuration = 0
+		let sectionNumber = 0
+		
 		for (const section of sections) {
-			const chordLevelNode = this.createChordLevelNode(section)
+			const chordLevelNode = this.createChordLevelNode(section, sectionNumber)
 			const [sectionNoteOutputs, sectionDuration] = chordLevelNode.generate()
 
 			noteOutputs.push(...(sectionNoteOutputs.map((noteOutput) => {
@@ -71,6 +74,7 @@ export class SectionLevelNode {
 				return noteOutput
 			})))
 
+			sectionNumber++
 			totalDuration += sectionDuration
 		}
 		return [noteOutputs, totalDuration]
