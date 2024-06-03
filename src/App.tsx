@@ -11,6 +11,7 @@ import { ChordPrototypesPage } from "./components/ChordPrototypesPage"
 import { SectionsPage } from "./components/SectionsPage"
 import { SectionTiles } from "./components/SectionTiles"
 import { Configs } from "./components/Configs"
+import { RhythmPage } from "./components/RhythmPage"
 
 function App() {
 
@@ -41,6 +42,10 @@ function App() {
 		{
 			title: "Chord prototypes",
 			content: <ChordPrototypesPage />
+		},
+		{
+			title: "Rhythm",
+			content: <RhythmPage/>
 		},
 		{
 			title: "Configs",

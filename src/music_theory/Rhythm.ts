@@ -128,37 +128,59 @@ function allRhythmicCombinations({
 
 // you can choose range of note lengths?
 
-type Measure = {
-	signatureUpper: number,
-	signatureLower: number,
-	notes: RhythmUnit[]
+export class Measure {
+	constructor (
+		public signatureUpper: number,
+		public signatureLower: number,
+		public notes: RhythmPattern
+	) {}
+}
+
+export const MeasureTypeInit = (id: number) => {
+	return {
+		id: id,
+		signatureUpper: 4,
+		signatureLower:4,
+		name: "",
+		notes: [{duration:1, type:"note"},
+			{duration:1, type:"note"},
+			{duration:1, type:"note"},
+			{duration:1, type:"note"}] as RhythmPattern
+	}
+}
+
+export type MeasureIR = ReturnType<typeof MeasureTypeInit>
+
+export function nameOfMeasure (measure: MeasureIR): string {
+	return measure.name == "" ? `measure${measure.id}` : measure.name
 }
 
 export function generateRhythm (
 	length: number
 ): RhythmPattern {
-	let rhythm = new Array<RhythmUnit>
+	// let rhythm = new Array<RhythmUnit>
 	// while (rhythm.length < length) {
 	// 	let rh = getOneMeasureRhythm(5, 4)
 	// 	rhythm.push(...rh)
 	// }
 	// rhythm.splice(length, (rhythm.length - length))
 	// console.log(rhythm)
-	rhythm = getOneMeasureRhythm(4, 4, length)
-	return(rhythm)
+	let measure = generateMeasure(4, 4, length)
+	let rhythm = measure.notes
+
+	return rhythm
 }
 
 // i gotta make it so that the time signature counts not only the melody length
 // number of notes after rhythm is generato
 
-function getOneMeasureRhythm(
+export function generateMeasure (
 	signatureUpper: number,
 	signatureLower: number,
 	maxNumberOfNotes: number
-): Array<RhythmUnit> {
+): Measure {
 	// set what notes are allowed
-	let notes = [ 1/2, 1/4, 1/8, 3/4, 3/16, 3/8, 3/32,
-	]
+	let notes = [ 1/2, 1/4, 1/8, 3/4, 3/16, 3/8, 3/32]
 	// 1,   1/16,
 	let time = signatureUpper * signatureUpper / signatureLower
 	console.log("length is:" + signatureUpper)
@@ -170,10 +192,15 @@ function getOneMeasureRhythm(
 	let durations = combinations[randomIndex]
 	// shuffle it
 	shuffleArray(durations)
+
 	// overlay with note on / continuuu / rest
 	// where its continuuuus add lengths together
-	console.log("note values " + durations)
-	return durationToRhythm(durations)
+	let rhythm = durationToRhythm(durations)
+	return {
+		signatureUpper : signatureUpper,
+		signatureLower : signatureLower,
+		notes : rhythm
+	}
 }
 
 function durationToRhythm (

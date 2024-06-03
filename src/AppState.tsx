@@ -11,6 +11,7 @@ import { ChordPrototypeIR, ChordesqueIR, nameOfChordPrototypeIR } from "./wfc/hi
 import { NoteOutput } from "./components/MidiPlayer"
 import { SectionIR, SectionInit, nameOfSectionIR } from "./wfc/hierarchy/Section"
 import { InfiniteArray } from "./wfc/InfiniteArray"
+import { Measure, MeasureIR } from "./music_theory/Rhythm"
 
 export interface PassiveAppState {
 	bpm: number;
@@ -30,6 +31,7 @@ export interface PassiveAppState {
     useRhythm: boolean;
     minNumNotes: number;
     startOnNote: boolean;
+	measures: MeasureIR[];
     maxRestLength: number;
     chordPrototypes: ChordPrototypeIR[];  
     onlyUseChordPrototypes: boolean;
@@ -141,6 +143,16 @@ function AppState() {
 	const setStartOnNote = (newStartOnNote: boolean) => {
 		tempSetStartOnNote(newStartOnNote)
 	}
+	const [measures, setMeasures] = useState<MeasureIR[]>([])
+	const addMeasure = (measure: MeasureIR) => {
+		setMeasures([...measures, measure])
+	}
+	const [nextRhythmID, setNextRhythmID] = useState(1)
+	const getNextMeasureID = () => {
+		const id = nextRhythmID
+		setNextRhythmID(nextRhythmID + 1)
+		return id
+	}
 
 	//CHORD PROTOTYPES
 	const [onlyUseChordPrototypes, setOnlyUseChordPrototypes] = useState(false)
@@ -221,6 +233,7 @@ function AppState() {
 		setMinNumNotes(newState.minNumNotes)
 		setStartOnNote(newState.startOnNote)
 		setMaxRestLength(newState.maxRestLength)
+		setMeasures(newState.measures)
 
 		setChordPrototypes(newState.chordPrototypes)
 		setOnlyUseChordPrototypes(newState.onlyUseChordPrototypes)
@@ -281,6 +294,9 @@ function AppState() {
 		setStartOnNote,
 		maxRestLength,
 		setMaxRestLength,
+		measures,
+		addMeasure,
+		getNextMeasureID,
 
 		chordPrototypes,
 		addChordPrototype,
