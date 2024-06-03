@@ -124,3 +124,110 @@ function allRhythmicCombinations({
 
 	return out
 }
+
+
+// you can choose range of note lengths?
+
+type Measure = {
+	signatureUpper: number,
+	signatureLower: number,
+	notes: RhythmUnit[]
+}
+
+export function generateRhythm (
+	length: number
+): RhythmPattern {
+	let rhythm = new Array<RhythmUnit>
+	// while (rhythm.length < length) {
+	// 	let rh = getOneMeasureRhythm(5, 4)
+	// 	rhythm.push(...rh)
+	// }
+	// rhythm.splice(length, (rhythm.length - length))
+	// console.log(rhythm)
+	rhythm = getOneMeasureRhythm(4, 4, length)
+	return(rhythm)
+}
+
+// i gotta make it so that the time signature counts not only the melody length
+// number of notes after rhythm is generato
+
+function getOneMeasureRhythm(
+	signatureUpper: number,
+	signatureLower: number,
+	maxNumberOfNotes: number
+): Array<RhythmUnit> {
+	// set what notes are allowed
+	let notes = [ 1/2, 1/4, 1/8, 3/4, 3/16, 3/8, 3/32,
+	]
+	// 1,   1/16,
+	let time = signatureUpper * signatureUpper / signatureLower
+	console.log("length is:" + signatureUpper)
+	notes = notes.map(function(x) { return x*signatureUpper })
+	// generate all possible combinations
+	let combinations = allCombinations(notes, time).filter(x => x.length <= maxNumberOfNotes)
+	// pick a random combo
+	let randomIndex = Math.floor(Math.random() * combinations.length)
+	let durations = combinations[randomIndex]
+	// shuffle it
+	shuffleArray(durations)
+	// overlay with note on / continuuu / rest
+	// where its continuuuus add lengths together
+	console.log("note values " + durations)
+	return durationToRhythm(durations)
+}
+
+function durationToRhythm (
+	notes: number[]
+): Array<RhythmUnit> {
+	let res = new Array<RhythmUnit>
+	for (let i = 0; i < notes.length; i++) {
+		let pick = Math.random()
+		
+		res.push({ duration: notes[i], type: "note" } as RhythmUnit)
+		// if (i > 0 && res[i-1].type == "rest")
+		// 	res.push({ duration: notes[i], type: "note" } as RhythmUnit)
+		// else
+		// 	res.push({ duration: notes[i], type: pick <= 0.9 ? "rest" : "note" } as RhythmUnit)
+	}
+	return res
+}
+
+function shuffleArray (array: string[]) { 
+	for (let i = array.length - 1; i > 0; i--) {
+	  let j = Math.floor(Math.random() * (i + 1))
+	  let temp = array[i]
+	  array[i] = array[j]
+	  array[j] = temp
+	}
+}
+
+function allCombinations(
+	notes: number[],
+	sum: number) {
+    let combinations = new Array()
+    let temp = new Array()
+    findCombinations(combinations, notes, sum, 0, temp)
+    return combinations
+}
+ 
+function findCombinations(
+	combinations: Array<Array<number>>,
+	notes: number[],
+	sum: number,
+	index: number,
+	temp: Array<number>) {
+ 
+    if (sum == 0) {
+        combinations.push([...temp])
+        return
+    }
+ 
+    for (let i = index; i < notes.length; i++) {
+ 
+        if ((sum - notes[i]) >= 0) { // if note's length can fit
+            temp.push(notes[i]) // add current note
+            findCombinations(combinations, notes, sum - notes[i], i, temp) // find rest of the combination
+            temp.splice(temp.indexOf(notes[i]), 1) // remove note and try next one
+        }
+    }
+}

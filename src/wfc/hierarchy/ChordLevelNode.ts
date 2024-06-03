@@ -2,6 +2,7 @@ import { chordResultToOutput, chordResultWithRhythmToOutput } from "../../audio/
 import { NoteOutput } from "../../components/MidiPlayer"
 import { OctavedNote } from "../../music_theory/Note"
 import { getRandomRhythmPattern } from "../../music_theory/Rhythm"
+import { generateRhythm } from "../../music_theory/Rhythm"
 import { Random } from "../../util/Random"
 import { HigherValues } from "../HigherValues"
 import { TileCanvasProps, TileCanvas, unionOfTileCanvasProps } from "../TileCanvas"
@@ -84,11 +85,12 @@ export class ChordLevelNode {
 			if(useRhythm) {
 				const abstractResult = {
 					...abstractResultBase,
-					rhythmPattern: getRandomRhythmPattern(
-						actualMelodyLength,
-						rhythmPatternOptions,
-						this.random,
-					)
+					// rhythmPattern: getRandomRhythmPattern(
+					// 	actualMelodyLength,
+					// 	rhythmPatternOptions,
+					// 	this.random,
+					// )
+					rhythmPattern: generateRhythm(actualMelodyLength)
 				}
 
 				const [subResult, newOffset] = chordResultWithRhythmToOutput(
@@ -109,7 +111,6 @@ export class ChordLevelNode {
 				offset = newOffset
 			}
 		}
-
 		return [out, offset]
 	}
 }
