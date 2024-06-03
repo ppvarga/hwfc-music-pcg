@@ -11,7 +11,8 @@ export const ChordRootAbsoluteStepSizeHardConstraintInit = {
 	type: "ChordRootAbsoluteStepSizeHardConstraint" as const,
 	stepSizes: [1, 2, 3, 4, 5, 6],
 	validByDefault: true as const,
-	reachOver: true
+	reachOverPrev: true,
+	reachOverNext: true
 }
 
 export type ChordRootAbsoluteStepSizeHardConstraintIR =
@@ -25,14 +26,14 @@ export class ChordRootAbsoluteStepSizeHardConstraint
 		ChordRootAbsoluteStepSizeHardConstraintInit.type,
 	)!.name as string
 	constructor(grabber: Grabber<number[]>,
-		private reachOver: boolean) {
+		private reachOverPrev: boolean, private reachOverNext: boolean) {
 		this.grabber = grabber
 	}
 
 	check(tile: Tile<Chordesque>, higherValues: HigherValues): boolean {
 		const chord = tile.getValue().getChord()
-		const prev = tile.getPrev(this.reachOver)
-		const next = tile.getNext(this.reachOver)
+		const prev = tile.getPrev(this.reachOverPrev)
+		const next = tile.getNext(this.reachOverNext)
 
 		let out = true
 		if (prev.isCollapsed())

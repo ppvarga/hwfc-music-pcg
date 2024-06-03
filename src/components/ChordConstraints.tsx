@@ -36,6 +36,7 @@ export function ChordConstraintConfig({ constraintIR, onConstraintChange, setVal
 						</div>
 					))}
 				</div>
+				{ChordReachOverPanel(constraintIR, onConstraintChange)}
 			</SimpleConstraintConfigDiv>
 		case "PerfectCadenceSoftConstraint": return <SimpleConstraintConfigDiv>
 			<input
@@ -52,6 +53,7 @@ export function ChordConstraintConfig({ constraintIR, onConstraintChange, setVal
 					else setValid(false)
 				}}
 			/>
+			{ChordReachOverPanel(constraintIR, onConstraintChange)}
 		</SimpleConstraintConfigDiv>
 		case "PlagalCadenceSoftConstraint": return <SimpleConstraintConfigDiv>
 			<input
@@ -68,6 +70,7 @@ export function ChordConstraintConfig({ constraintIR, onConstraintChange, setVal
 					else setValid(false)
 				}}
 			/>
+			{ChordReachOverPanel(constraintIR, onConstraintChange)}
 		</SimpleConstraintConfigDiv>
 	}
 }
@@ -76,6 +79,33 @@ interface ChordConstraintDivProps {
 	constraintIR: ChordConstraintIR
 	onConstraintChange: (updatedIR: ChordConstraintIR) => void
 	onRemove: () => void
+}
+
+function ChordReachOverPanel(constraintIR: ChordConstraintIR & { reachOverPrev: boolean; reachOverNext: boolean }, onConstraintChange: (updatedIR: ChordConstraintIR & { reachOverPrev: boolean; reachOverNext: boolean }) => void) {
+	return <div style={{ display: "flex", flexDirection: "column", gap: "0.5em", flexWrap: "wrap", justifyContent: "left", marginTop: "2em", textAlign:"left" }}>
+		<div style={{ display: "flex", flexDirection: "row", gap: "0.5em", justifyContent:"flex-start"}}>
+			<input
+				type="checkbox"
+				id="reachOverPrev"
+				name="reachOverPrev"
+				defaultChecked={constraintIR.reachOverPrev}
+				onChange={(e) => {
+					onConstraintChange({ ...constraintIR, reachOverPrev: e.target.checked })
+				} } />
+			<label htmlFor="reachOverPrev" style={{justifyContent: "left"}}>Reach over into previous canvas</label>
+		</div>
+		<div style={{ display: "flex", flexDirection: "row", gap: "0.5em", justifyContent:"flex-start"}}>
+			<input
+				type="checkbox"
+				id="reachOverNext"
+				name="reachOverNext"
+				defaultChecked={constraintIR.reachOverNext}
+				onChange={(e) => {
+					onConstraintChange({ ...constraintIR, reachOverNext: e.target.checked })
+				} } />
+			<label htmlFor="reachOverNext">Reach over into next canvas</label>
+		</div>
+	</div>
 }
 
 export function ChordConstraintDiv({ constraintIR, onConstraintChange, onRemove }: ChordConstraintDivProps) {

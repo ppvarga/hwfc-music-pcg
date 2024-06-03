@@ -9,7 +9,8 @@ export const PerfectCadenceSoftConstraintInit = {
 	type: "PerfectCadenceSoftConstraint" as const,
 	bonus: 1,
 	validByDefault: true as const,
-	reachOver: true
+	reachOverPrev: true,
+	reachOverNext: true
 }
 
 export type PerfectCadenceSoftConstraintIR =
@@ -18,7 +19,7 @@ export class PerfectCadenceSoftConstraint extends GenericCadenceSoftConstraint {
 	name = chordConstraintTypeToName.get(
 		PerfectCadenceSoftConstraintInit.type,
 	)!.name as string
-	constructor(bonus: number, keyGrabber: Grabber<MusicalKey>, reachOver: boolean) {
+	constructor(bonus: number, keyGrabber: Grabber<MusicalKey>, reachOverPrev: boolean, reachOverNext: boolean) {
 		super(
 			bonus,
 			constantNumberGrabber(7),
@@ -26,7 +27,8 @@ export class PerfectCadenceSoftConstraint extends GenericCadenceSoftConstraint {
 			constantConcreteChordQualityGrabber("major" as ConcreteChordQuality),
 			constantConcreteChordQualityGrabber("major" as ConcreteChordQuality),
 			keyGrabber,
-			reachOver
+			reachOverPrev,
+			reachOverNext
 		)
 	}
 }

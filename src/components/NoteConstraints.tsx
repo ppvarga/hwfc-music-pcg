@@ -35,6 +35,7 @@ function NoteConstraintConfig({ constraintIR, onConstraintChange, setValid }: No
 					else setValid(false)
 				}}
 			/>
+			{NoteReachOverPanel(constraintIR, onConstraintChange)}
 		</SimpleConstraintConfigDiv>
 		case "DescendingMelodySoftConstraint": return <SimpleConstraintConfigDiv>
 			<input
@@ -51,6 +52,7 @@ function NoteConstraintConfig({ constraintIR, onConstraintChange, setValid }: No
 					else setValid(false)
 				}}
 			/>
+			{NoteReachOverPanel(constraintIR, onConstraintChange)}
 		</SimpleConstraintConfigDiv>
 		case "MelodyAbsoluteStepSizeHardConstraint":
 			setValid(constraintIR.stepSizes.length > 0)
@@ -65,6 +67,7 @@ function NoteConstraintConfig({ constraintIR, onConstraintChange, setValid }: No
 						setValid(stepSizes.length > 0)
 					}}
 				/>
+				{NoteReachOverPanel(constraintIR, onConstraintChange)}
 			</SimpleConstraintConfigDiv>
 		case "MelodyEndsOnNoteHardConstraint": return <SimpleConstraintConfigDiv>
 			<NoteSelector
@@ -204,3 +207,29 @@ export function NoteConstraints() {
 	)
 }
 
+function NoteReachOverPanel(constraintIR: NoteConstraintIR & { reachOverPrev: boolean; reachOverNext: boolean }, onConstraintChange: (updatedIR: NoteConstraintIR & { reachOverPrev: boolean; reachOverNext: boolean }) => void) {
+	return <div style={{ display: "flex", flexDirection: "column", gap: "0.5em", flexWrap: "wrap", justifyContent: "left", marginTop: "2em", textAlign:"left" }}>
+		<div style={{ display: "flex", flexDirection: "row", gap: "0.5em", justifyContent:"flex-start"}}>
+			<input
+				type="checkbox"
+				id="reachOverPrev"
+				name="reachOverPrev"
+				defaultChecked={constraintIR.reachOverPrev}
+				onChange={(e) => {
+					onConstraintChange({ ...constraintIR, reachOverPrev: e.target.checked })
+				} } />
+			<label htmlFor="reachOverPrev" style={{justifyContent: "left"}}>Reach over into previous canvas</label>
+		</div>
+		<div style={{ display: "flex", flexDirection: "row", gap: "0.5em", justifyContent:"flex-start"}}>
+			<input
+				type="checkbox"
+				id="reachOverNext"
+				name="reachOverNext"
+				defaultChecked={constraintIR.reachOverNext}
+				onChange={(e) => {
+					onConstraintChange({ ...constraintIR, reachOverNext: e.target.checked })
+				} } />
+			<label htmlFor="reachOverNext">Reach over into next canvas</label>
+		</div>
+	</div>
+}

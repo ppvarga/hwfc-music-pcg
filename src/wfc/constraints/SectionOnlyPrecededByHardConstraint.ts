@@ -7,19 +7,15 @@ import { HardConstraint } from "./concepts/Constraint"
 export class SectionOnlyPrecededByHardConstraint
 	implements HardConstraint<Section>
 {
-	private sectionName: string
-	private grabber: Grabber<string[]>
 	name = "Section Only Preceded By"
-	constructor(sectionName: string, grabber: Grabber<string[]>,
-		private reachOver: boolean) {
-		this.sectionName = sectionName
-		this.grabber = grabber
+	constructor(private sectionName: string, private grabber: Grabber<string[]>,
+		private reachOverPrev: boolean, private reachOverNext: boolean) {
 	}
 
 	check(tile: Tile<Section>, higherValues: HigherValues): boolean {
 		const section = tile.getValue()
-		const prev = tile.getPrev(this.reachOver)
-		const next = tile.getNext(this.reachOver)
+		const prev = tile.getPrev(this.reachOverPrev)
+		const next = tile.getNext(this.reachOverNext)
 		
 		let out = true
 		if(prev.isCollapsed()){

@@ -10,19 +10,18 @@ export const MelodyShapeHardConstraintInit = {
 	type: "MelodyShapeHardConstraint" as const,
 	shape: [] as MelodyShape,
 	validByDefault: true as const,
-	reachOver: true
+	reachOverPrev: true,
+	reachOverNext: true
 }
 
 export type MelodyShapeHardConstraintIR = typeof MelodyShapeHardConstraintInit
 
 export class MelodyShapeHardConstraint implements HardConstraint<OctavedNote> {
-	private grabber: Grabber<MelodyShape>
 	name = noteConstraintTypeToName.get(
 		MelodyShapeHardConstraintInit.type,
 	)!.name as string
-	constructor(grabber: Grabber<MelodyShape>,
-		private reachOver: boolean) {
-		this.grabber = grabber
+	constructor(private grabber: Grabber<MelodyShape>,
+		private reachOverPrev: boolean, private reachOverNext: boolean) {
 	}
 
 	private checkPair(
@@ -52,8 +51,8 @@ export class MelodyShapeHardConstraint implements HardConstraint<OctavedNote> {
 	check(tile: Tile<OctavedNote>, higherValues: HigherValues): boolean {
 		const note = tile.getValue()
 		const pos = tile.getPosition()
-		const prev = tile.getPrev(this.reachOver)
-		const next = tile.getNext(this.reachOver)
+		const prev = tile.getPrev(this.reachOverPrev)
+		const next = tile.getNext(this.reachOverNext)
 
 		const shape = this.grabber(higherValues)
 

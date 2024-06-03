@@ -50,12 +50,18 @@ export class Tile<T extends Equatable<T>> {
 	}
 
 	public getPrev(reachOver: boolean): Tile<T> {
-		if (reachOver && this.position == 0) return this.canvas.lastTileOfPrevious()
+		if (this.position == 0) {
+			if(reachOver) return this.canvas.lastTileOfPrevious()
+			return Tile.header(this.canvas)
+		}
 		else return this.canvas.getTileAtPos(this.position - 1)
 	}
 
 	public getNext(reachOver: boolean): Tile<T> {
-		if (reachOver && this.position == this.canvas.getSize() - 1) return this.canvas.firstTileOfNext()
+		if (this.position == this.canvas.getSize() - 1) {
+			if (reachOver) return this.canvas.firstTileOfNext()
+			return Tile.trailer(this.canvas)
+		}
 		else return this.canvas.getTileAtPos(this.position + 1)
 	}
 

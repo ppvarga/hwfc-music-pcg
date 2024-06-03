@@ -12,13 +12,15 @@ export class ChordPrototypeOnlyFollowedByConstraint
 	constructor(
 		private chordPrototypeName: string,
 		private grabber: Grabber<string[]>,
-		private reachOver: boolean
+		private reachOverPrev: boolean,
+		private reachOverNext: boolean,
+	
 	) {}
 
 	check(tile: Tile<Chordesque>, higherValues: HigherValues): boolean {
 		const chordesque = tile.getValue()
-		const prev = tile.getPrev(this.reachOver)
-		const next = tile.getNext(this.reachOver)
+		const prev = tile.getPrev(this.reachOverPrev)
+		const next = tile.getNext(this.reachOverNext)
 
 		let out = true
 		if (prev.isCollapsed()){

@@ -143,12 +143,12 @@ export const convertIRToChordConstraint = (
 			return new ChordInKeyHardConstraint(keyGrabber)
 		case "ChordRootAbsoluteStepSizeHardConstraint":
 			return new ChordRootAbsoluteStepSizeHardConstraint(
-				constantNumberArrayGrabber(ir.stepSizes), ir.reachOver,
+				constantNumberArrayGrabber(ir.stepSizes), ir.reachOverPrev, ir.reachOverNext
 			)
 		case "PlagalCadenceSoftConstraint":
-			return new PlagalCadenceSoftConstraint(ir.bonus, keyGrabber, ir.reachOver)
+			return new PlagalCadenceSoftConstraint(ir.bonus, keyGrabber, ir.reachOverPrev, ir.reachOverNext)
 		case "PerfectCadenceSoftConstraint":
-			return new PlagalCadenceSoftConstraint(ir.bonus, keyGrabber, ir.reachOver)
+			return new PlagalCadenceSoftConstraint(ir.bonus, keyGrabber, ir.reachOverPrev, ir.reachOverNext)
 	}
 }
 
@@ -162,12 +162,12 @@ export const convertIRToNoteConstraint = (
 			)
 		case "MelodyAbsoluteStepSizeHardConstraint":
 			return new MelodyAbsoluteStepSizeHardConstraint(
-				constantNumberArrayGrabber(ir.stepSizes), ir.reachOver
+				constantNumberArrayGrabber(ir.stepSizes), ir.reachOverPrev, ir.reachOverNext
 			)
 		case "AscendingMelodySoftConstraint":
-			return new AscendingMelodySoftConstraint(ir.bonus, ir.reachOver)
+			return new AscendingMelodySoftConstraint(ir.bonus, ir.reachOverPrev, ir.reachOverNext)
 		case "DescendingMelodySoftConstraint":
-			return new DescendingMelodySoftConstraint(ir.bonus, ir.reachOver)
+			return new DescendingMelodySoftConstraint(ir.bonus, ir.reachOverPrev, ir.reachOverNext)
 		case "MelodyEndsOnNoteHardConstraint":
 			return new MelodyEndsOnNoteHardConstraint(noteGrabberIRToGrabber(ir.noteGrabber))
 		case "MelodyStartsOnNoteHardConstraint":
@@ -178,7 +178,7 @@ export const convertIRToNoteConstraint = (
 				constantOctavedNoteGrabber(OctavedNote.fromIR(ir.higherNoteIR)),
 			)
 		case "MelodyShapeHardConstraint":
-			return new MelodyShapeHardConstraint(constantMelodyShapeGrabber(ir.shape), ir.reachOver)
+			return new MelodyShapeHardConstraint(constantMelodyShapeGrabber(ir.shape), ir.reachOverPrev, ir.reachOverNext)
 	}
 }
 

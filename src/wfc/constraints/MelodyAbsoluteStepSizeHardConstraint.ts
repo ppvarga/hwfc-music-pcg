@@ -9,7 +9,8 @@ export const MelodyAbsoluteStepSizeHardConstraintInit = {
 	type: "MelodyAbsoluteStepSizeHardConstraint" as const,
 	stepSizes: [] as number[],
 	validByDefault: false as const,
-	reachOver: true
+	reachOverPrev: true,
+	reachOverNext: true
 }
 
 export type MelodyAbsoluteStepSizeHardConstraintIR =
@@ -18,20 +19,16 @@ export type MelodyAbsoluteStepSizeHardConstraintIR =
 export class MelodyAbsoluteStepSizeHardConstraint
 	implements HardConstraint<OctavedNote>
 {
-	private grabber: Grabber<number[]>
-	private reachOver: boolean
 	name = noteConstraintTypeToName.get(
 		MelodyAbsoluteStepSizeHardConstraintInit.type,
 	)!.name as string
-	constructor(grabber: Grabber<number[]>, reachOver: boolean) {
-		this.grabber = grabber
-		this.reachOver = reachOver
-	}
+
+	constructor(private grabber: Grabber<number[]>, private reachOverPrev: boolean, private reachOverNext: boolean) {}
 
 	check(tile: Tile<OctavedNote>, higherValues: HigherValues): boolean {
 		const note = tile.getValue()
-		const prev = tile.getPrev(this.reachOver)
-		const next = tile.getNext(this.reachOver)
+		const prev = tile.getPrev(this.reachOverPrev)
+		const next = tile.getNext(this.reachOverNext)
 
 		let out = true
 		if (prev.isCollapsed())
