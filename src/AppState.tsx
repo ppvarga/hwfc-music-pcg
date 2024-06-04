@@ -147,6 +147,16 @@ function AppState() {
 	const addMeasure = (measure: MeasureIR) => {
 		setMeasures([...measures, measure])
 	}
+	const updateMeasure = (index: number, updatedMeasure: MeasureIR) => {
+		if (index < 0 || index >= measures.length) {
+		  throw new Error("measure index out of range")
+		}
+		setMeasures([
+		  ...measures.slice(0, index),
+		  updatedMeasure,
+		  ...measures.slice(index + 1),
+		])
+	  }
 	const [nextRhythmID, setNextRhythmID] = useState(1)
 	const getNextMeasureID = () => {
 		const id = nextRhythmID
@@ -297,6 +307,7 @@ function AppState() {
 		measures,
 		addMeasure,
 		getNextMeasureID,
+		updateMeasure,
 
 		chordPrototypes,
 		addChordPrototype,

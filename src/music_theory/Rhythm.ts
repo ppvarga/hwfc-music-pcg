@@ -1,6 +1,6 @@
 import { Random } from "../util/Random"
 
-type RhythmUnit = {
+export type RhythmUnit = {
 	duration: number
 	type: "note" | "rest"
 }
@@ -165,8 +165,7 @@ export function generateRhythm (
 	// }
 	// rhythm.splice(length, (rhythm.length - length))
 	// console.log(rhythm)
-	let measure = generateMeasure(4, 4, length)
-	let rhythm = measure.notes
+	let rhythm = generateRhythmPattern(4, 4, length)
 
 	return rhythm
 }
@@ -174,14 +173,14 @@ export function generateRhythm (
 // i gotta make it so that the time signature counts not only the melody length
 // number of notes after rhythm is generato
 
-export function generateMeasure (
+export function generateRhythmPattern (
 	signatureUpper: number,
 	signatureLower: number,
 	maxNumberOfNotes: number
-): Measure {
+): RhythmPattern {
 	// set what notes are allowed
-	let notes = [ 1/2, 1/4, 1/8, 3/4, 3/16, 3/8, 3/32]
-	// 1,   1/16,
+	let notes = [ 1/2, 1/4, 1/8, 3/4, 3/16, 3/8, 3/32, 1/16]
+	// 1
 	let time = signatureUpper * signatureUpper / signatureLower
 	console.log("length is:" + signatureUpper)
 	notes = notes.map(function(x) { return x*signatureUpper })
@@ -196,25 +195,21 @@ export function generateMeasure (
 	// overlay with note on / continuuu / rest
 	// where its continuuuus add lengths together
 	let rhythm = durationToRhythm(durations)
-	return {
-		signatureUpper : signatureUpper,
-		signatureLower : signatureLower,
-		notes : rhythm
-	}
+	return rhythm
 }
 
 function durationToRhythm (
 	notes: number[]
-): Array<RhythmUnit> {
+): RhythmPattern {
 	let res = new Array<RhythmUnit>
 	for (let i = 0; i < notes.length; i++) {
 		let pick = Math.random()
 		
-		res.push({ duration: notes[i], type: "note" } as RhythmUnit)
-		// if (i > 0 && res[i-1].type == "rest")
-		// 	res.push({ duration: notes[i], type: "note" } as RhythmUnit)
-		// else
-		// 	res.push({ duration: notes[i], type: pick <= 0.9 ? "rest" : "note" } as RhythmUnit)
+		//res.push({ duration: notes[i], type: "note" } as RhythmUnit)
+		if (i > 0 && res[i-1].type == "rest")
+			res.push({ duration: notes[i], type: "note" } as RhythmUnit)
+		else
+			res.push({ duration: notes[i], type: pick <= 0.6 ? "note" : "rest" } as RhythmUnit)
 	}
 	return res
 }
