@@ -44,7 +44,7 @@ export class SectionLevelNode extends HWFCNode<any, Section, Chordesque> {
 			this.higherValues,
 			props.random,
 			this,
-			this.decisionManager.getSectionDecisions(),
+			this.decisionManager.getDecisions(),
 			"section"
 		)
 	}

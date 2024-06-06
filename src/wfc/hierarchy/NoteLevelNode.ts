@@ -27,7 +27,7 @@ export class NoteLevelNode extends HWFCNode<Chordesque, OctavedNote, any>{
 			higherValues,
 			random,
 			this,
-			decisionManager.getMelodyDecisions(),
+			decisionManager.getDecisions(),
 			"melody"
 		)
 	}

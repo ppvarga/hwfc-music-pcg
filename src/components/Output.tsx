@@ -44,7 +44,7 @@ export function parseChordPrototypes(chordPrototypes: ChordPrototypeIR[]): Parse
 				if (properlyNamedChordPrototypes.some(proto => proto.name === chordName)) return true
 				return (Chord.parseChordString(chordName) !== undefined)
 			})) {
-				chordPrototypeConstraints.push(new ChordPrototypeOnlyPrecededByConstraint(protoIR.name, constantStringArrayGrabber(protoIR.allowedPrecedingChords), true))
+				chordPrototypeConstraints.push(new ChordPrototypeOnlyPrecededByConstraint(protoIR.name, constantStringArrayGrabber(protoIR.allowedPrecedingChords), true, true))
 			}
 		}
 
@@ -53,7 +53,7 @@ export function parseChordPrototypes(chordPrototypes: ChordPrototypeIR[]): Parse
 				if (properlyNamedChordPrototypes.some(proto => proto.name === chordName)) return true
 				return (Chord.parseChordString(chordName) !== undefined)
 			})) {
-				chordPrototypeConstraints.push(new ChordPrototypeOnlyFollowedByConstraint(protoIR.name, constantStringArrayGrabber(protoIR.allowedFollowingChords), true))
+				chordPrototypeConstraints.push(new ChordPrototypeOnlyFollowedByConstraint(protoIR.name, constantStringArrayGrabber(protoIR.allowedFollowingChords), true, true))
 			}
 		}
 	}
@@ -89,7 +89,7 @@ export function Output() {
 					if (properlyNamedSections.some(section => section.name === sectionName)) return true
 					return (Chord.parseChordString(sectionName) !== undefined)
 				})) {
-					sectionConstraints.push(new SectionOnlyPrecededByHardConstraint(sectionIR.name, constantStringArrayGrabber(sectionIR.allowedPrecedingSections), true))
+					sectionConstraints.push(new SectionOnlyPrecededByHardConstraint(sectionIR.name, constantStringArrayGrabber(sectionIR.allowedPrecedingSections), true, true))
 				}
 			}
 
@@ -98,7 +98,7 @@ export function Output() {
 					if (properlyNamedSections.some(section => section.name === sectionName)) return true
 					return (Chord.parseChordString(sectionName) !== undefined)
 				})) {
-					sectionConstraints.push(new SectionOnlyFollowedByHardConstraint(sectionIR.name, constantStringArrayGrabber(sectionIR.allowedFollowingSections), true))
+					sectionConstraints.push(new SectionOnlyFollowedByHardConstraint(sectionIR.name, constantStringArrayGrabber(sectionIR.allowedFollowingSections), true, true))
 				}
 			}
 		}

@@ -14,22 +14,34 @@ export type SharedDecision = ({
     chordNumber : number;
 } & Decision<OctavedNote>)
 
+export type CanvasChanged = {
+    level: "section";
+} | {
+    level: "chord";
+    sectionNumber : number;
+} | {
+    level : "melody";
+    sectionNumber : number;
+    chordNumber : number;
+}
+
 export class DecisionManager {
-    private sectionDecisions : SharedDecision[] = []
-	private chordDecisions : SharedDecision[] = []
-	private melodyDecisions : SharedDecision[] = []
+    private decisions : SharedDecision[] = []
+    private changedCanvases : CanvasChanged[] = []
 
     constructor(){}
     
-    public getSectionDecisions() {
-		return this.sectionDecisions
+    public getDecisions() {
+		return this.decisions
 	}
 
-	public getChordDecisions() {
-		return this.chordDecisions
-	}
+    public getChangedCanvases() {
+        return this.changedCanvases
+    }
 
-	public getMelodyDecisions() {
-		return this.melodyDecisions
-	}
+    public noteCanvasChange(canvasChanged: CanvasChanged) {
+        this.changedCanvases.push(canvasChanged)
+    }
+
+    
 }

@@ -45,7 +45,7 @@ export class ChordLevelNode extends HWFCNode<Section, Chordesque, OctavedNote> {
 			this.higherValues,
 			props.random,
 			this,
-			this.decisionManager.getChordDecisions(),
+			this.decisionManager.getDecisions(),
 			"chord"
 		)
 	}

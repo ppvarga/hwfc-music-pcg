@@ -240,7 +240,7 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 		if(!this.isDecisionAboutThis(decision)) {
 			this.setState(this.initialState.map(t => t.clone()))
 			this.decisions.push(decision)
-			this.prevCanvas()!.tryAnother()
+			this.getCanvasForDecision(decision).tryAnother()
 			this.initialize()
 			return
 		}
@@ -314,4 +314,19 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 
 		}
 	}
+
+	private getCanvasForDecision(decision: SharedDecision): TileCanvas<any,any,any> {
+		const sectionLevelNode = this.level == "section" ? this.node : this.level == "chord" ? this.node.getParent() : this.node.getParent()?.getParent()
+
+		switch(decision.level){
+			case "section":
+				return sectionLevelNode?.getCanvas()!
+			case "chord":
+				return sectionLevelNode?.getSubNodes()[decision.sectionNumber].getCanvas()!
+			case "melody":
+				return sectionLevelNode?.getSubNodes()[decision.sectionNumber].getSubNodes()[decision.chordNumber].getCanvas()!
+		}
+	}
 }
+
+
