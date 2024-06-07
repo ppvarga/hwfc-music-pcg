@@ -18,9 +18,10 @@ import { SectionOnlyPrecededByHardConstraint } from "../wfc/constraints/SectionO
 import { SectionOnlyFollowedByHardConstraint } from "../wfc/constraints/SectionOnlyFollowedByHardConstraint"
 import { SectionLevelNode } from "../wfc/hierarchy/SectionLevelNode"
 import { DecisionManager } from "../wfc/hierarchy/backtracking"
-import { BreadthFirstTraverser } from "../wfc/hierarchy/BreadthFirstTraverser"
 import { ResultManager } from "../wfc/hierarchy/results"
 import { entireResultToOutput } from "../audio/midi"
+import { DepthFirstTraverser } from "../wfc/hierarchy/DepthFirstTraverser"
+import { BreadthFirstTraverser } from "../wfc/hierarchy/BreadthFirstTraverser"
 
 interface ParseChordPrototypesReturn {
 	parsedChordPrototypes: ChordPrototype[]
@@ -161,7 +162,8 @@ export function Output() {
 
 			node.getCanvas().initialize()
 			const resultManager = new ResultManager(node)
-			BreadthFirstTraverser.generate(node, resultManager)
+			DepthFirstTraverser.generate(node, resultManager)
+			console.log(node)
 			const result = resultManager.generate()
 			setOutput(entireResultToOutput(result, 0))
 		} catch (e) {

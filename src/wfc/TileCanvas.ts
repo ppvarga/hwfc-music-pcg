@@ -40,7 +40,6 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 	private pq: TileSelector<T>
 	private higherValues: HigherValues
 	private constraints: ConstraintSet<T>
-	private numDecisions: number = 0
 	private initialState: Tile<T>[]
 
 	public getSize(): number {
@@ -191,7 +190,6 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 				return
 			}
 			if (tileToCollapse.collapse(value)){
-				this.numDecisions++
 				switch(this.level){
 					case "section":
 						this.decisions.push({
@@ -244,7 +242,6 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 			this.initialize()
 			return
 		}
-		this.numDecisions--
 		
 		switch(decision.level){
 			case "section":
@@ -270,10 +267,28 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 	}
 
 	public generate(): T[] {
+		const valuesBefore: (T | undefined)[] = []
+		for(let i = 0; i < this.size; i++){
+			try {
+				valuesBefore.push(this.tiles[i].getValue())
+			} catch (e) {
+				valuesBefore.push(undefined)
+			}
+		}
 		while (this.collapsed < this.size) {
 			this.collapseNext()
 		}
-		return this.tiles.map((tile) => tile.getValue())
+		const results = this.tiles.map((tile) => tile.getValue())
+		const indicesToReset: number[] = []
+		for(let i = 0; i < this.size; i++) {
+			if(!results[i].equals(results[i])){
+				indicesToReset.push(i)
+			}
+		}
+
+		this.node.createSubNodes(indicesToReset)
+		
+		return results
 	}
 
 	public tryAnother(): T[] {

@@ -46,4 +46,7 @@ export class NoteLevelNode extends HWFCNode<Chordesque, OctavedNote, any>{
 		throw new Error("This should not be called")
 	}
 
+	public createSubNodes(positions?: number[]): void {
+	}
+
 }
