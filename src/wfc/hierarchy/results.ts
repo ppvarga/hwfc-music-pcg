@@ -30,15 +30,11 @@ export class ResultManager {
 		const noteLevelNodes = []
 		for(let i = 0; i < chordLevelNodes.length; i++){
 			noteLevelNodes[i] = chordLevelNodes[i].getSubNodes()
-			console.log(i, chordLevelNodes[i].getSubNodes().length)
 		}
 		const sectionResults: Result<Chordesque>[] = []
-		console.log("asdasdasdasd")
 		for (let i = 0; i < chordLevelNodes.length; i++) {
-			console.log(i)
 			const chordResults: Result<OctavedNote>[] = []
 			for(let j = 0; j < noteLevelNodes[i].length; j++) {
-				console.log(i,j)
 				const noteLevelNode = noteLevelNodes[i][j]
 				if(noteLevelNode === undefined) throw new Error("Node not added")
 				chordResults.push(noteLevelNode.mergeResults(noteLevelNode.getCanvas().generate()))

@@ -6,20 +6,19 @@ export class DepthFirstTraverser {
     public static generate(sectionLevelNode: SectionLevelNode, resultManager: ResultManager) {
         sectionLevelNode.getCanvas().generate()
 
-        console.log(1)
-        while(true){
-            console.log(2)
+        let sectionsDone = false
+
+        while(!sectionsDone){
             const chordLevelNodes = sectionLevelNode.getSubNodes()
-            console.log(chordLevelNodes)
 
             try{
-                console.log(3)
                 for (let i = 0; i < chordLevelNodes.length; i++){
                     chordLevelNodes[i].getCanvas().initialize()
                 }
 
-                while(true) {
-                    console.log(4)
+                let chordsDone = false
+
+                while(!chordsDone) {
                     let lastChordLevelNode = undefined
 
                     for (let i = 0; i < chordLevelNodes.length; i++){
@@ -32,15 +31,13 @@ export class DepthFirstTraverser {
                         const noteLevelNodes = chordLevelNode.getSubNodes()
 
                         try{
-                            console.log(5)
-                            for (let j = 0; j < noteLevelNodes.length; j++){
-                                noteLevelNodes[j].getCanvas().initialize()
-                            }
-    
                             for (let j = 0; j < noteLevelNodes.length; j++){
                                 const noteLevelNode = noteLevelNodes[j]
+                                noteLevelNode.getCanvas().initialize()
                                 noteLevelNode.getCanvas().generate()
                             }
+
+                            chordsDone = true
     
                         } catch (e) {
                             if(!(e instanceof ConflictError)) throw e
@@ -50,6 +47,8 @@ export class DepthFirstTraverser {
                     }
                    
                 }
+
+                sectionsDone = true
                 
             } catch (e) {
                 if(!(e instanceof ConflictError)) throw e
