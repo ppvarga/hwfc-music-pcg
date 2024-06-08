@@ -31,8 +31,8 @@ export class DepthFirstTraverser {
                         const noteLevelNodes = chordLevelNode.getSubNodes()
 
                         try{
-                            for (let j = 0; j < noteLevelNodes.length; j++){
-                                const noteLevelNode = noteLevelNodes[j]
+                            for (let j = 0; j < chordLevelNode.getCanvas().getSize(); j++){
+                                const noteLevelNode = chordLevelNode.getSubNodes()[j]
                                 noteLevelNode.getCanvas().initialize()
                                 noteLevelNode.getCanvas().generate()
                             }

@@ -1,4 +1,5 @@
-import { OctavedNote } from "../music_theory/Note"
+import { MajorChord, MinorChord } from "../music_theory/Chord"
+import { Note, OctavedNote } from "../music_theory/Note"
 import { Random } from "../util/Random"
 import { Canvasable, Equatable } from "../util/utils"
 import { ConstraintSet } from "./ConstraintSet"
@@ -74,7 +75,13 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 	}
 
 	public initialize() {
+		if(this.node.getPosition() == 1){
+			console.log("uauaua?")
+		}
 		this.tiles.forEach((tile) => {
+			if(tile.getPosition() == 0){
+				console.log(tile.getStatus())
+			}
 			if(tile.isCollapsed()) return
 			tile.updateOptions()
 		})
@@ -185,6 +192,9 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 
 		while(numOptions > 0){
 			const value = tileToCollapse.chooseValue()
+			if(value?.equals(new MinorChord(Note.D))){
+				console.log("AAAAAAAA")
+			}
 			if (value === undefined) {
 				this.backtrack()
 				return
@@ -281,7 +291,7 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 		const results = this.tiles.map((tile) => tile.getValue())
 		const indicesToReset: number[] = []
 		for(let i = 0; i < this.size; i++) {
-			if(!results[i].equals(results[i])){
+			if(valuesBefore[i] === undefined || !results[i].equals(valuesBefore[i])){
 				indicesToReset.push(i)
 			}
 		}

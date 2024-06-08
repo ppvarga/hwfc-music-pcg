@@ -134,7 +134,8 @@ export function Output() {
 
 			const decisionManager = new DecisionManager()
 
-			const random = new Random(0.2249108920381565)
+			const random = new Random(0.16119443454384397)
+			console.log(random.getSeed())
 
 			const node = new SectionLevelNode({
 				noteCanvasProps,
@@ -162,6 +163,7 @@ export function Output() {
 			node.getCanvas().initialize()
 			const resultManager = new ResultManager(node)
 			DepthFirstTraverser.generate(node, resultManager)
+			console.log(decisionManager.getDecisions())
 			const result = resultManager.generate()
 			setOutput(entireResultToOutput(result, 0))
 		} catch (e) {
