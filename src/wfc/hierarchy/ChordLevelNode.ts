@@ -50,6 +50,26 @@ export class ChordLevelNode extends HWFCNode<Section, Chordesque, OctavedNote> {
 		)
 	}
 
+	reset(props: ChordLevelNodeProps) {
+		this.higherValues = props.higherValues 
+		this.noteCanvasProps = props.noteCanvasProps
+		this.random = props.random
+		this.parent = props.parent
+		this.position = props.position
+		this.subNodes = []
+		this.decisionManager = props.decisionManager
+		this.canvas.reset(
+			this.higherValues.numChords,
+			props.chordesqueCanvasProps,
+			this.higherValues,
+			props.random,
+			this,
+			this.decisionManager.getDecisions(),
+			"chord"
+		)
+		return this
+	}
+
 	public mergeResults(subResults: Result<Chordesque>[]): Result<Section> {
 		return subResults
 	}
@@ -92,14 +112,25 @@ export class ChordLevelNode extends HWFCNode<Section, Chordesque, OctavedNote> {
 			} : {})
 		}
 		
-		return new NoteLevelNode(
-			actualNoteCanvasProps,
-			newHigherValues,
-			this.random,
-			this,
-			position,
-			this.decisionManager
-		)
+		if(this.subNodes[position] === undefined){
+			return new NoteLevelNode(
+				actualNoteCanvasProps,
+				newHigherValues,
+				this.random,
+				this,
+				position,
+				this.decisionManager
+			)
+		} else {
+			return (this.subNodes[position] as NoteLevelNode).reset(
+				actualNoteCanvasProps,
+				newHigherValues,
+				this.random,
+				this,
+				position,
+				this.decisionManager
+			)
+		}
 	}
 	
 }

@@ -23,7 +23,7 @@ export class SectionLevelNode extends HWFCNode<any, Section, Chordesque> {
 	private higherValues: HigherValues
 	private noteCanvasProps: TileCanvasProps<OctavedNote>
 	private chordesqueCanvasProps: TileCanvasProps<Chordesque>
-	protected canvas: TileCanvas<never, Section, Chordesque>
+	protected canvas: TileCanvas<any, Section, Chordesque>
 	private random: Random
 	protected position: number
 	protected subNodes: HWFCNode<Section, Chordesque, OctavedNote>[]
@@ -52,7 +52,7 @@ export class SectionLevelNode extends HWFCNode<any, Section, Chordesque> {
 	public createChildNode(position: number) {
 		const sectionc = this.canvas.getValueAtPosition(position)
 		const section = sectionc.getObj()
-		return new ChordLevelNode({
+		const props = {
 			higherValues: {
 				...this.higherValues, 
 				section: sectionc, 
@@ -74,7 +74,9 @@ export class SectionLevelNode extends HWFCNode<any, Section, Chordesque> {
 			parent: this,
 			position,
 			decisionManager: this.decisionManager
-		})
+		}
+		if(this.subNodes[position] === undefined) return new ChordLevelNode(props)
+		return (this.subNodes[position] as ChordLevelNode).reset(props)
 	}
 
 	public mergeResults(subResults: Result<Section>[]): Result<any> {

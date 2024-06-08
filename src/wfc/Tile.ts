@@ -96,7 +96,7 @@ export class Tile<T extends Equatable<T>> {
 
 		options.forEach((option: T) => {
 			if(option.equals(new OctavedNote(Note.A, 4))){
-				console.log("djajd")
+				//console.log("djajd")
 			}
 			const weight = this.canvas
 				.getConstraints()

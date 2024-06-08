@@ -9,8 +9,8 @@ import { DecisionManager } from "./backtracking"
 import { ChordResult, MelodyResult, Result } from "./results"
 
 export class NoteLevelNode extends HWFCNode<Chordesque, OctavedNote, any>{
-	protected canvas: TileCanvas<Chordesque, OctavedNote, never>
-	protected subNodes: HWFCNode<OctavedNote, any, never>[] = []
+	protected canvas: TileCanvas<Chordesque, OctavedNote, any>
+	protected subNodes: HWFCNode<OctavedNote, any, any>[] = []
 
 	constructor(
 		canvasProps: TileCanvasProps<OctavedNote>,
@@ -30,6 +30,29 @@ export class NoteLevelNode extends HWFCNode<Chordesque, OctavedNote, any>{
 			decisionManager.getDecisions(),
 			"melody"
 		)
+	}
+
+	public reset(
+		canvasProps: TileCanvasProps<OctavedNote>,
+		higherValues: HigherValues,
+		random: Random,
+		parent: ChordLevelNode,
+		position: number,
+		decisionManager: DecisionManager
+	) {
+		this.higherValues = higherValues
+		this.parent = parent
+		this.position = position
+		this.canvas.reset(
+			higherValues.melodyLength,
+			canvasProps,
+			higherValues,
+			random,
+			this,
+			decisionManager.getDecisions(),
+			"melody"
+		)
+		return this
 	}
 
 	public mergeResults(subResults: Result<OctavedNote>[]): Result<Chordesque> {

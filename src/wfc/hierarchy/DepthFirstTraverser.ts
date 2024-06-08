@@ -9,30 +9,21 @@ export class DepthFirstTraverser {
         let sectionsDone = false
 
         while(!sectionsDone){
-            const chordLevelNodes = sectionLevelNode.getSubNodes()
 
             try{
-                for (let i = 0; i < chordLevelNodes.length; i++){
-                    chordLevelNodes[i].getCanvas().initialize()
+                for (let i = 0; i < sectionLevelNode.getSubNodes().length; i++){
+                    sectionLevelNode.getSubNodes()[i].getCanvas().initialize()
                 }
 
                 let chordsDone = false
 
                 while(!chordsDone) {
-                    let lastChordLevelNode = undefined
-
-                    for (let i = 0; i < chordLevelNodes.length; i++){
-                        const chordLevelNode = chordLevelNodes[i]
-                        
-                        chordLevelNode.getCanvas().generate()
-                        
-                        lastChordLevelNode = chordLevelNode
-
-                        const noteLevelNodes = chordLevelNode.getSubNodes()
+                    for (let i = 0; i < sectionLevelNode.getSubNodes().length; i++){
+                        sectionLevelNode.getSubNodes()[i].getCanvas().generate()
 
                         try{
-                            for (let j = 0; j < chordLevelNode.getCanvas().getSize(); j++){
-                                const noteLevelNode = chordLevelNode.getSubNodes()[j]
+                            for (let j = 0; j < sectionLevelNode.getSubNodes()[i].getCanvas().getSize(); j++){
+                                const noteLevelNode = sectionLevelNode.getSubNodes()[i].getSubNodes()[j]
                                 noteLevelNode.getCanvas().initialize()
                                 noteLevelNode.getCanvas().generate()
                             }
@@ -41,7 +32,7 @@ export class DepthFirstTraverser {
     
                         } catch (e) {
                             if(!(e instanceof ConflictError)) throw e
-                            lastChordLevelNode!.getCanvas().tryAnother() 
+                            sectionLevelNode.getSubNodes()[i].getCanvas().tryAnother() 
                             break
                         }
                     }
@@ -53,6 +44,17 @@ export class DepthFirstTraverser {
             } catch (e) {
                 if(!(e instanceof ConflictError)) throw e
                 sectionLevelNode.getCanvas().tryAnother() 
+            }
+        }
+
+        console.log("CHECKS:")
+        if(!sectionLevelNode.getCanvas().isCollapsed()) console.log("Not all sections collapsed")
+        
+        for(let chordLevelNode of sectionLevelNode.getSubNodes()){
+            if(!chordLevelNode.getCanvas().isCollapsed()) console.log(`Not all chords of section ${chordLevelNode.getPosition()} collapsed`)
+            
+            for(let noteLevelNode of chordLevelNode.getSubNodes()){
+                if(!noteLevelNode.getCanvas().isCollapsed()) console.log(`Not all notes of chord ${noteLevelNode.getPosition()} of section ${chordLevelNode.getPosition()} (${sectionLevelNode.getCanvas().getValueAtPosition(chordLevelNode.getPosition()).getName()}) collapsed`)
             }
         }
     }

@@ -74,13 +74,44 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 		this.initialState = this.tiles.map(t => t.clone())
 	}
 
+	public reset(
+		size: number,
+		props: TileCanvasProps<T>,
+		higherValues: HigherValues,
+		random: Random,
+		node: HWFCNode<P, T, C>,
+		decisions: SharedDecision[],
+		level: "section" | "chord" | "melody"
+	) {
+		this.size = size
+		this.random = random
+		this.node = node
+		this.decisions = decisions
+		this.level = level
+		this.collapsed = 0
+
+		const optionsPerCell = props.optionsPerCell
+
+		this.higherValues = higherValues
+		this.constraints = props.constraints
+
+		this.tiles = [this.createTile(optionsPerCell, 0)]
+
+		for (let i = 1; i < this.size; i++) {
+			const tile = this.createTile(optionsPerCell, i)
+			this.tiles.push(tile)
+		}
+
+		this.initialState = this.tiles.map(t => t.clone())
+	}
+
 	public initialize() {
 		if(this.node.getPosition() == 1){
-			console.log("uauaua?")
+			//console.log("uauaua?")
 		}
 		this.tiles.forEach((tile) => {
 			if(tile.getPosition() == 0){
-				console.log(tile.getStatus())
+				//console.log(tile.getStatus())
 			}
 			if(tile.isCollapsed()) return
 			tile.updateOptions()
@@ -193,7 +224,7 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 		while(numOptions > 0){
 			const value = tileToCollapse.chooseValue()
 			if(value?.equals(new MinorChord(Note.D))){
-				console.log("AAAAAAAA")
+				//console.log("AAAAAAAA")
 			}
 			if (value === undefined) {
 				this.backtrack()
@@ -241,7 +272,7 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 		return
 	}
 
-	private backtrack() {
+	private backtrack(): TileCanvas<any,any,any> {
 		if(this.decisions.length < 1) throw new ConflictError()
 		const decision = this.decisions.pop()
 		if(decision === undefined) throw new Error("Decision should exist")
@@ -249,31 +280,36 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 			this.setState(this.initialState.map(t => t.clone()))
 			this.decisions.push(decision)
 			this.getCanvasForDecision(decision).tryAnother()
-			this.initialize()
-			return
+			this.canvasInThisPosition().initialize()
+			return this.canvasInThisPosition()
+		}
+
+		if(decision.level == "chord" && decision.index == 2){
+			console.log(decision)
 		}
 		
 		switch(decision.level){
 			case "section":
-				(this as unknown as TileCanvas<never, Section, Chordesque>).tiles = decision.oldState;
-				(this as unknown as TileCanvas<never, Section, Chordesque>).tiles[decision.index].removeValue(decision.value);
+				(this as unknown as TileCanvas<any, Section, Chordesque>).tiles = decision.oldState;
+				(this as unknown as TileCanvas<any, Section, Chordesque>).tiles[decision.index].removeValue(decision.value);
 				break
 			case "chord":
 				(this as unknown as TileCanvas<Section, Chordesque, OctavedNote>).tiles = decision.oldState;
 				(this as unknown as TileCanvas<Section, Chordesque, OctavedNote>).tiles[decision.index].removeValue(decision.value);
 				break
 			case "melody":
-				(this as unknown as TileCanvas<Chordesque, OctavedNote, never>).tiles = decision.oldState;
-				(this as unknown as TileCanvas<Chordesque, OctavedNote, never>).tiles[decision.index].removeValue(decision.value);
+				(this as unknown as TileCanvas<Chordesque, OctavedNote, any>).tiles = decision.oldState;
+				(this as unknown as TileCanvas<Chordesque, OctavedNote, any>).tiles[decision.index].removeValue(decision.value);
 				break
 		}
 		try{
 			this.initialize()
+			this.collapsed = this.tiles.filter(t => t.isCollapsed()).length
+			return this
 		} catch (e) {
 			if(!(e instanceof ConflictError)) throw e
-			this.backtrack()
+			return this.backtrack()
 		}
-		this.collapsed = this.tiles.filter(t => t.isCollapsed()).length
 	}
 
 	public generate(): T[] {
@@ -302,8 +338,7 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 	}
 
 	public tryAnother(): T[] {
-		this.backtrack()
-		return this.generate()
+		return this.backtrack().generate()
 	}
 
 	public getNode(): HWFCNode<P,T, C> {
@@ -351,6 +386,23 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 			case "melody":
 				return sectionLevelNode?.getSubNodes()[decision.sectionNumber].getSubNodes()[decision.chordNumber].getCanvas()!
 		}
+	}
+
+	private canvasInThisPosition(): TileCanvas<any,any,any> {
+		const sectionLevelNode = this.level == "section" ? this.node : this.level == "chord" ? this.node.getParent() : this.node.getParent()?.getParent()
+
+		switch(this.level){
+			case "section":
+				return sectionLevelNode?.getCanvas()!
+			case "chord":
+				return sectionLevelNode?.getSubNodes()[this.node.getPosition()].getCanvas()!
+			case "melody":
+				return sectionLevelNode?.getSubNodes()[this.node.getParent()!.getPosition()].getSubNodes()[this.node.getPosition()].getCanvas()!
+		}
+	}
+
+	public isCollapsed(){
+		return this.size == this.collapsed
 	}
 }
 
