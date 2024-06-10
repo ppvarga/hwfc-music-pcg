@@ -72,4 +72,9 @@ export class NoteLevelNode extends HWFCNode<Chordesque, OctavedNote, any>{
 	public createSubNodes(positions?: number[]): void {
 	}
 
+	public nullifyChord(){
+		this.higherValues.chord = undefined
+		this.canvas.getHigherValues().chord = undefined
+	}
+
 }

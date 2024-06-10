@@ -18,11 +18,11 @@ export type MelodyEndsOnNoteHardConstraintIR =
 export class MelodyEndsOnNoteHardConstraint
 	implements HardConstraint<OctavedNote>
 {
-	private grabber: Grabber<Note>
+	private grabber: Grabber<Note | undefined>
 	name = noteConstraintTypeToName.get(
 		MelodyEndsOnNoteHardConstraintInit.type,
 	)!.name as string
-	constructor(grabber: Grabber<Note>) {
+	constructor(grabber: Grabber<Note | undefined>) {
 		this.grabber = grabber
 	}
 
@@ -30,6 +30,6 @@ export class MelodyEndsOnNoteHardConstraint
 		if (tile.getPosition() != tile.getCanvas().getSize() - 1) return true
 		const note = tile.getValue()
 		const startNote = this.grabber(higherValues)
-		return note.getNote() == startNote
+		return startNote === undefined || note.getNote() == startNote
 	}
 }

@@ -20,12 +20,12 @@ export class MelodyStartsOnNoteHardConstraint
 	name = noteConstraintTypeToName.get(
 		MelodyStartsOnNoteHardConstraintInit.type,
 	)!.name as string
-	constructor(private grabber: Grabber<Note>) {}
+	constructor(private grabber: Grabber<Note | undefined>) {}
 
 	check(tile: Tile<OctavedNote>, higherValues: HigherValues): boolean {
 		if (tile.getPosition() != 0) return true
 		const note = tile.getValue()
 		const startNote = this.grabber(higherValues)
-		return note.getNote() == startNote
+		return startNote === undefined || note.getNote() == startNote
 	}
 }

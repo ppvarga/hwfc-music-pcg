@@ -188,6 +188,12 @@ export class Tile<T extends Equatable<T>> {
 	}
 
 	public isCollapsed(): boolean {
+		if(this.status instanceof Set && this.status.size == 1){
+			const newStatus = this.status.values().next().value[0]
+			this.status = newStatus
+			this.collapsed = true
+			this.canvas.collapseOne()
+		}
 		return this.collapsed
 	}
 

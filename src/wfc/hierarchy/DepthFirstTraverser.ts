@@ -1,50 +1,50 @@
 import { ConflictError } from "../Tile"
+import { TileCanvas } from "../TileCanvas"
 import { SectionLevelNode } from "./SectionLevelNode"
 import { ResultManager } from "./results"
 
 export class DepthFirstTraverser {
     public static generate(sectionLevelNode: SectionLevelNode, resultManager: ResultManager) {
+        sectionLevelNode.getCanvas().initialize()
         sectionLevelNode.getCanvas().generate()
+        let lastCanvas: TileCanvas<any, any, any> = sectionLevelNode.getCanvas()
 
-        let sectionsDone = false
-
-        while(!sectionsDone){
-
-            try{
-                for (let i = 0; i < sectionLevelNode.getSubNodes().length; i++){
+        for (let i = 0; i < sectionLevelNode.getSubNodes().length; i++){
+            let found = false
+            while(!found){
+                try{
                     sectionLevelNode.getSubNodes()[i].getCanvas().initialize()
+                    found = true
+                } catch (e) {
+                    if(!(e instanceof ConflictError)) throw e
+                    lastCanvas.tryAnother()
                 }
-
-                let chordsDone = false
-
-                while(!chordsDone) {
-                    for (let i = 0; i < sectionLevelNode.getSubNodes().length; i++){
-                        sectionLevelNode.getSubNodes()[i].getCanvas().generate()
-
-                        try{
-                            for (let j = 0; j < sectionLevelNode.getSubNodes()[i].getCanvas().getSize(); j++){
-                                const noteLevelNode = sectionLevelNode.getSubNodes()[i].getSubNodes()[j]
-                                noteLevelNode.getCanvas().initialize()
-                                noteLevelNode.getCanvas().generate()
-                            }
-
-                            chordsDone = true
-    
-                        } catch (e) {
-                            if(!(e instanceof ConflictError)) throw e
-                            sectionLevelNode.getSubNodes()[i].getCanvas().tryAnother() 
-                            break
-                        }
-                    }
-                   
-                }
-
-                sectionsDone = true
-                
-            } catch (e) {
-                if(!(e instanceof ConflictError)) throw e
-                sectionLevelNode.getCanvas().tryAnother() 
             }
+        }
+
+        for (let i = 0; i < sectionLevelNode.getSubNodes().length; i++){
+            sectionLevelNode.getSubNodes()[i].getCanvas().generate()
+            lastCanvas = sectionLevelNode.getSubNodes()[i].getCanvas()
+
+            for (let j = 0; j < sectionLevelNode.getSubNodes()[i].getCanvas().getSize(); j++){
+                const noteLevelNode = sectionLevelNode.getSubNodes()[i].getSubNodes()[j]
+                let found = false
+                while(!found){
+                    try{
+                        noteLevelNode.getCanvas().initialize()
+                        found = true
+                    } catch (e) {
+                        if(!(e instanceof ConflictError)) throw e
+                        lastCanvas.tryAnother()
+                    }
+                }
+                console.log(i,j)
+                if (i == 1 && j == 1){
+                    console.log("asd")
+                }
+                noteLevelNode.getCanvas().generate()
+                lastCanvas = noteLevelNode.getCanvas()
+               }
         }
 
         console.log("CHECKS:")
