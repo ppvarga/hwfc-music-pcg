@@ -65,6 +65,11 @@ import { HigherValues } from "../HigherValues"
 import { noteGrabberIRToGrabber } from "../grabbers/noteGrabbers"
 import { NoHalfStepInterMelodyConstraint, NoHalfStepInterMelodyConstraintIR, NoHalfStepInterMelodyConstraintInit } from "./NoHalfStepInterMelodyConstraint"
 import { NoSameNoteInterMelodyConstraint, NoSameNoteInterMelodyConstraintIR, NoSameNoteInterMelodyConstraintInit } from "./NoSameNoteInterMelodyConstraint"
+import { DifferentVoicesInterMelodyConstraint, DifferentVoicesInterMelodyConstraintIR, DifferentVoicesInterMelodyConstraintInit } from "./DifferentVoicesInterMelodyConstraint"
+import { NoParallelEightInterMelodyConstraint, NoParallelEightInterMelodyConstraintIR, NoParallelEightInterMelodyConstraintInit } from "./NoParallelEightInterMelodyConstraint"
+import { NoParallelFifthInterMelodyConstraint, NoParallelFifthInterMelodyConstraintIR, NoParallelFifthInterMelodyConstraintInit } from "./NoParallelFifthInterMelodyConstraint"
+import { NoDirectFifthEightInterMelodyConstraint, NoDirectFifthEightInterMelodyConstraintIR, NoDirectFifthEightInterMelodyConstraintInit } from "./NoDirectFifthEightInterMelodyConstraint"
+import { ProperSpacingInterMelodyConstraint, ProperSpacingInterMelodyConstraintIR, ProperSpacingInterMelodyConstraintInit } from "./ProperSpacingInterMelodyConstraint"
 
 export type ChordConstraintIR =
 	| ChordInKeyHardConstraintIR
@@ -85,6 +90,11 @@ export type NoteConstraintIR =
 export type InterMelodyConstraintIR =
 	| NoHalfStepInterMelodyConstraintIR
 	| NoSameNoteInterMelodyConstraintIR
+	| DifferentVoicesInterMelodyConstraintIR
+	| NoParallelEightInterMelodyConstraintIR
+	| NoParallelFifthInterMelodyConstraintIR
+	| NoDirectFifthEightInterMelodyConstraintIR
+	| ProperSpacingInterMelodyConstraintIR
 
 export type ChordConstraintType = ChordConstraintIR["type"]
 export type NoteConstraintType = NoteConstraintIR["type"]
@@ -143,7 +153,12 @@ export const noteConstraintOptions = Array.from(
 
 const interMelodyConstraintTypesNamesHints = [
 	["NoHalfStepInterMelodyConstraint", "No dissonance", "Ensures an instrument does not play a note a half step from a note played by some other instrument."],
-	["NoSameNoteInterMelodyConstraint", "No same note", "Ensures an instrument does not play the same note as another instrument at the same time"]
+	["NoSameNoteInterMelodyConstraint", "No same note", "Ensures an instrument does not play the same note as another instrument at the same time"],
+	["DifferentVoicesInterMelodyConstraint", "Instruments adhere to different voice roles (low to high)", "Ensures each instrument stays lower than each following instrument."],
+	["NoParallelEightInterMelodyConstraint", "No parallel eights", "If two instruments are an eight apart, the next notes they will play won't be an eight apart."],
+	["NoParallelFifthInterMelodyConstraint", "No parallell fifths", "If two instruments are a fifth apart, the next notes they will play won't be a fifth apart."],
+	["NoDirectFifthEightInterMelodyConstraint", "No direct fifth or eight", "Soprano and bass are not allowed to approuch fifth or eight in a similar manner."],
+	["ProperSpacingInterMelodyConstraint", "Proper spacing in upper voices", "Instruments 2 and up are not more than an octave apart."],
 ] as const
 
 type InterMelodyConstraintName = (typeof interMelodyConstraintTypesNamesHints)[number][1]
@@ -218,6 +233,16 @@ export const convertIRToInterMelodyConstraint = (
 			return new NoHalfStepInterMelodyConstraint()
 		case "NoSameNoteInterMelodyConstraint":
 			return new NoSameNoteInterMelodyConstraint()
+		case "NoParallelEightInterMelodyConstraint":
+			return new NoParallelEightInterMelodyConstraint()
+		case "NoParallelFifthInterMelodyConstraint":
+			return new NoParallelFifthInterMelodyConstraint()
+		case "DifferentVoicesInterMelodyConstraint":
+			return new DifferentVoicesInterMelodyConstraint()
+		case "NoDirectFifthEightInterMelodyConstraint":
+			return new NoDirectFifthEightInterMelodyConstraint
+		case "ProperSpacingInterMelodyConstraint":
+			return new ProperSpacingInterMelodyConstraint
 	}
 }
 
@@ -267,5 +292,15 @@ export const initializeInterMelodyConstraint = (
 			return NoHalfStepInterMelodyConstraintInit
 		case "NoSameNoteInterMelodyConstraint":
 			return NoSameNoteInterMelodyConstraintInit
+		case "DifferentVoicesInterMelodyConstraint":
+			return DifferentVoicesInterMelodyConstraintInit
+		case "NoParallelEightInterMelodyConstraint":
+			return NoParallelEightInterMelodyConstraintInit
+		case "NoParallelFifthInterMelodyConstraint":
+			return NoParallelFifthInterMelodyConstraintInit
+		case "NoDirectFifthEightInterMelodyConstraint":
+			return NoDirectFifthEightInterMelodyConstraintInit
+		case "ProperSpacingInterMelodyConstraint":
+			return ProperSpacingInterMelodyConstraintInit
 	}
 }

@@ -132,7 +132,6 @@ function AppState() {
 			newNoteConstraintSetList.push(oldConstraintSet[i - 1])
 		}
 		setNoteConstraintSet(newNoteConstraintSetList)
-		console.log(newNoteConstraintSetList)
 	}
 	const removeNoteConstraint = (index: number, instrument: number) => {
 		if (instrument < 1 || instrument > numInstruments) throw new Error("Invalid instrument")
@@ -170,14 +169,12 @@ function AppState() {
 		}
 		setNumInstruments(amount)
 		setNoteConstraintSet(newNoteConstraintSet)
-		console.log(noteConstraintSet)
 	}
 
 	const basicInterMelodyConstraintSet = [] as InterMelodyConstraintIR[]
 	const [interMelodyConstraintSet, setInterMelodyConstraintSet] = useState(basicInterMelodyConstraintSet)
 	const addInterMelodyConstraint = (constraint: InterMelodyConstraintIR) => {
 		setInterMelodyConstraintSet([...interMelodyConstraintSet, constraint])
-		console.log(interMelodyConstraintSet)
 	}
 	const removeInterMelodyConstraint = (index: number) => {
 		const newConstraintSet = [...interMelodyConstraintSet]

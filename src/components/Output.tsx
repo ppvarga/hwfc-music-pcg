@@ -59,6 +59,8 @@ export function parseChordPrototypes(chordPrototypes: ChordPrototypeIR[]): Parse
 
 export function Output() {
 	const [isPlaying, setIsPlaying] = useState(false)
+	const [numFailures, setNumFailures] = useState(0)
+	const [efficiency, setEfficiency] = useState(0)
 	const appState = useAppContext()
 	const { output, setOutput, collapseType, collapseTypeK, onlyUseChordPrototypes, chordPrototypes, inferKey, inferMelodyKey, differentMelodyKey, numChords, chordOptionsPerCell, chordConstraintSet, melodyLength, noteOptionsPerCell, noteConstraintSet, interMelodyConstraintSet, minNumNotes, startOnNote, maxRestLength, useRhythm, sections, sectionOptionsPerCell, numSections, bpm, numInstruments } = appState
 
@@ -111,7 +113,7 @@ export function Output() {
 			return
 		}
 		
-		try {
+		//try {
 			const {parsedChordPrototypes, chordPrototypeConstraints} = parseChordPrototypes(chordPrototypes)
 			const [parsedSections, sectionConstraints] = parseSections()
 
@@ -152,11 +154,32 @@ export function Output() {
 				position: 0
 			})
 
-			setOutput(node.generateOtherInstruments(numInstruments, collapseType, collapseTypeK))
-		} catch (e) {
-			console.error(e)
-			alert(e)
-		}
+			//setOutput(node.generateOtherInstruments(numInstruments, collapseType, collapseTypeK))
+			//let numFails = 0
+			//let totEfficiency = 0
+			for (let i = 0; i < 10000; i++) {
+				//const curTime = Date.now()
+				let res = null
+				try {
+					res = node.generateOtherInstruments(numInstruments, collapseType, collapseTypeK)
+				} catch (e) {
+					//numFails++
+					continue;
+				}
+				if (res){
+					setOutput(res)
+					break;
+				}
+
+				//const laterTime = Date.now()
+				//totEfficiency += laterTime - curTime
+			}
+			//setNumFailures(numFails)
+			//setEfficiency(totEfficiency / (500 - numFails))
+		// } catch (e) {
+		// 	console.error(e)
+		//	alert(e)
+		//}
 	}
 
 	return <div style={{
@@ -175,5 +198,8 @@ export function Output() {
 			maxWidth:"90vw",
 		}}>
 		<MidiPlayer notes={output[0]} length={output[1]} isPlaying={isPlaying} setIsPlaying={setIsPlaying} updatePlayer={updatePlayer}/>
+		<div>
+			Num failures: {numFailures}, efficiency avg: {efficiency} ms
+		</div>
 	</div>
 }

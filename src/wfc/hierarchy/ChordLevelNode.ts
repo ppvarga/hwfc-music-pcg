@@ -250,7 +250,8 @@ export class ChordLevelNode extends HWFCNode<Section, Chordesque> {
 						newHigherValues,
 						this.random,
 						this,
-						position
+						position,
+						i + 1
 					)
 	
 					this.subNodes.push(noteLevelNode)
@@ -340,16 +341,24 @@ export class ChordLevelNode extends HWFCNode<Section, Chordesque> {
 				const nextNode = nodes[random.nextInt(nodes.length)]
 				if (!nextNode.getCanvas().isCollapsed()) {
 					for (let i = 0; i < k; i++) {
-						try {
+						//try {
+						if (!nextNode.getCanvas().isCollapsed())
 							nextNode.getCanvas().collapseNextOtherInstruments(nodes)
-						} catch (e) {
-							break
-						}
+						//} catch (e) {
+						//	break
+						//}
 						
 					}
 				} else {
 					collapsedNodesSet.add(nextNode)
 				}
+				let numCollapsed = 0
+				for (let i = 0; i < nodes.length; i++) {
+					if (nodes[i].getCanvas().isCollapsed()) {
+						numCollapsed++
+					}
+				}
+				if (numCollapsed == nodes.length) break
 			}
 
 			const abstractResultBases = []

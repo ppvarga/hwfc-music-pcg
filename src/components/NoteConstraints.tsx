@@ -188,8 +188,6 @@ function AddNoteConstraint({ onAddConstraint }: AddNoteConstraintProps) {
 export function NoteConstraints() {
 	const { noteConstraintSet, addNoteConstraint, removeNoteConstraint, handleNoteConstraintChange, selectedInstrument } = useAppContext()
 
-	console.log(noteConstraintSet)
-
 	return (
 		<div style={{ flex: 1 }}>
 			<h3>Melody constraints</h3>

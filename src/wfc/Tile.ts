@@ -166,26 +166,26 @@ export class Tile<T extends Equatable> {
 
 	public collapseOtherInstruments(value: T, otherInstruments: NoteLevelNode[]) {
 		if(! (this.status instanceof Set)) throw new Error("Already collapsed, bozo")
-			const oldStatus = this.status
-		   this.status = value
-		   this.canvas.collapseOne()
-		   this.collapsed = true
-		   try {
-			   this.next.updateOptions()
-			   this.prev.updateOptions()
-			   otherInstruments.forEach((otherInstrument) => {
-					otherInstrument.getCanvas().getTiles()[this.position].updateOptionsOtherInstruments(otherInstruments)
-			   })
-		   } catch (e) {
-			   if(! (e instanceof ConflictError)) throw e
-			   this.collapsed = false
-			   this.canvas.retractOne()
-			   this.status = oldStatus
-			   this.removeValue(value)
-   
-			   return false
-		   }
-		   return true
+		const oldStatus = this.status
+		this.status = value
+		this.canvas.collapseOne()
+		this.collapsed = true
+		try {
+			this.next.updateOptions()
+			this.prev.updateOptions()
+			otherInstruments.forEach((otherInstrument) => {
+				otherInstrument.getCanvas().getTiles()[this.position].updateOptionsOtherInstruments(otherInstruments)
+			})
+		} catch (e) {
+			if(! (e instanceof ConflictError)) throw e
+			this.collapsed = false
+			this.canvas.retractOne()
+			this.status = oldStatus
+			this.removeValue(value)
+
+			return false
+		}
+		return true
 	}
 
 	public updateOptionsOtherInstruments(otherInstruments: NoteLevelNode[], options?: T[]) {

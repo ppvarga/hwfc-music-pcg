@@ -94,6 +94,15 @@ export class OctavedNote implements Equatable {
 		return this.octave
 	}
 
+	public compareTo(other: OctavedNote): number {
+		if (this.octave == other.getOctave()) {
+			if (noteToInt(this.note) == noteToInt(other.getNote())) return 0
+			else if (noteToInt(this.note) < noteToInt(other.getNote())) return -1
+			else return 1
+		} else if (this.octave < other.getOctave()) return -1
+		else return 1
+	}
+
 	public relative(interval: number): OctavedNote {
 		return OctavedNote.fromMIDIValue(this.toMIDIValue() + interval)
 	}

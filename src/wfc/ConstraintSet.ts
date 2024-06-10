@@ -37,8 +37,6 @@ export class ConstraintSet<T extends Equatable> {
 			constraints ?? [],
 			(constraint) => isHardConstraint(constraint)
 		) as [HardConstraint<T>[], InterMelodyConstraint<T>[]]
-		console.log(constraints)
-		console.log(this.interMelodyConstraints)
 	}
 
 	public weight(tile: Tile<T>, higherValues: HigherValues): number {
@@ -63,7 +61,6 @@ export class ConstraintSet<T extends Equatable> {
 		)
 			return 0
 		let out = 1
-		console.log("weightfunc")
 		this.softConstraints.forEach((softConstraint) => {
 			out += softConstraint.weight(tile, higherValues)
 		})
@@ -123,7 +120,6 @@ export class ConstraintSet<T extends Equatable> {
 			)
 		)
 		out.addConstraints(other.getAllConstraints())
-		console.log(out)
 		return out
 	}
 }
