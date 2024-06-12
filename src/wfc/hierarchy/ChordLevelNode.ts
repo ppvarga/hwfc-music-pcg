@@ -29,6 +29,7 @@ export class ChordLevelNode extends HWFCNode<Section, Chordesque, OctavedNote> {
 	protected position: number
 	protected subNodes: HWFCNode<Chordesque, OctavedNote, any>[]
 	protected decisionManager: DecisionManager
+	private backupSubNodes: NoteLevelNode[] = []
 
 	constructor(props: ChordLevelNodeProps) {
 		super()
@@ -56,8 +57,9 @@ export class ChordLevelNode extends HWFCNode<Section, Chordesque, OctavedNote> {
 		this.random = props.random
 		this.parent = props.parent
 		this.position = props.position
-		this.subNodes = []
 		this.decisionManager = props.decisionManager
+		this.backupSubNodes = this.subNodes as NoteLevelNode[]
+		this.subNodes = []
 		this.canvas.reset(
 			this.higherValues.numChords,
 			props.chordesqueCanvasProps,
@@ -113,7 +115,17 @@ export class ChordLevelNode extends HWFCNode<Section, Chordesque, OctavedNote> {
 		}
 		
 		if(this.subNodes[position] === undefined){
-			return new NoteLevelNode(
+			if(this.backupSubNodes[position] === undefined){
+				return new NoteLevelNode(
+					actualNoteCanvasProps,
+					newHigherValues,
+					this.random,
+					this,
+					position,
+					this.decisionManager
+				)
+			}
+			else return (this.backupSubNodes[position] as NoteLevelNode).reset(
 				actualNoteCanvasProps,
 				newHigherValues,
 				this.random,

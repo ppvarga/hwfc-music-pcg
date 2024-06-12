@@ -39,7 +39,7 @@ export abstract class HWFCNode<P extends Canvasable<P>, T extends Canvasable<T>,
         }
         for (let i of positions) {
             if(i == this.subNodes.length){
-                this.subNodes.push(this.createChildNode(i))
+                this.subNodes.push(this.createChildNode(i)!)
             } else if (i < this.subNodes.length){
                 this.resetSubNodeAt(i)
             } else {
@@ -53,10 +53,10 @@ export abstract class HWFCNode<P extends Canvasable<P>, T extends Canvasable<T>,
     }
 
     public resetSubNodeAt(position: number) {
-        this.setSubNodeAt(position, this.createChildNode(position))
+        this.setSubNodeAt(position, this.createChildNode(position)!)
     }
 
     public abstract mergeResults(subResults: Result<T>[]): Result<P>
 
-    public abstract createChildNode(position: number): HWFCNode<T,C,any> 
+    public abstract createChildNode(position: number): HWFCNode<T,C,any> | undefined
 }

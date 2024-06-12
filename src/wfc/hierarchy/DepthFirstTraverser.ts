@@ -27,11 +27,11 @@ export class DepthFirstTraverser {
             lastCanvas = sectionLevelNode.getSubNodes()[i].getCanvas()
 
             for (let j = 0; j < sectionLevelNode.getSubNodes()[i].getCanvas().getSize(); j++){
-                const noteLevelNode = sectionLevelNode.getSubNodes()[i].getSubNodes()[j]
+                sectionLevelNode.getSubNodes()[i].getSubNodes()[j]
                 let found = false
                 while(!found){
                     try{
-                        noteLevelNode.getCanvas().initialize()
+                        sectionLevelNode.getSubNodes()[i].getSubNodes()[j].getCanvas().initialize()
                         found = true
                     } catch (e) {
                         if(!(e instanceof ConflictError)) throw e
@@ -39,11 +39,11 @@ export class DepthFirstTraverser {
                     }
                 }
                 console.log(i,j)
-                if (i == 1 && j == 1){
+                if (i == 2 && j == 0){
                     console.log("asd")
                 }
-                noteLevelNode.getCanvas().generate()
-                lastCanvas = noteLevelNode.getCanvas()
+                sectionLevelNode.getSubNodes()[i].getSubNodes()[j].getCanvas().generate()
+                lastCanvas = sectionLevelNode.getSubNodes()[i].getSubNodes()[j].getCanvas()
                }
         }
 

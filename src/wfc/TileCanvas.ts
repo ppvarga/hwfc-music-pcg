@@ -227,6 +227,7 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 				return
 			}
 			if (tileToCollapse.collapse(value)){
+				if(this.decisions.length > 32) throw new Error("saved you from infinite loop")
 				switch(this.level){
 					case "section":
 						this.decisions.push({
@@ -279,6 +280,9 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 		if(!this.isDecisionAboutThis(decision)) {
 			this.decisions.push(decision)
 			this.getCanvasForDecision(decision).tryAnother()
+			if(this.level == "melody" && !this.node.getParent()?.getCanvas().isCollapsed()){
+				this.node.getParent()?.getCanvas().generate()
+			}
 			this.resetState()
 
 			let found = false
@@ -288,7 +292,10 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 					found = true
 				} catch (e) {
 					if (!(e instanceof ConflictError)) throw e
-					this.getCanvasForDecision(decision).tryAnother()
+					this.getCanvasForDecision(this.decisions[this.decisions.length-1]).tryAnother()
+					if(this.level == "melody" && !this.node.getParent()?.getCanvas().isCollapsed()){
+						this.node.getParent()?.getCanvas().generate()
+					}
 				}
 			}
 
@@ -297,8 +304,8 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 
 		console.log("popped: " + this.decisions.length)
 		console.log(decision)
-		if(this.decisions.length == 1) {
-			console.log("nyomjuk")
+		if(this.decisions.length == 2) {
+			console.log("awooga")
 		}
 		console.log("------------------")
 		
@@ -367,6 +374,9 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 
 	public tryAnother(): T[] {
 		this.backtrack()
+		if(this.level == "melody" && !this.node.getParent()?.getCanvas().isCollapsed()){
+			this.node.getParent()?.getCanvas().generate()
+		}
 		return this.generate()
 	}
 

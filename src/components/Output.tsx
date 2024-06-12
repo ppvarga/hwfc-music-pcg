@@ -112,7 +112,7 @@ export function Output() {
 			alert(errors.join("\n"))
 			return
 		}
-		
+		let seed
 		try {
 			const {parsedChordPrototypes, chordPrototypeConstraints} = parseChordPrototypes(chordPrototypes)
 			const [parsedSections, sectionConstraints] = parseSections()
@@ -135,7 +135,7 @@ export function Output() {
 			const decisionManager = new DecisionManager()
 
 			const random = new Random()
-			console.log(random.getSeed())
+			seed = random.getSeed()
 
 			const node = new SectionLevelNode({
 				noteCanvasProps,
@@ -167,6 +167,7 @@ export function Output() {
 			const result = resultManager.generate()
 			setOutput(entireResultToOutput(result, 0))
 		} catch (e) {
+			console.error(seed)
 			console.error(e)
 			alert(e)
 		}
