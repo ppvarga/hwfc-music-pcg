@@ -219,9 +219,6 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 
 		while(numOptions > 0){
 			const value = tileToCollapse.chooseValue()
-			if(value?.equals(new MinorChord(Note.D))){
-				//console.log("AAAAAAAA")
-			}
 			if (value === undefined) {
 				this.backtrack()
 				return
@@ -301,13 +298,6 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 
 			return
 		}
-
-		console.log("popped: " + this.decisions.length)
-		console.log(decision)
-		if(this.decisions.length == 2) {
-			console.log("awooga")
-		}
-		console.log("------------------")
 		
 		switch(decision.level){
 			case "section":
@@ -346,28 +336,12 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 	}
 
 	public generate(): T[] {
-		// const valuesBefore: (T | undefined)[] = []
-		// for(let i = 0; i < this.size; i++){
-		// 	try {
-		// 		valuesBefore.push(this.tiles[i].getValue())
-		// 	} catch (e) {
-		// 		valuesBefore.push(undefined)
-		// 	}
-		// }
-
 		while (this.collapsed < this.size) {
 			this.collapseNext()
 		}
 
 		const results = this.tiles.map((tile) => tile.getValue())
-		const indicesToReset: number[] = []
-		// for(let i = 0; i < this.size; i++) {
-		// 	if(valuesBefore[i] === undefined || !results[i].equals(valuesBefore[i])){
-		// 		indicesToReset.push(i)
-		// 	}
-		// }
-
-		this.node.createSubNodes(indicesToReset)
+		this.node.createSubNodes()
 		
 		return results
 	}

@@ -132,40 +132,62 @@ export function Output() {
 
 			const inferredKey = inferKey()
 
-			const decisionManager = new DecisionManager()
-
-			const random = new Random()
-			seed = random.getSeed()
-
-			const node = new SectionLevelNode({
-				noteCanvasProps,
-				chordesqueCanvasProps,
-				sectionCanvasProps,
-				random,
-				higherValues: {
-					key: inferredKey, 
-					melodyKey: differentMelodyKey ? inferMelodyKey() : inferredKey,
-					bpm,
-					useRhythm,
-					numChords,
-					numSections,
-					melodyLength,
-					rhythmPatternOptions: {
-						minimumNumberOfNotes: minNumNotes,
-						onlyStartOnNote: startOnNote,
-						maximumRestLength: maxRestLength,
+			let time = Date.now()
+			const durations = []
+			for(let i = 0; i<100; i++){
+				const decisionManager = new DecisionManager()
+				const random = new Random()
+				seed = random.getSeed()
+	
+				const node = new SectionLevelNode({
+					noteCanvasProps,
+					chordesqueCanvasProps,
+					sectionCanvasProps,
+					random,
+					higherValues: {
+						key: inferredKey, 
+						melodyKey: differentMelodyKey ? inferMelodyKey() : inferredKey,
+						bpm,
+						useRhythm,
+						numChords,
+						numSections,
+						melodyLength,
+						rhythmPatternOptions: {
+							minimumNumberOfNotes: minNumNotes,
+							onlyStartOnNote: startOnNote,
+							maximumRestLength: maxRestLength,
+						},
 					},
-				},
-				position: 0,
-				decisionManager
-			})
+					position: 0,
+					decisionManager
+				})
+	
+				node.getCanvas().initialize()
+				const resultManager = new ResultManager(node)
+				DepthFirstTraverser.generate(node, resultManager)
+				const result = resultManager.generate()
+				setOutput(entireResultToOutput(result, 0))
 
-			node.getCanvas().initialize()
-			const resultManager = new ResultManager(node)
-			DepthFirstTraverser.generate(node, resultManager)
-			console.log(decisionManager.getDecisions())
-			const result = resultManager.generate()
-			setOutput(entireResultToOutput(result, 0))
+				const newTime = Date.now()
+				const duration = newTime - time
+				durations.push(duration)
+				time = newTime
+			}
+
+			let txt = ""
+			for(let duration of durations){
+				txt = txt + duration + "\n"
+			}
+			console.log(txt)
+
+			const blob = new Blob([txt], { type: 'text/plain' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'durations.txt';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+			
 		} catch (e) {
 			console.error(seed)
 			console.error(e)
