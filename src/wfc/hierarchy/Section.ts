@@ -57,6 +57,8 @@ export const SectionInit = (id: number) => {
 			onlyStartOnNote: true,
 			minimumNumberOfNotes: 3,
 			maximumRestLength: 1,
+            upper: 4,
+            lower: 4,
 		} as RhythmPatternOptions,
         useDifferentKey: false,
         keyRoot: Note.C,

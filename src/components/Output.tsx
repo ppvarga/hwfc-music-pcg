@@ -60,7 +60,7 @@ export function parseChordPrototypes(chordPrototypes: ChordPrototypeIR[]): Parse
 export function Output() {
 	const [isPlaying, setIsPlaying] = useState(false)
 	const appState = useAppContext()
-	const { output, setOutput, onlyUseChordPrototypes, chordPrototypes, inferKey, inferMelodyKey, differentMelodyKey, numChords, chordOptionsPerCell, chordConstraintSet, melodyLength, noteOptionsPerCell, noteConstraintSet, minNumNotes, startOnNote, maxRestLength, useRhythm, sections, sectionOptionsPerCell, numSections, bpm} = appState
+	const { output, setOutput, onlyUseChordPrototypes, chordPrototypes, inferKey, inferMelodyKey, differentMelodyKey, numChords, chordOptionsPerCell, chordConstraintSet, melodyLength, noteOptionsPerCell, noteConstraintSet, minNumNotes, startOnNote, maxRestLength, useRhythm, sections, sectionOptionsPerCell, numSections, bpm, upper, lower} = appState
 
 	const noteCanvasProps: TileCanvasProps<OctavedNote> = {
 		optionsPerCell: new OptionsPerCell(OctavedNote.all(), noteOptionsPerCell.transform(OctavedNote.multipleFromIRs)),
@@ -149,6 +149,8 @@ export function Output() {
 						minimumNumberOfNotes: minNumNotes,
 						onlyStartOnNote: startOnNote,
 						maximumRestLength: maxRestLength,
+						upper: upper,
+						lower: lower,
 					},
 				},
 				

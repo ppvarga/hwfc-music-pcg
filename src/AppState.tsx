@@ -31,7 +31,10 @@ export interface PassiveAppState {
     useRhythm: boolean;
     minNumNotes: number;
     startOnNote: boolean;
-	measures: MeasureIR[];
+	customMeasures: MeasureIR[];
+	rhythm: MeasureIR[];
+	upper: number;
+	lower: number;
     maxRestLength: number;
     chordPrototypes: ChordPrototypeIR[];  
     onlyUseChordPrototypes: boolean;
@@ -143,20 +146,48 @@ function AppState() {
 	const setStartOnNote = (newStartOnNote: boolean) => {
 		tempSetStartOnNote(newStartOnNote)
 	}
-	const [measures, setMeasures] = useState<MeasureIR[]>([])
+
+	// RHYTHM EDITOR
+
+	const [customMeasures, setCustomMeasures] = useState<MeasureIR[]>([])
 	const addMeasure = (measure: MeasureIR) => {
-		setMeasures([...measures, measure])
+		setCustomMeasures([...customMeasures, measure])
 	}
 	const updateMeasure = (index: number, updatedMeasure: MeasureIR) => {
-		if (index < 0 || index >= measures.length) {
+		if (index < 0 || index >= customMeasures.length) {
 		  throw new Error("measure index out of range")
 		}
-		setMeasures([
-		  ...measures.slice(0, index),
+		setCustomMeasures([
+		  ...customMeasures.slice(0, index),
 		  updatedMeasure,
-		  ...measures.slice(index + 1),
+		  ...customMeasures.slice(index + 1),
 		])
-	  }
+	}
+
+	// GLOBAL RHYTHM
+
+	const [rhythm, setRhythm] = useState<MeasureIR[]>([])
+
+	const [upper, setUpp] = useState<number>(4)
+	const [lower, setLow] = useState<number>(4)
+
+	const setUpper = (u:number) => {
+		console.log("setting upper to:" + u)
+		setUpp(u)
+		console.log(customMeasures)
+		rhythm.forEach(element => {
+			element.signatureUpper = u
+		})
+		setCustomMeasures(customMeasures)
+	}
+	const setLower = (l:number) => {
+		setLow(l)
+		rhythm.forEach(element => {
+			element.signatureLower = l
+		})
+		setCustomMeasures(customMeasures)
+	}
+
 	const [nextRhythmID, setNextRhythmID] = useState(1)
 	const getNextMeasureID = () => {
 		const id = nextRhythmID
@@ -243,7 +274,8 @@ function AppState() {
 		setMinNumNotes(newState.minNumNotes)
 		setStartOnNote(newState.startOnNote)
 		setMaxRestLength(newState.maxRestLength)
-		setMeasures(newState.measures)
+		setCustomMeasures(newState.customMeasures)
+		setRhythm(newState.rhythm)
 
 		setChordPrototypes(newState.chordPrototypes)
 		setOnlyUseChordPrototypes(newState.onlyUseChordPrototypes)
@@ -304,10 +336,16 @@ function AppState() {
 		setStartOnNote,
 		maxRestLength,
 		setMaxRestLength,
-		measures,
+		customMeasures,
 		addMeasure,
 		getNextMeasureID,
 		updateMeasure,
+		upper,
+		lower,
+		setUpper,
+		setLower,
+		rhythm,
+		setRhythm,
 
 		chordPrototypes,
 		addChordPrototype,

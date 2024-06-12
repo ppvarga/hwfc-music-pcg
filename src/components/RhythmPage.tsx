@@ -6,7 +6,7 @@ import { RhythmConfig } from "./RhythmConfig"
 
 export function RhythmPage () {
     const [chosenMeasureIndex, setChosenMeasureIndex] = useState<number | undefined>(undefined)
-    const { measures, addMeasure, getNextMeasureID } = useAppContext()
+    const { customMeasures: measures, addMeasure, getNextMeasureID } = useAppContext()
     
 	return <div style={{ display: "flex", gap: "1em", paddingTop: "1em" }}>
             <div style={{

@@ -1,7 +1,6 @@
 import { chordResultToOutput, chordResultWithRhythmToOutput } from "../../audio/midi"
 import { NoteOutput } from "../../components/MidiPlayer"
 import { OctavedNote } from "../../music_theory/Note"
-import { getRandomRhythmPattern } from "../../music_theory/Rhythm"
 import { generateRhythm } from "../../music_theory/Rhythm"
 import { Random } from "../../util/Random"
 import { HigherValues } from "../HigherValues"
@@ -62,35 +61,37 @@ export class ChordLevelNode {
 			const useRhythm = chordHasPreference
 				? chord.rhythmStrategy === "On"
 				: this.higherValues.useRhythm
-
-			const newHigherValues: HigherValues = {...{...this.higherValues, chord: chordValue, useRhythm},
-				...(chord instanceof ChordPrototype ? {
-					rhythmPatternOptions: chord.rhythmPatternOptions,
-					melodyLength: chord.melodyLength,
-					bpm: chord.bpmStrategy === "Custom" ? chord.bpm : this.higherValues.bpm,
-				} : {})
-			}
-
-			const noteLevelNode = new NoteLevelNode(
-				actualNoteCanvasProps,
-				newHigherValues,
-				this.random,
-			)
-
-			const abstractResultBase = {
-				chord: chordValue,
-				notes: noteLevelNode.generate()
-			}
+			
+			
 
 			if(useRhythm) {
+				
+
+				let rhythm = generateRhythm(rhythmPatternOptions, actualMelodyLength)
+				actualMelodyLength = rhythm.length
+				this.higherValues.melodyLength = rhythm.length
+				const newHigherValues: HigherValues = {...{...this.higherValues, chord: chordValue, useRhythm},
+				...(chord instanceof ChordPrototype ? {
+					rhythmPatternOptions: chord.rhythmPatternOptions,
+					melodyLength: rhythm.length,
+					bpm: chord.bpmStrategy === "Custom" ? chord.bpm : this.higherValues.bpm,
+				} : {})
+				}
+
+				const noteLevelNode = new NoteLevelNode(
+					actualNoteCanvasProps,
+					newHigherValues,
+					this.random,
+				)
+
+				const abstractResultBase = {
+					chord: chordValue,
+					notes: noteLevelNode.generate()
+				}
+
 				const abstractResult = {
 					...abstractResultBase,
-					// rhythmPattern: getRandomRhythmPattern(
-					// 	actualMelodyLength,
-					// 	rhythmPatternOptions,
-					// 	this.random,
-					// )
-					rhythmPattern: generateRhythm(actualMelodyLength)
+					rhythmPattern: rhythm
 				}
 
 				const [subResult, newOffset] = chordResultWithRhythmToOutput(
@@ -102,6 +103,24 @@ export class ChordLevelNode {
 				offset = newOffset
 				
 			} else {
+				const newHigherValues: HigherValues = {...{...this.higherValues, chord: chordValue, useRhythm},
+				...(chord instanceof ChordPrototype ? {
+					rhythmPatternOptions: chord.rhythmPatternOptions,
+					melodyLength: chord.melodyLength,
+					bpm: chord.bpmStrategy === "Custom" ? chord.bpm : this.higherValues.bpm,
+				} : {})
+				}
+
+				const noteLevelNode = new NoteLevelNode(
+					actualNoteCanvasProps,
+					newHigherValues,
+					this.random,
+				)
+
+				const abstractResultBase = {
+					chord: chordValue,
+					notes: noteLevelNode.generate()
+				}
 				const [subResult, newOffset] = chordResultToOutput(
 					abstractResultBase,
 					this.higherValues.bpm,

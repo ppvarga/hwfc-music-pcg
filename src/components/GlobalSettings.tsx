@@ -68,6 +68,30 @@ export function NumberSelector({ value, setValue, min, max, label }: NumberSelec
 
 }
 
+interface StrictDropownSelectorProps {
+	value: number
+	setValue: (value: number) => void
+	options: SelectSignature[] | undefined
+}
+
+type SelectSignature = {
+	value: number
+	label: string
+} | null
+
+export function StrictDropownSelector({value, setValue, options}:StrictDropownSelectorProps) {
+	const filteredOptions = options?.filter((option): option is { value: number; label: string } => option !== null)
+	return <Select
+		options={filteredOptions}
+		placeholder={value}
+		styles={selectStyles}
+		value={{ label: value.toString(), value: value } as SelectSignature}
+		onChange={(option: SelectSignature) => {
+			console.log("option is: " + option!.value)
+			setValue(option!.value)
+		}} />
+}
+
 interface BpmSelectorProps {
 	value: number
 	setValue: (value: number) => void
