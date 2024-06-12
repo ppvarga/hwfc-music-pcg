@@ -132,40 +132,46 @@ export function Output() {
 
 			const inferredKey = inferKey()
 
-			const decisionManager = new DecisionManager()
-
-			const random = new Random()
-			seed = random.getSeed()
-
-			const node = new SectionLevelNode({
-				noteCanvasProps,
-				chordesqueCanvasProps,
-				sectionCanvasProps,
-				random,
-				higherValues: {
-					key: inferredKey, 
-					melodyKey: differentMelodyKey ? inferMelodyKey() : inferredKey,
-					bpm,
-					useRhythm,
-					numChords,
-					numSections,
-					melodyLength,
-					rhythmPatternOptions: {
-						minimumNumberOfNotes: minNumNotes,
-						onlyStartOnNote: startOnNote,
-						maximumRestLength: maxRestLength,
+			const start = Date.now()
+			for(let i = 0; i<500; i++){
+				const decisionManager = new DecisionManager()
+				const random = new Random()
+				seed = random.getSeed()
+	
+				const node = new SectionLevelNode({
+					noteCanvasProps,
+					chordesqueCanvasProps,
+					sectionCanvasProps,
+					random,
+					higherValues: {
+						key: inferredKey, 
+						melodyKey: differentMelodyKey ? inferMelodyKey() : inferredKey,
+						bpm,
+						useRhythm,
+						numChords,
+						numSections,
+						melodyLength,
+						rhythmPatternOptions: {
+							minimumNumberOfNotes: minNumNotes,
+							onlyStartOnNote: startOnNote,
+							maximumRestLength: maxRestLength,
+						},
 					},
-				},
-				position: 0,
-				decisionManager
-			})
+					position: 0,
+					decisionManager
+				})
+	
+				node.getCanvas().initialize()
+				const resultManager = new ResultManager(node)
+				DepthFirstTraverser.generate(node, resultManager)
+				const result = resultManager.generate()
+				setOutput(entireResultToOutput(result, 0))
+			}
 
-			node.getCanvas().initialize()
-			const resultManager = new ResultManager(node)
-			DepthFirstTraverser.generate(node, resultManager)
-			console.log(decisionManager.getDecisions())
-			const result = resultManager.generate()
-			setOutput(entireResultToOutput(result, 0))
+			const end = Date.now()
+
+			console.log(`Took ${end - start} ms`)
+			
 		} catch (e) {
 			console.error(seed)
 			console.error(e)

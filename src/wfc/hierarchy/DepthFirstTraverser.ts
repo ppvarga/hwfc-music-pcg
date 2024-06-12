@@ -38,24 +38,9 @@ export class DepthFirstTraverser {
                         lastCanvas.tryAnother()
                     }
                 }
-                console.log(i,j)
-                if (i == 2 && j == 0){
-                    console.log("asd")
-                }
                 sectionLevelNode.getSubNodes()[i].getSubNodes()[j].getCanvas().generate()
                 lastCanvas = sectionLevelNode.getSubNodes()[i].getSubNodes()[j].getCanvas()
                }
-        }
-
-        console.log("CHECKS:")
-        if(!sectionLevelNode.getCanvas().isCollapsed()) console.log("Not all sections collapsed")
-        
-        for(let chordLevelNode of sectionLevelNode.getSubNodes()){
-            if(!chordLevelNode.getCanvas().isCollapsed()) console.log(`Not all chords of section ${chordLevelNode.getPosition()} collapsed`)
-            
-            for(let noteLevelNode of chordLevelNode.getSubNodes()){
-                if(!noteLevelNode.getCanvas().isCollapsed()) console.log(`Not all notes of chord ${noteLevelNode.getPosition()} of section ${chordLevelNode.getPosition()} (${sectionLevelNode.getCanvas().getValueAtPosition(chordLevelNode.getPosition()).getName()}) collapsed`)
-            }
         }
     }
 }

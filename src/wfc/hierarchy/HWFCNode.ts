@@ -30,14 +30,8 @@ export abstract class HWFCNode<P extends Canvasable<P>, T extends Canvasable<T>,
         return this.subNodes
     }
 
-    public createSubNodes(positions: number[]) {
-        positions = [] //console.log(xd)
-        if(positions.length == 0 || this.subNodes.length == 0){
-            for(let i = 0; i < this.canvas.getSize(); i++)  {
-                positions.push(i)
-            }
-        }
-        for (let i of positions) {
+    public createSubNodes() {
+        for (let i = 0; i < this.canvas.getSize(); i++) {
             if(i == this.subNodes.length){
                 this.subNodes.push(this.createChildNode(i)!)
             } else if (i < this.subNodes.length){
