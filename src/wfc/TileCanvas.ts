@@ -224,7 +224,7 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 				return
 			}
 			if (tileToCollapse.collapse(value)){
-				if(this.decisions.length > 32) throw new Error("saved you from infinite loop")
+				if(this.decisions.length > 30) throw new Error("saved you from infinite loop")
 				switch(this.level){
 					case "section":
 						this.decisions.push({
@@ -270,6 +270,36 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 		this.setState(this.initialState.map(t => t.clone()))
 	}
 
+	private regenBefore(){
+		if(this.level == "melody"){
+			for(let i = 0; i < this.node.getParent()!.getParent()!.getSubNodes().length; i++){
+				this.node.getParent()!.getParent()!.getSubNodes()[i].getCanvas().generate()
+			}
+	
+			for(let i = 0; i < this.node.getParent()!.getParent()!.getSubNodes().length; i++){
+				if(i < this.node.getParent()!.getPosition()){
+					for(let j = 0; j < this.node.getParent()!.getParent()!.getSubNodes()[i].getSubNodes().length; j++){
+						this.node.getParent()!.getParent()!.getSubNodes()[i].getSubNodes()[j].getCanvas().generate()
+					}
+	
+				} else if (i == this.node.getParent()!.getPosition()){
+					for(let j = 0; j < this.node.getParent()!.getParent()!.getSubNodes()[i].getSubNodes().length; j++){
+						if(j < this.node.getPosition()){
+							this.node.getParent()!.getParent()!.getSubNodes()[i].getSubNodes()[j].getCanvas().generate()
+						} else break
+					}
+				}
+			}
+		}
+		if(this.level == "chord"){
+			for(let i = 0; i < this.node.getParent()!.getSubNodes().length; i++){
+				if(i < this.node.getPosition()){
+					this.node.getParent()!.getSubNodes()[i].getCanvas().generate()
+				} else break
+			}
+		}
+	}
+
 	private backtrack() {
 		if(this.decisions.length < 1) throw new ConflictError()
 		const decision = this.decisions.pop()
@@ -277,28 +307,23 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 		if(!this.isDecisionAboutThis(decision)) {
 			this.decisions.push(decision)
 			this.getCanvasForDecision(decision).tryAnother()
-			if(this.level == "melody" && !this.node.getParent()?.getCanvas().isCollapsed()){
-				this.node.getParent()?.getCanvas().generate()
-			}
-			this.resetState()
-
+			
 			let found = false
 			while (!found) {
 				try {
+					this.resetState()
+					this.regenBefore()
 					this.initialize()
 					found = true
 				} catch (e) {
 					if (!(e instanceof ConflictError)) throw e
 					this.getCanvasForDecision(this.decisions[this.decisions.length-1]).tryAnother()
-					if(this.level == "melody" && !this.node.getParent()?.getCanvas().isCollapsed()){
-						this.node.getParent()?.getCanvas().generate()
-					}
 				}
 			}
 
 			return
 		}
-		
+
 		switch(decision.level){
 			case "section":
 				(this as unknown as TileCanvas<any, Section, Chordesque>).tiles = decision.oldState;
@@ -307,6 +332,22 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 			case "chord":
 				(this as unknown as TileCanvas<Section, Chordesque, OctavedNote>).tiles = decision.oldState;
 				(this as unknown as TileCanvas<Section, Chordesque, OctavedNote>).tiles[decision.index].removeValue(decision.value);
+
+				for(let i = 0; i < this.node.getParent()!.getSubNodes().length; i++){
+					if(i > this.node.getPosition()){
+						this.node.getParent()!.getSubNodes()[i].getCanvas().resetState()
+						for(let j = 0; j < this.node.getParent()!.getSubNodes()[i].getSubNodes().length; j++){
+							(this.node.getParent()!.getSubNodes()[i].getSubNodes()[j] as unknown as NoteLevelNode).nullifyChord()
+							this.node.getParent()!.getSubNodes()[i].getSubNodes()[j].getCanvas().resetState()
+						}
+					} else if (i < this.node.getPosition()){
+						for(let j = 0; j < this.node.getParent()!.getSubNodes()[i].getSubNodes().length; j++){
+							this.node.getParent()!.getSubNodes()[i].getSubNodes()[j].getCanvas().resetState()
+						}
+					}
+					
+				}
+
 				break
 			case "melody":
 				(this as unknown as TileCanvas<Chordesque, OctavedNote, any>).tiles = decision.oldState;
@@ -316,12 +357,15 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 				const chordPos = this.node.getParent()!.getPosition()
 				const sectionLevelNode = this.node.getParent()!.getParent()!
 				const chordLevelNodes = sectionLevelNode.getSubNodes()
-				for(let i = chordPos + 1; i < chordLevelNodes.length; i++){
-					chordLevelNodes[i].getCanvas().resetState()
+				const siblingNoteNodes = chordLevelNodes[chordPos].getSubNodes()
 
+				for(let i = this.node.getPosition() + 1; i<siblingNoteNodes.length; i++){
+					siblingNoteNodes[i].getCanvas().resetState()
+				}
+
+				for(let i = chordPos + 1; i < chordLevelNodes.length; i++){
 					for(let noteLevelNode of chordLevelNodes[i].getSubNodes()){
 						noteLevelNode.getCanvas().resetState();
-						(noteLevelNode as unknown as NoteLevelNode).nullifyChord()
 					}
 				}
 				break
@@ -341,16 +385,26 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 		}
 
 		const results = this.tiles.map((tile) => tile.getValue())
-		this.node.createSubNodes()
+		if(this.level == "melody") return results
+
+		if(this.node.getSubNodes().length < this.size) {
+			this.node.createSubNodes()
+		} else {
+			for(let i = 0; i < this.size; i++){
+				const higherValue = this.level == "section" ? this.node.getSubNodes()[i].getCanvas().getHigherValues().section :  this.node.getSubNodes()[i].getCanvas().getHigherValues().chord
+				if(higherValue === undefined || !results[i].equals(higherValue)){
+					this.node.createSubNodes()
+					break
+				}
+			}
+		}
 		
 		return results
 	}
 
 	public tryAnother(): T[] {
 		this.backtrack()
-		if(this.level == "melody" && !this.node.getParent()?.getCanvas().isCollapsed()){
-			this.node.getParent()?.getCanvas().generate()
-		}
+		this.regenBefore()
 		return this.generate()
 	}
 
