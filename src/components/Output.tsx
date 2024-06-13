@@ -21,6 +21,7 @@ import { DecisionManager } from "../wfc/hierarchy/backtracking"
 import { ResultManager } from "../wfc/hierarchy/results"
 import { entireResultToOutput } from "../audio/midi"
 import { DepthFirstTraverser } from "../wfc/hierarchy/DepthFirstTraverser"
+import { BreadthFirstTraverser } from "../wfc/hierarchy/BreadthFirstTraverser"
 
 interface ParseChordPrototypesReturn {
 	parsedChordPrototypes: ChordPrototype[]
@@ -164,7 +165,7 @@ export function Output() {
 	
 				node.getCanvas().initialize()
 				const resultManager = new ResultManager(node)
-				DepthFirstTraverser.generate(node, resultManager)
+				BreadthFirstTraverser.generate(node, resultManager)
 				const result = resultManager.generate()
 				setOutput(entireResultToOutput(result, 0))
 
