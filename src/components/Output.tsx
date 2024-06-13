@@ -101,7 +101,7 @@ export function Output() {
 				}
 			}
 		}
-		console.log([parsedSections, sectionConstraints])
+		//console.log([parsedSections, sectionConstraints])
 		return [parsedSections, sectionConstraints]
 	}
 
@@ -130,7 +130,7 @@ export function Output() {
 				optionsPerCell: new OptionsPerCell(parsedSections, sectionIRMapToSectionMap(sectionOptionsPerCell, sections, chordPrototypes, onlyUseChordPrototypes)),
 				constraints: new ConstraintSet(sectionConstraints),
 			}
-
+			
 			const inferredKey = inferKey()
 
 			const node = new SectionLevelNode({
@@ -156,11 +156,11 @@ export function Output() {
 			})
 			let hierarchyConstraints = new ConstraintSet<Section>()
 			hierarchyConstraints.addConstraints(sectionConstraints)
-			const constraintHierarchy = new ConstraintHierarchy(parsedSections, node, hierarchyConstraints, node.getHigherValues())
+			//const constraintHierarchy = new ConstraintHierarchy(parsedSections, node, hierarchyConstraints, node.getHigherValues())
 		
 		//	console.log(constraintHierarchy.check())
 			//console.log(node)
-			const generatedNotes = node.generate(constraintHierarchy)
+			const generatedNotes = node.generate()
 			//console.log(generatedNotes[0])
 			setOutput(generatedNotes)
 		} catch (e) {

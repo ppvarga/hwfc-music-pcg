@@ -20,9 +20,9 @@ export class ConstraintHierarchy<T>{
     }
 
 
-    checkConstraintsGeneric(currentConstraintsToCheck : ConstraintSet<T>, tileCanvas: Tile<T>[]): [T, Constraint<T>[]][]{
+    checkConstraintsGeneric(currentConstraintsToCheck : ConstraintSet<T>, tileCanvas: Tile<T>[]): Map<T, Constraint<T>[]>{
+        let res: Map<T, Constraint<T>[]> = new Map
         const sectionTiles = tileCanvas
-        let result: [T, Constraint<T>[]][] = [];
         sectionTiles.forEach( sectionTile => {
             let constraints : Constraint<T>[] = []
             currentConstraintsToCheck.getAllHardConstraints().forEach( constraint => {
@@ -33,13 +33,12 @@ export class ConstraintHierarchy<T>{
                 }
                 
             })
-            result.push([sectionTile.getValue(), constraints])
+            res.set(sectionTile.getValue(), constraints)
         }
         
 
         )
-        console.log(result)
-        return result
+        return res
 
     }
 

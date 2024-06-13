@@ -43,19 +43,21 @@ export function noteDistanceAbs(first: Note, second: Note): number {
 export type OctavedNoteIR = {
 	note: Note
 	octave: number
+	measure?: number 
 }
 
 export class OctavedNote {
 	private note: Note
 	private octave: number
-
-	constructor(note: Note, octave: number) {
+	private measureNumber?: number
+	constructor(note: Note, octave: number, measureNumber?: number) {
 		if (octave < -1 || octave > 9)
 			throw new Error("Octave must be between -1 and 9")
 		if (octave === 9 && ["G#", "A", "A#", "B"].includes(note))
 			throw new Error("Octave 9 can't have notes G#, A, A# or B")
 		this.note = note
 		this.octave = octave
+		this.measureNumber = measureNumber
 	}
 
 	public static fromMIDIValue(midiValue: number): OctavedNote {
@@ -86,7 +88,9 @@ export class OctavedNote {
 	public getOctave(): number {
 		return this.octave
 	}
-
+	public getMeasureNumber(): number {
+		return this.measureNumber!
+	}
 	public relative(interval: number): OctavedNote {
 		return OctavedNote.fromMIDIValue(this.toMIDIValue() + interval)
 	}
@@ -101,7 +105,7 @@ export class OctavedNote {
 	): number {
 		return Math.abs(OctavedNote.getStepSize(first, second))
 	}
-
+	
 	public toString(): string {
 		return `${this.note}${this.octave}`
 	}
@@ -111,7 +115,7 @@ export class OctavedNote {
 	}
 
 	public static fromIR(ir: OctavedNoteIR): OctavedNote {
-		return new OctavedNote(ir.note, ir.octave)
+		return new OctavedNote(ir.note, ir.octave, ir.measure)
 	}
 
 	public static multipleFromIRs(irs: OctavedNoteIR[]): OctavedNote[] {
@@ -121,6 +125,7 @@ export class OctavedNote {
 	public toY(unit: number): number {
 		return this.toMIDIValue() * unit
 	}
+
 }
 
 export function parseOctavedNoteIR(note: string): OctavedNoteIR | undefined {

@@ -3,6 +3,7 @@ import * as Tone from "tone"
 import { OctavedNote } from "../music_theory/Note"
 import MidiWriter, { Pitch } from 'midi-writer-js';
 import { FileUpload } from './FileUpload'
+import { NoteOutput2 } from "../audio/midi";
 const normalizeYPositions = (yPositions: number[]): number[] => {
 	const maxY = Math.max(...yPositions)
 	return yPositions.map(y => maxY - y)
@@ -12,6 +13,7 @@ export type NoteOutput = {
 	octavedNote: OctavedNote;
 	startTime: number;
 	duration: number;
+	measure?: number;
 };
 
 const generateMidi = (notes: NoteOutput[]) => {
@@ -120,10 +122,24 @@ export function MidiPlayer({ notes, length, isPlaying, setIsPlaying, updatePlaye
 		if (!ctx) return
 
 		ctx.clearRect(0, 0, canvas.width, canvas.height)
-
+		let bool = true
+		let num = 0
 		notes.forEach((note, index) => {
+			
 			const yPosition = normalizedYPositions[index]
-			ctx.fillStyle = currentNotesIndices.includes(index) ? "red" : "blue"
+			ctx.fillStyle = "blue"
+			
+			if (note.measure != null && note.measure != num){
+				num = note.measure
+				bool = !bool
+
+			}
+			if (bool){
+				ctx.fillStyle = "green"
+			}
+			if (currentNotesIndices.includes(index) ){
+				ctx.fillStyle = "red"
+			}
 			ctx.fillRect(note.startTime * noteRectLength, yPosition, note.duration * noteRectLength, noteRectHeight)
 		})
 	}
