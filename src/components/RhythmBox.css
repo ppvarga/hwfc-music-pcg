@@ -1,0 +1,30 @@
+
+
+#root {
+width: 100%;
+height: 100vh;
+}
+
+.container {
+padding: 50px;
+}
+
+.elements-container {
+display: flex;
+flex-direction: row;
+width: 30em;
+}
+
+.element {
+    width: 1em;
+    height: 2em;
+    border: 1px solid black;
+}
+
+.selected {
+    background-color: red;
+}
+
+.selection-box-info {
+margin-top: 10px;
+}

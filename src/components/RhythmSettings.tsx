@@ -1,6 +1,7 @@
 import { useEffect } from "react"
 import { useAppContext } from "../AppState"
 import { NumberSelector, StrictDropownSelector } from "./GlobalSettings"
+import { RhythmBox } from "./RhythmBox"
 
 export function RhythmSettings() {
 	const { useRhythm, setUseRhythm } = useAppContext()
@@ -59,6 +60,7 @@ function RhythmSettingsInner() {
 			<StrictDropownSelector value={upper} setValue={setUpper} options={upperOptions}></StrictDropownSelector>
             <StrictDropownSelector value={lower} setValue={setLower} options={lowerOptions}></StrictDropownSelector>
         </div>
+		<RhythmBox></RhythmBox>
 	</>
 }
 

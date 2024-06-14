@@ -166,7 +166,7 @@ export function generateRhythm (
 		upper = 4,
 		lower = 4
 	}: RhythmPatternOptions,
-	length: number
+	length: number     
 ): RhythmPattern {
 	// let rhythm = new Array<RhythmUnit>
 	// while (rhythm.length < length) {
@@ -176,12 +176,12 @@ export function generateRhythm (
 	// rhythm.splice(length, (rhythm.length - length))
 	// console.log(rhythm)
 	//let rhythm = generateRhythmPattern(upper, lower, length)
-	let rhythm = generateRhythmBetter(upper, lower)
+	let rhythm = generateRhythmBetter(upper, lower, length)
 
 	return rhythm
 }
 
-function pickStrong (upper: number): number[] {
+function pickStrongBeats (upper: number): number[] {
 	const mapping: { [key: number]: number[][] } = {
 		1: [[0]],
 		2: [[0]],
@@ -203,42 +203,51 @@ function pickStrong (upper: number): number[] {
 
 function generateRhythmBetter (
 	upper: number,
-	lower: number
+	lower: number,
+	melodyLength: number
 ) {
-	let strongBeats = pickStrong(upper).map(x => x / lower)
-	let notes = [ 2, 1, 1/2, 1/4]
-	return durationToRhythm(getRandomNoteLengths(notes, 4*upper/lower, strongBeats))
+	let strongBeats = pickStrongBeats(upper).map(x => x / lower)
+	// 1 = quarter note
+	let notes = [ 2, 1.5, 1, 3/4, 1/2, 1/4]
+
+	let noteLenghts = getRandomNoteLengths(notes, 4*upper/lower, strongBeats)
+	while (noteLenghts.length < melodyLength)
+		noteLenghts = getRandomNoteLengths(notes, 4*upper/lower, strongBeats)
+	let result = addRests(noteLenghts, noteLenghts.length - melodyLength)
+
+	console.log(result)
+	return result
 }
 
 function getRandomNoteLengths(noteLengths: number[], targetSum: number, strongBeats: number[]) {
     let result = [];
     let currentSum = 0
+	let fittingNoteLengths = noteLengths
 
     while (currentSum < targetSum) {
         let remainingAmount = targetSum - currentSum
-        let fittingNoteLengths = noteLengths.filter(noteLength => noteLength <= remainingAmount)
+        fittingNoteLengths = fittingNoteLengths.filter(noteLength => noteLength <= remainingAmount)
 
-        // If no fitting note lengths are available, BACKtRACK
+        // if no fitting note lengths are available, BACKtRACK
         if (fittingNoteLengths.length === 0) break
 
         let position = currentSum
 
-        // probabilities of note lengths
-        let probabilities = fittingNoteLengths.map(noteLength => probabilityFunction(noteLength, position in strongBeats))
+        // note length likelihood weights
+        let weights = fittingNoteLengths.map(noteLength => probabilityOfNoteOnBeat(noteLength, position in strongBeats))
 
-        // select a note length based on weighted probability
-        let selectedNoteLength = weightedRandomSelect(fittingNoteLengths, probabilities)
+        // select a note length based on weight
+        let selectedNoteLength = weightedRandomSelect(fittingNoteLengths, weights)[0]
 
-        // Add the selected note length to the result
+        // add the selected note length to the result
         result.push(selectedNoteLength)
-        // Update the current sum
         currentSum += selectedNoteLength
     }
 
     return result;
 }
 
-function weightedRandomSelect(items: number[], weights: number[]) {
+function weightedRandomSelect(items: number[], weights: number[]): number[] {
     let totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
     let randomValue = Math.random() * totalWeight;
     let cumulativeWeight = 0;
@@ -246,15 +255,15 @@ function weightedRandomSelect(items: number[], weights: number[]) {
     for (let i = 0; i < items.length; i++) {
         cumulativeWeight += weights[i];
         if (randomValue < cumulativeWeight) {
-            return items[i];
+            return [items[i], i]
         }
     }
 
     // Fallback in case of rounding errors
-    return items[items.length - 1];
+    return [items[items.length - 1], items.length - 1]
 }
 
-function probabilityFunction(noteLength: number, onStrongBeat: boolean) {
+function probabilityOfNoteOnBeat(noteLength: number, onStrongBeat: boolean) {
     if (onStrongBeat)
 		if (noteLength >= 1)
 			return 20
@@ -262,6 +271,13 @@ function probabilityFunction(noteLength: number, onStrongBeat: boolean) {
 			return 10
 	else
 		return 10
+}	
+
+function probabilityOfRest(condition: boolean) {
+    if (condition)
+		return 10
+	else
+		return 30
 }	
 
 
@@ -290,6 +306,33 @@ export function generateRhythmPattern (
 
 	let rhythm = durationToRhythm(durations)
 	return rhythm
+}
+
+function addRests (
+	notes: number[],
+	numOfRests: number
+): RhythmPattern {
+	let result = new Array<RhythmUnit>
+	let restIndices = []
+	let pool = notes.map((_, i) => i)
+
+	console.log(result.length + " " + numOfRests)
+
+    while (restIndices.length < numOfRests) {
+        let pick = Math.floor(Math.random() * pool.length)
+		console.log("pick " + pick)
+		restIndices.push(pick)
+		pool.splice(pool.indexOf(pick), 1)
+    }
+	
+	console.log("rests: " + restIndices)
+	for (let i = 0; i < notes.length; i++) {
+		if (i in restIndices)
+			result.push({ duration: notes[i], type: "rest" } as RhythmUnit)
+		else
+			result.push({ duration: notes[i], type: "note" } as RhythmUnit)
+	}
+	return result
 }
 
 function durationToRhythm (
