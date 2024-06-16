@@ -56,12 +56,14 @@ export class TileCanvas<T> {
 
 		for (let i = 1; i < this.size; i++) {
 			const tile = this.createTile(optionsPerCell, i)
-
+			
 			this.tiles[i - 1].setNext(tile)
 
 			this.tiles.push(tile)
 		}
-
+		console.log(this)
+		//console.log("tiles:" + this.tiles.length)
+		//console.log("size:" + this.size)
 		this.tiles[this.size - 1].setNext(Tile.trailer(this))
 
 		this.tiles.forEach((tile) => {
@@ -121,6 +123,7 @@ export class TileCanvas<T> {
 		while (this.collapsed < this.size) this.collapseNext()
 		//console.log(this.constraints)
 		console.log(this.tiles)
+		console.log(this.constraints)
 		//const constraintHierarchy: ConstraintHierarchy<T> = new ConstraintHierarchy<T>(this.higherValues)
 	//	console.log(constraintHierarchy.checkConstraintsGeneric(this.constraints, this.tiles))
 		return this.tiles.map((tile) => tile.getValue())

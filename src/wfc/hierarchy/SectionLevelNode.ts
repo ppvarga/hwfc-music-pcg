@@ -104,15 +104,19 @@ export class SectionLevelNode {
 	}
 	public generate(): [NoteOutput[], number] {
 		const sections = this.sectionCanvas.generate()
+		console.log("length" + sections.length)
 		//const sectionTiles = this.sectionCanvas.getTiles()
-		//console.log(sections)
 		const noteOutputs: NoteOutput[] = []
 		let totalDuration = 0
 		for (const section of sections) {
+			//console.log("section" + section.noteCanvasProps.optionsPerCell)
+
+			console.log("check0")
 			const chordLevelNode = this.createChordLevelNode(section)
-			
+			console.log("check10")
 			//console.log(constraintHierarchy.checkChords(chordLevelNode, this.chordesqueCanvasProps.constraints.getAllHardConstraints()))
 			const [sectionNoteOutputs, sectionDuration] = chordLevelNode.generate()
+			console.log([sectionNoteOutputs, sectionDuration])
 			this.chordsLevelNodes.set(section, chordLevelNode)
 			
 			noteOutputs.push(...(sectionNoteOutputs.map((noteOutput) => {

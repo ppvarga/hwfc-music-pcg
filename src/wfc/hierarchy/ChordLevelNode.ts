@@ -26,6 +26,10 @@ export class ChordLevelNode {
 	constructor(props: ChordLevelNodeProps) {
 		this.higherValues = props.higherValues 
 		this.noteCanvasProps = props.noteCanvasProps
+		console.log(this.higherValues.numChords,
+			props.chordesqueCanvasProps,
+			this.higherValues,
+			props.random,)
 		this.chordesqueCanvas = new TileCanvas(
 			this.higherValues.numChords,
 			props.chordesqueCanvasProps,
@@ -66,8 +70,10 @@ export class ChordLevelNode {
 	}
 	
 	public  generate(): [NoteOutput[], number] {
-		const chords = this.chordesqueCanvas.generate()
+		//console.log("check" + this.chordesqueCanvas.getTiles())
 
+		const chords = this.chordesqueCanvas.generate()
+		console.log("chordesqueSize" + chords.length)
 		let offset = 0
 		const out: NoteOutput[] = []
 		for (const chord of chords) {

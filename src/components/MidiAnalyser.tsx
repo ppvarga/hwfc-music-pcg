@@ -9,7 +9,7 @@ import { ChordTiles } from "./ChordTiles";
 import axios from "axios";
 import { MidiFile, read } from "midifile-ts";
 import { Chord } from "../music_theory/Chord";
-import { OctavedNote, parseOctavedNoteIR, noteToInt, OctavedNoteIR, intToNote } from "../music_theory/Note";
+import { OctavedNote, parseOctavedNoteIR, noteToInt, OctavedNoteIR, intToNote, Note } from "../music_theory/Note";
 import { Random } from "../util/Random";
 import { ConstraintSet } from "../wfc/ConstraintSet";
 import { InfiniteArray } from "../wfc/InfiniteArray";
@@ -79,8 +79,8 @@ const UploadButton: React.FC<UploadButtonProps> = ({ onUpload }) => {
                   measure.notes.every((note: { is_chord: any; pitches: any; root: any; start_time: any; duration: any; measure: any; pitch: any }) =>
                       ('is_chord' in note) &&
                       (note.is_chord 
-                          ? Array.isArray(note.pitches) && typeof note.root === 'string' && typeof note.start_time === 'number' && typeof note.duration === 'number' && typeof note.measure === 'number'
-                          : typeof note.pitch === 'string' && typeof note.start_time === 'number' && typeof note.duration === 'number' && typeof note.measure === 'number'
+                          ? Array.isArray(note.pitches) && typeof note.root === 'number' && typeof note.start_time === 'number' && typeof note.duration === 'number' && typeof note.measure === 'number'
+                          : typeof note.pitch === 'number' && typeof note.start_time === 'number' && typeof note.duration === 'number' && typeof note.measure === 'number'
                       )
                   )
               )
@@ -97,7 +97,7 @@ const UploadButton: React.FC<UploadButtonProps> = ({ onUpload }) => {
       }
       // Define TypeScript interfaces for the received data
       interface NoteData {
-          pitch: string;
+          pitch: number;
           start_time: number;
           duration: number;
           is_chord: false;
@@ -105,12 +105,12 @@ const UploadButton: React.FC<UploadButtonProps> = ({ onUpload }) => {
       }
       
       interface ChordData {
-          pitches: string[];
+          pitches: number[];
           start_time: number;
           duration: number;
           is_chord: true;
           measure: number;
-        root: string;
+        root: number;
         quality: string;
       }
       
@@ -121,8 +121,17 @@ const UploadButton: React.FC<UploadButtonProps> = ({ onUpload }) => {
       
       type AnalysisResult = Measure[];
       
+
+      function isNoteData2(obj: any): obj is NoteData {
+        return obj.is_chord === false
+            
+    }
+    
+    function isChordData2(obj: any): obj is ChordData {
+        return obj.is_chord === true 
+    }
       function isNoteData(obj: any): obj is NoteData {
-          return typeof obj.pitch === 'string' &&
+          return typeof obj.pitch === 'number' &&
               typeof obj.start_time === 'number' &&
               typeof obj.duration === 'number' &&
               obj.is_chord === false &&
@@ -131,12 +140,12 @@ const UploadButton: React.FC<UploadButtonProps> = ({ onUpload }) => {
       
       function isChordData(obj: any): obj is ChordData {
           return Array.isArray(obj.pitches) &&
-              obj.pitches.every((pitch: any) => typeof pitch === 'string') &&
+              obj.pitches.every((pitch: any) => typeof pitch === 'number') &&
               typeof obj.start_time === 'number' &&
               typeof obj.duration === 'number' &&
               obj.is_chord === true &&
               typeof obj.measure === 'number' &&
-              typeof obj.root === 'string' &&
+              typeof obj.root === 'number' &&
               typeof obj.quality === 'string';
       }
       
@@ -163,7 +172,7 @@ const UploadButton: React.FC<UploadButtonProps> = ({ onUpload }) => {
       }
       
       
-       function testFunction(notes: Measure[]) {
+       function testFunction(measures: Measure[]) {
         //const [isPlaying, setIsPlaying] = useState(false)
         const { output, setOutput, onlyUseChordPrototypes, chordPrototypes, inferKey, inferMelodyKey, differentMelodyKey, numChords, chordOptionsPerCell, chordConstraintSet, melodyLength, noteOptionsPerCell, noteConstraintSet, minNumNotes, startOnNote, maxRestLength, useRhythm, sections, sectionOptionsPerCell, numSections, bpm} = appState
       
@@ -217,82 +226,82 @@ const UploadButton: React.FC<UploadButtonProps> = ({ onUpload }) => {
       
             
       
-            const noteArray = new InfiniteArray<OctavedNote[]>()
-            const chordArray = new InfiniteArray<Chordesque[]>()
+            const tileCanvasesChord : TileCanvas<Chordesque>[] = []
+            const tileCanvasesOctavedNote: TileCanvas<OctavedNote>[] = []
+
             let noteIndex = 0
             let chordIndex = 0
-            console.log(notes.flat() )
-            for (const measure of notes.flat()){
-              //console.log(measure)
-              //console.log(measure.notes)
-              //console.log(measure.measureNumber)
-
-              measure.notes.forEach((note) =>{
-                if (isNoteData(note)){
+            //console.log(notes.flat() )
+            for (const measure of measures.flat()){
+              //console.log("measure info" + measure)
+              //console.log("measure length" + measure.notes)
+              console.log(measure.measureNumber)
+              let measureChordIndex = 0
+              let measureNoteIndex = 0
+              const noteArray = new InfiniteArray<OctavedNote[]>()
+              const chordArray = new InfiniteArray<Chordesque[]>()
+              for (const note of measure.notes.flat()){
+               // console.log("wtf" + note.is_chord)
                 
+                if (isNoteData(note)){
+                  
+                  //console.log("note data" + note)
                   const OctavedNoteArray: OctavedNote[] = []
-                  const parsed = parseOctavedNoteIR(note.pitch)
-                  if (parsed){
-                    OctavedNoteArray.push(OctavedNote.fromIR(parsed))
-                  }
-                  noteArray.set(noteIndex, OctavedNoteArray)
+                  
+                  const temp = OctavedNote.fromMIDIValue(note.pitch)
+                  OctavedNoteArray.push(new OctavedNote(temp.getNote(), temp.getOctave(), note.measure))
+                  
+                  noteArray.set(measureNoteIndex, OctavedNoteArray)
                   noteIndex++;
+                  measureNoteIndex++
                 } 
                 else if (isChordData(note)){
-                  
+                 // console.log("chord data" + note)
+
                   const innerChordArray: Chord[] = []
-                  const parsed = parseOctavedNoteIR(note.root)
-                  if (parsed){
+                 // const parsed = parseOctavedNoteIR(note.root)
+                  
                     const numbers: number[] = []
-                    for (const pitch in note.pitches){
-                      const innerParsed = parseOctavedNoteIR(pitch)
-                      if (innerParsed){
-                        const num = noteToInt(OctavedNote.fromIR(innerParsed).getNote())
+                    
+
+                    for (const pitch of note.pitches){
+                     // console.log("pitches" + note.pitches)
+                      //console.log("pitch" + note.pitches[pitch])
+                      
+                        const temp = OctavedNote.fromMIDIValue(pitch)
+                        //console.log("innerparsedNote" + OctavedNote.fromIR(innerParsed).getNote())
+
+                        const num = noteToInt(temp.getNote())
                         numbers.push(num)
-                      }
-                    }
-                    const chord = new Chord(OctavedNote.fromIR(parsed).getNote(),numbers)
-                    innerChordArray.push(chord)
-                    chordArray.set(chordIndex, innerChordArray)
+                      
+                    
+                    
                   }
+                  const chord = new Chord(OctavedNote.fromMIDIValue(note.root).getNote(),numbers)
+                    //console.log("chord" +  numbers)
+                    innerChordArray.push(chord)
+                    chordArray.set(measureChordIndex, innerChordArray)
+                    chordIndex++
+                    measureChordIndex++
                 }                
-              }
-
-
-
-              )
-              
                 
               
+                
+              }
+              console.log("notearray" + noteArray.entries().toString())
+              const noteCanvasProps: TileCanvasProps<OctavedNote> = {
+                optionsPerCell: new OptionsPerCell(OctavedNote.all(), noteArray),
+                constraints: new ConstraintSet(),
+              }
               
-              //const key = new MusicalKey()
-            }
-      
-      
-            const noteCanvasProps: TileCanvasProps<OctavedNote> = {
-              optionsPerCell: new OptionsPerCell(OctavedNote.all(), noteArray),
-              constraints: new ConstraintSet(),
-            }
-      
-      
-            const chordesqueCanvasProps: TileCanvasProps<Chordesque> = {
-              optionsPerCell: new OptionsPerCell(Chord.allBasicChords(), chordesqueIRMapToChordesqueMap(chordOptionsPerCell, chordPrototypes)),
-              constraints: new ConstraintSet(),
-            }
-      
-            const sectionCanvasProps : TileCanvasProps<Section> = {
-              optionsPerCell: new OptionsPerCell(parsedSections, sectionIRMapToSectionMap(sectionOptionsPerCell, sections, chordPrototypes, onlyUseChordPrototypes)),
-              constraints: new ConstraintSet(),
-            }
-            const inferredKey = inferKey()
-      
-            const node = new SectionLevelNode({
-              noteCanvasProps,
-              chordesqueCanvasProps,
-              sectionCanvasProps,
-              random: new Random(),
-              higherValues: {
-                key: inferredKey, 
+        
+              const chordesqueCanvasProps: TileCanvasProps<Chordesque> = {
+                optionsPerCell: new OptionsPerCell(Chord.allBasicChords(), chordArray),
+                constraints: new ConstraintSet(),
+              }
+              const inferredKey = inferKey()
+              const noteHigherValues =  {
+                key: inferKey(), 
                 melodyKey: differentMelodyKey ? inferMelodyKey() : inferredKey,
                 bpm,
                 useRhythm,
@@ -304,21 +313,52 @@ const UploadButton: React.FC<UploadButtonProps> = ({ onUpload }) => {
                   onlyStartOnNote: startOnNote,
                   maximumRestLength: maxRestLength,
                 },
-              },
+              }
+              //console.log("measureChordIndex" + measureChordIndex)
+              //console.log("measureNoteIndex" + measureNoteIndex)
+
+              const chordCanvas = new TileCanvas<Chordesque>(measureChordIndex,chordesqueCanvasProps, noteHigherValues, new Random())
+              const noteCanvas = new TileCanvas<OctavedNote>(measureNoteIndex, noteCanvasProps, noteHigherValues, new Random())
               
-            })
+              if (chordCanvas.getSize() > 0){
+                tileCanvasesChord.push(chordCanvas)
+              }
+              if (noteCanvas.getSize() > 0){
+                tileCanvasesOctavedNote.push(noteCanvas)
+              }
+
+              
+              //const key = new MusicalKey()
+            }
+      
+           // console.log("noteArray" + noteArray.entries())
+            //console.log("chordArray" + chordArray.entries())
+            
+      
+            
+            
+      
+           
       
             
       
-            let hierarchyConstraints = new ConstraintSet<Section>()
-            hierarchyConstraints.addConstraints(sectionConstraints)
-            //const constraintHierarchy = new ConstraintHierarchy(parsedSections, node, hierarchyConstraints, node.getHigherValues())
+            //let hierarchyConstraints = new ConstraintSet<Section>()
+            //hierarchyConstraints.addConstraints(sectionConstraints)
+            //IMPORTANT
+            for (const canvas of tileCanvasesOctavedNote){
+              
+              console.log("huh" + canvas.getTiles())
+              const constraintHierarchy = new ConstraintHierarchy<OctavedNote>(canvas.getHigherValues())
+              const checkedConstraints = constraintHierarchy.checkConstraintsGeneric(new ConstraintSet(noteConstraintSet.map(noteConstraint => convertIRToNoteConstraint(noteConstraint))), canvas.getTiles())
+              console.log(checkedConstraints)
+            }
+          //  const constraintHierarchy2 = new ConstraintHierarchy<Chordesque>()
           
           //	console.log(constraintHierarchy.check())
-            console.log(node)
-            const generatedNotes = node.generate()
+            //console.log(node)
+            //const generatedNotes = node.generate()
             //console.log(generatedNotes[0])
-            setOutput(generatedNotes)
+            //setOutput(generatedNotes)
           } catch (e) {
             console.error(e)
             alert(e)
@@ -401,7 +441,7 @@ const UploadButton: React.FC<UploadButtonProps> = ({ onUpload }) => {
                   return;
               }
       
-              console.log(`Measure ${measure.measureNumber}:`);
+              //console.log(`Measure ${measure.measureNumber}:`);
       
               measure.notes.forEach((measure_data, noteIndex) => {
                   if (!measure_data) {
@@ -419,7 +459,7 @@ const UploadButton: React.FC<UploadButtonProps> = ({ onUpload }) => {
                   }
               });
           });
-        console.log("foo")
+        //console.log("foo")
         console.log(data)
           // Process the data as needed
           data.flat().forEach((measure) => {
