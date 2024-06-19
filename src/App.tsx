@@ -32,26 +32,30 @@ function App() {
 						<NoteConstraints />
 					</div>
 				</div>
+				<Output/>
 			</>
 		},
 		{
 			title: "Sections",
-			content: <SectionsPage />
+			content: <><SectionsPage /><Output /></>
 		},
 		{
 			title: "Chord prototypes",
-			content: <ChordPrototypesPage />
+			content: <><ChordPrototypesPage /><Output /></>
 		},
 		{
 			title: "Configs",
-			content: <Configs />
+			content: <><Configs /><Output /></>
+		},
+		{
+			title: "Output",
+			content: <Output isOutput={true}/>
 		}
 	]
 
 	return (
 		<AppProvider>
 			<TabComponent tabs={tabs} />
-			<Output/>
 		</AppProvider>
 	)
 }

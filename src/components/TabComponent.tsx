@@ -12,10 +12,11 @@ interface TabComponentProps {
 
 const TabComponent: React.FC<TabComponentProps> = ({ tabs }) => {
 	const [activeTabIndex, setActiveTabIndex] = useState(0)
+	const marginBottom = activeTabIndex !== 4 ? "20vh" : "0"
 
 	return (
-		<div style={{width: "90vw", marginBottom:"20vh", marginTop: 0}}>
-			<div style={{ display: "flex" }}>
+		<div style={{width: "90vw", marginBottom: `${marginBottom}`, marginTop: 0}}>
+			<div style={{ display: "flex", height: "36px" }}>
 				{tabs.map((tab, index) => (
 					<>
 						<div key={2 * index} style={{ width: "10px", borderBottom: "1px white solid" }} />

@@ -2,8 +2,6 @@ import { useRef, useState, useEffect } from "react"
 import * as Tone from "tone"
 import { OctavedNote } from "../music_theory/Note"
 import MidiWriter, { Pitch } from 'midi-writer-js';
-import { lastChords, lockedChords, lastMelody, lockedMelody } from "../util/utils";
-import { useAppContext } from "../AppState";
 
 const normalizeYPositions = (yPositions: number[]): number[] => {
 	const maxY = Math.max(...yPositions)
@@ -41,7 +39,6 @@ type MidiPlayerProps = {
 };
 
 export function MidiPlayer({ notes, length, isPlaying, setIsPlaying, updatePlayer }: MidiPlayerProps) {
-	const { numChords, melodyLength } = useAppContext()
 	const canvasRef = useRef<HTMLCanvasElement>(null)
 	const [currentNotesIndices, setCurrentNotesIndices] = useState<number[]>([])
 	const synthRef = useRef<Tone.PolySynth>();
@@ -126,61 +123,9 @@ export function MidiPlayer({ notes, length, isPlaying, setIsPlaying, updatePlaye
 
 		notes.forEach((note, index) => {
 			const yPosition = normalizedYPositions[index]
-			ctx.fillStyle = currentNotesIndices.includes(index) ? "red" : isLocked(index) ? "green" : "blue"
+			ctx.fillStyle = currentNotesIndices.includes(index) ? "red" : "blue"
 			ctx.fillRect(note.startTime * noteRectLength, yPosition, note.duration * noteRectLength, noteRectHeight)
 		})
-	}
-
-	const handleClick = (event: any) => {
-		const rect = canvasRef?.current?.getBoundingClientRect()
-		const x = event.clientX - (rect?.left ?? 0)
-		const y = event.clientY - (rect?.top ?? 0)
-
-		let i = Math.ceil(Math.max(0, x) / (noteRectLength / 2)) - 1;
-		const section = Math.floor(Math.floor(i / melodyLength) / numChords)
-		const chord =  Math.floor(i / melodyLength) % numChords
-		const note = i % melodyLength
-
-		if (y > 50) {
-			if (lockedChords[section] === undefined) {
-				lockedChords[section] = []
-			}
-			if (lockedChords[section][chord] === undefined) {
-				lockedChords[section][chord] = lastChords[section][chord]
-			} else {
-				delete lockedChords[section][chord]
-			}
-		} else {
-			if (lockedMelody[section] === undefined) {
-				lockedMelody[section] = []
-			}
-			if (lockedMelody[section][chord] === undefined) {
-				lockedMelody[section][chord] = []
-			}
-			if (lockedMelody[section][chord][note] === undefined) {
-				lockedMelody[section][chord][note] = lastMelody[section][chord][note]
-			} else {
-				delete lockedMelody[section][chord][note]
-			}
-		}
-		drawNotes()
-	}
-
-	function isLocked(index: number) {
-		let chordNr = Math.floor(index / (melodyLength + 4)) % numChords
-		let sectionNr = Math.floor(Math.floor(index / (melodyLength + 4)) / numChords)
-
-		if(index % (melodyLength + 4) >= melodyLength) {
-			if (lockedChords[sectionNr] !== undefined && lockedChords[sectionNr][chordNr] !== undefined) {
-				return true
-			}
-		} else {
-			let noteNr = index % (melodyLength + 4)
-			if (lockedMelody[sectionNr] !== undefined && lockedMelody[sectionNr][chordNr] !== undefined && lockedMelody[sectionNr][chordNr][noteNr] !== undefined) {
-				return true
-			}
-		}
-		return false
 	}
 
 	return (
@@ -204,6 +149,7 @@ export function MidiPlayer({ notes, length, isPlaying, setIsPlaying, updatePlaye
 					disabled={notes.length < 1}>
 					Download MIDI
 				</button>
+				<br />
 				<div style={{ padding: "1em", width: "180px", textAlign: "center" }}>
 					<label>
 						{volume < -35 ? "🔈" : volume < -15 ? "🔉" : "🔊"}
@@ -221,7 +167,7 @@ export function MidiPlayer({ notes, length, isPlaying, setIsPlaying, updatePlaye
 			</div>
 			{notes.length > 0 &&
 			<div style={{ overflowX: "scroll", paddingTop: "1em" }}>
-				<canvas ref={canvasRef} width={length * noteRectLength} height={canvasHeight} onMouseDown={handleClick}></canvas>
+				<canvas ref={canvasRef} width={length * noteRectLength} height={canvasHeight}></canvas>
 			</div>
 			}
 		</div>

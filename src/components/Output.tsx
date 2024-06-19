@@ -17,6 +17,7 @@ import { Section, sectionIRMapToSectionMap, sectionIRToSection } from "../wfc/hi
 import { SectionOnlyPrecededByHardConstraint } from "../wfc/constraints/SectionOnlyPrecededByHardConstraint"
 import { SectionOnlyFollowedByHardConstraint } from "../wfc/constraints/SectionOnlyFollowedByHardConstraint"
 import { SectionLevelNode } from "../wfc/hierarchy/SectionLevelNode"
+import { OutputTab } from "./OutputTab"
 
 interface ParseChordPrototypesReturn {
 	parsedChordPrototypes: ChordPrototype[]
@@ -56,8 +57,12 @@ export function parseChordPrototypes(chordPrototypes: ChordPrototypeIR[]): Parse
 
 	return { parsedChordPrototypes, chordPrototypeConstraints }
 }
-
-export function Output() {
+interface OutputProps {
+	isOutput?: boolean;
+  }
+  
+export const Output: React.FC<OutputProps> = ({ isOutput = false }) => {
+	// rest of your code
 	const [isPlaying, setIsPlaying] = useState(false)
 	const appState = useAppContext()
 	const { output, setOutput, onlyUseChordPrototypes, chordPrototypes, inferKey, inferMelodyKey, differentMelodyKey, numChords, chordOptionsPerCell, chordConstraintSet, melodyLength, noteOptionsPerCell, noteConstraintSet, minNumNotes, startOnNote, maxRestLength, useRhythm, sections, sectionOptionsPerCell, numSections, bpm} = appState
@@ -157,6 +162,10 @@ export function Output() {
 			console.error(e)
 			alert(e)
 		}
+	}
+
+	if(isOutput) {
+		return <OutputTab notes={output[0]} length={output[1]} isPlaying={isPlaying} setIsPlaying={setIsPlaying} updatePlayer={updatePlayer}/>
 	}
 
 	return <div style={{
