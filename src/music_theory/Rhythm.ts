@@ -2,7 +2,7 @@ import { Random } from "../util/Random"
 
 export type RhythmUnit = {
 	duration: number
-	type: "note" | "rest"
+	type: "note" | "rest" | undefined
 }
 
 export type RhythmPattern = RhythmUnit[]
@@ -15,22 +15,6 @@ export function numberOfNotesInRhythmPattern(pattern: RhythmPattern) {
 	return pattern.filter((unit) => unit.type == "note").length
 }
 
-function abstractPatternsForLength(length: number) {
-	if (length < 0) throw new Error("Pattern can't have negative length")
-
-	const out: number[][] = []
-	if (length == 0) out.push([])
-
-	for (let i = 1; i <= length; i++) {
-		const subResults = abstractPatternsForLength(length - i)
-		for (const subResult of subResults) {
-			subResult.push(i)
-			out.push(subResult)
-		}
-	}
-	return out
-}
-
 export interface RhythmPatternOptions {
 	minimumNumberOfUnits?: number
 	onlyStartOnNote: boolean
@@ -38,93 +22,7 @@ export interface RhythmPatternOptions {
 	maximumRestLength: number
 	upper: number
 	lower: number
-}
-
-export function generateRhythmPatterns(
-	length: number,
-	{
-		minimumNumberOfUnits = 1,
-		onlyStartOnNote,
-		minimumNumberOfNotes,
-		maximumRestLength,
-	}: RhythmPatternOptions,
-) {
-	const abstractPatterns = abstractPatternsForLength(length).filter(
-		(pattern) => pattern.length >= minimumNumberOfUnits,
-	)
-	return abstractPatterns.flatMap((abstractPattern) =>
-		allRhythmicCombinations({
-			prefix: [],
-			abstractPattern,
-			onlyStartOnNote,
-			minimumNumberOfNotes,
-			maximumRestLength,
-		}),
-	)
-}
-
-export function getRandomRhythmPattern(
-	length: number,
-	options: RhythmPatternOptions,
-	random: Random,
-) {
-	const patterns = generateRhythmPatterns(length, options)
-	if (patterns.length == 0) throw new Error("No possible patterns")
-	return patterns[random.nextInt(patterns.length)]
-}
-
-interface RhytmicCombinationOptions {
-	prefix: RhythmPattern
-	abstractPattern: number[]
-	onlyStartOnNote: boolean
-	minimumNumberOfNotes: number
-	maximumRestLength: number
-}
-
-function allRhythmicCombinations({
-	prefix,
-	abstractPattern,
-	onlyStartOnNote,
-	minimumNumberOfNotes,
-	maximumRestLength,
-}: RhytmicCombinationOptions) {
-	if (minimumNumberOfNotes > abstractPattern.length) return []
-	if (abstractPattern.length == 0) return [prefix]
-	const out: RhythmPattern[] = []
-	const unitLength = abstractPattern[0]
-	const restOfPattern = abstractPattern.slice(1)
-
-	const prefixPlusNote = [
-		...prefix,
-		{ duration: unitLength, type: "note" } as RhythmUnit,
-	]
-	out.push(
-		...allRhythmicCombinations({
-			prefix: prefixPlusNote,
-			abstractPattern: restOfPattern,
-			onlyStartOnNote: false,
-			minimumNumberOfNotes: minimumNumberOfNotes - 1,
-			maximumRestLength,
-		}),
-	)
-
-	if (!onlyStartOnNote && unitLength <= maximumRestLength) {
-		const prefixPlusRest = [
-			...prefix,
-			{ duration: unitLength, type: "rest" } as RhythmUnit,
-		]
-		out.push(
-			...allRhythmicCombinations({
-				prefix: prefixPlusRest,
-				abstractPattern: restOfPattern,
-				onlyStartOnNote: true,
-				minimumNumberOfNotes,
-				maximumRestLength,
-			}),
-		)
-	}
-
-	return out
+	baseRhythm: RhythmPattern
 }
 
 
@@ -164,7 +62,8 @@ export function generateRhythm (
 		minimumNumberOfNotes,
 		maximumRestLength,
 		upper = 4,
-		lower = 4
+		lower = 4,
+		baseRhythm
 	}: RhythmPatternOptions,
 	length: number     
 ): RhythmPattern {
@@ -176,7 +75,7 @@ export function generateRhythm (
 	// rhythm.splice(length, (rhythm.length - length))
 	// console.log(rhythm)
 	//let rhythm = generateRhythmPattern(upper, lower, length)
-	let rhythm = generateRhythmBetter(upper, lower, length)
+	let rhythm = generateRhythmBetter(upper, lower, length, baseRhythm)
 
 	return rhythm
 }
@@ -204,31 +103,47 @@ function pickStrongBeats (upper: number): number[] {
 function generateRhythmBetter (
 	upper: number,
 	lower: number,
-	melodyLength: number
-) {
+	melodyLength: number,
+	baseRhythm: RhythmPattern
+): RhythmPattern {
 	let strongBeats = pickStrongBeats(upper).map(x => x / lower)
 	// 1 = quarter note
 	let notes = [ 2, 1.5, 1, 3/4, 1/2, 1/4]
 
-	let noteLenghts = getRandomNoteLengths(notes, 4*upper/lower, strongBeats)
+	let noteLenghts = getRandomNoteLengths(notes, strongBeats, baseRhythm)
 	while (noteLenghts.length < melodyLength)
-		noteLenghts = getRandomNoteLengths(notes, 4*upper/lower, strongBeats)
-	let result = addRests(noteLenghts, noteLenghts.length - melodyLength)
+		noteLenghts = getRandomNoteLengths(notes, strongBeats, baseRhythm) // generate new ones if it's not long enough
+	//let result = addRests(noteLenghts, noteLenghts.length - melodyLength) // add rests where it's needed
 
-	console.log(result)
-	return result
+	return noteLenghts
 }
 
-function getRandomNoteLengths(noteLengths: number[], targetSum: number, strongBeats: number[]) {
-    let result = [];
+function getRandomNoteLengths(possibleNotes: number[], strongBeats: number[], baseRhythm: RhythmPattern) {
+    let result = new Array<RhythmUnit>
     let currentSum = 0
-	let fittingNoteLengths = noteLengths
 
-    while (currentSum < targetSum) {
+	baseRhythm.forEach((unit, index) => {
+		if (unit.type == undefined) {
+			// fill out
+			result = [...result, ...fillGap(currentSum, currentSum + unit.duration, possibleNotes, strongBeats)]
+		} else {
+			// just copy whatever is already there
+			result.push(unit)
+		}
+		currentSum += unit.duration
+	})
+
+    return result;
+}
+
+function fillGap(currentSum: number, targetSum: number, possibleNoteLenghts: number[], strongBeats: number[]) {
+	let result = []
+
+	while (currentSum < targetSum) {
         let remainingAmount = targetSum - currentSum
-        fittingNoteLengths = fittingNoteLengths.filter(noteLength => noteLength <= remainingAmount)
+        let fittingNoteLengths = possibleNoteLenghts.filter(noteLength => noteLength <= remainingAmount)
 
-        // if no fitting note lengths are available, BACKtRACK
+        // if no fitting note lengths are available, BACKtRACK???
         if (fittingNoteLengths.length === 0) break
 
         let position = currentSum
@@ -240,11 +155,10 @@ function getRandomNoteLengths(noteLengths: number[], targetSum: number, strongBe
         let selectedNoteLength = weightedRandomSelect(fittingNoteLengths, weights)[0]
 
         // add the selected note length to the result
-        result.push(selectedNoteLength)
+        result.push({type: "note", duration: selectedNoteLength} as RhythmUnit)
         currentSum += selectedNoteLength
     }
-
-    return result;
+	return result
 }
 
 function weightedRandomSelect(items: number[], weights: number[]): number[] {
@@ -297,7 +211,7 @@ export function generateRhythmPattern (
 	let combinations = allCombinations(notes, time).filter(x => x.length <= maxNumberOfNotes)
 	// pick a random combo
 	let randomIndex = Math.floor(Math.random() * combinations.length)
-	console.log("durs " + combinations)
+
 	let durations = combinations[randomIndex] as number[]
 	
 	durations = durations.map(function(x) { return x })
@@ -316,16 +230,13 @@ function addRests (
 	let restIndices = []
 	let pool = notes.map((_, i) => i)
 
-	console.log(result.length + " " + numOfRests)
-
     while (restIndices.length < numOfRests) {
         let pick = Math.floor(Math.random() * pool.length)
-		console.log("pick " + pick)
+		
 		restIndices.push(pick)
 		pool.splice(pool.indexOf(pick), 1)
     }
 	
-	console.log("rests: " + restIndices)
 	for (let i = 0; i < notes.length; i++) {
 		if (i in restIndices)
 			result.push({ duration: notes[i], type: "rest" } as RhythmUnit)
@@ -366,8 +277,6 @@ function shuffleArray (array: number[]) {
 function allCombinations(
 	notes: number[],
 	sum: number) {
-	console.log("notes: " + notes)
-	console.log("sum: " + sum)
     let combinations = new Array()
     let temp = new Array()
     findCombinations(combinations, notes, sum, 0, temp)

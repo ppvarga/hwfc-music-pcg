@@ -5,112 +5,245 @@ import {
   useSelectionContainer
 } from "@air/react-drag-to-select";
 import "./RhythmBox.css"
+import { useAppContext } from "../AppState";
+import { RhythmUnit } from "../music_theory/Rhythm";
+import { StringDropownSelector } from "./GlobalSettings"
 
-export function RhythmBox () {
+interface RhythmBoxProps {
+	numberOfUnits: number
+}
+
+export function RhythmBox ({numberOfUnits}: RhythmBoxProps) {
   const [selectionBox, setSelectionBox] = useState<Box>();
   const [selectedIndexes, setSelectedIndexes] = useState<number[]>([]);
-  const selectableItems = useRef<Box[]>([]);
+  const [selectableItems, setSelectableItems] = useState<Box[]>([]);
   const elementsContainerRef = useRef<HTMLDivElement | null>(null);
-
+  const {upper, lower, rhythmPattern, setRhythmPattern} = useAppContext()
+  const [currentNoteColorIndex, setCurrentNoteColorIndex]  = useState<number>(0)
+  const [currentRestColorIndex, setCurrentRestColorIndex]  = useState<number>(0)
+  const [type, setType] = useState<string | undefined>("note")
   
   const { DragSelection } = useSelectionContainer({
     eventsElement: document.getElementById("root"),
     onSelectionChange: (box) => {
-        const boxey = document.getElementById("rhythmcontainer")
-        const x = boxey?.scrollLeft || 0
-        const y = window.scrollY - (boxey?.getBoundingClientRect().top || 0)
-        // console.log("boxtop: " + box.top)
-        // console.log("windowtop: " + window.scrollY)
-        // console.log("containertop: " + boxey?.getBoundingClientRect().top)
-        // console.log("calcs: " + y)
         const scrollAwareBox: Box = {
-        ...box,
-        top: box.top + window.scrollY,
-        left: box.left + window.scrollX
-        }
-
-        const checkSelect = (box1: Box, box2: Box) => {
-            return (box1.top + box1.height) > box2.top 
-                && (box1.left + box1.width) > box2.left 
-                && box1.top < (box2.top + box2.height)
-                && box1.left < (box2.left + box2.width)
+            ...box,
+            top: box.top + window.scrollY,
+            left: box.left + window.scrollX
         }
 
         setSelectionBox(scrollAwareBox);
         const indexesToSelect: number[] = [];
-        
-        selectableItems.current.forEach((item, index) => {
-            console.log(scrollAwareBox)
-            console.log(item)
-            if (checkSelect(scrollAwareBox, item)) {
-                console.log("boxes INTERSECT YES")
+        selectableItems.forEach((item, index) => {
+            if (boxesIntersect(scrollAwareBox, item)) {
                 indexesToSelect.push(index)
             }
         })
-        console.log("selectable items:")
-        console.log(selectableItems)
-        console.log(indexesToSelect)
 
       setSelectedIndexes(indexesToSelect);
     },
     onSelectionStart: () => {
       console.log("OnSelectionStart");
+      console.log("rhythmpattern:")
+      console.log(rhythmPattern)
     },
-    onSelectionEnd: () => console.log("OnSelectionEnd"),
+    onSelectionEnd: () => {
+        console.log("OnSelectionEnd")
+        if (selectedIndexes.length != 0) {
+            console.log("selected indexes")
+            console.log(selectedIndexes)
+            let from = selectedIndexes[0] / 4
+            let to = (selectedIndexes[selectedIndexes.length-1] + 1) / 4
+            addToRhythm(from, to)
+            highlightBoxes()
+        }
+        setSelectedIndexes([])
+    },
     selectionProps: {
       style: {
-        border: "2px dashed purple",
-        borderRadius: 4,
-        backgroundColor: "brown",
-        opacity: 0.5
+        visibility: "hidden"
       }
     },
     isEnabled: true
   })
 
   useEffect(() => {
-    if (elementsContainerRef.current) {
-        let temp = new Array<Box>
-        Array.from(elementsContainerRef.current.children).forEach((item) => {
-        const { left, top, width, height } = item.getBoundingClientRect()
+    resetBoxes()
+    console.log("sdfaSJFKSDHFLDSF")
+    }, [lower, upper])
+
+  const addToRhythm = (from: number, to: number) => {
+    let start = 0
+    let newPattern = rhythmPattern
+    let startIndex = -1
+    let startPoint = -1
+    let endIndex = -1
+    let endPoint = -1
+    let startType = undefined
+    let endType = undefined
+    
+    for (let i = 0; i < newPattern.length; i++) {
+        let unit = newPattern[i]
+        let end = start + unit.duration
         
+        if (startIndex == -1 && start <= from && from <= end) {
+            startIndex = i
+            startPoint = start
+            startType = unit.type
+        }
+        if (startIndex != -1 && start <= to && to <= end) {
+            endIndex = i
+            endPoint = end
+            endType = unit.type
+            break
+        }
+        start = end
+    }
+
+    let first = {type: startType, duration: (from - startPoint)} as RhythmUnit
+    let second = {type: type, duration: (to - from)} as RhythmUnit
+    let third = {type: endType, duration: (endPoint - to)} as RhythmUnit
+
+    if (first.duration != 0){
+        newPattern.splice(startIndex, (endIndex - startIndex + 1), first)
+        newPattern.splice(startIndex+1, 0, second)
+        if (third.duration != 0)
+            newPattern.splice(startIndex+2, 0, third)
+    }
+    else{
+        newPattern.splice(startIndex, (endIndex - startIndex + 1), second)
+        if (third.duration != 0)
+            newPattern.splice(startIndex+1, 0, third)
+    }
+    setRhythmPattern(newPattern)
+  }
+
+  const highlightBoxes = () => {
+    if (elementsContainerRef.current) {
+        let boxes = Array.from(elementsContainerRef.current.children) as Array<HTMLElement>
+        let color = ""
+        if (type != undefined) 
+            color = provideHighlightColor()
+        boxes.forEach((box, index) => {
+            if (selectedIndexes.indexOf(index) >= 0) {
+                box.style.backgroundColor = color
+            }
+        })
+    }
+  }
+  const resetBoxes = () => {
+    if (elementsContainerRef.current) {
+        let boxes = Array.from(elementsContainerRef.current.children) as Array<HTMLElement>
+        let color = ""
+        boxes.forEach((box) => {
+            box.style.backgroundColor = color
+        })
+    }
+  }
+
+  const provideHighlightColor = () => {
+    if (type == "note") {
+        let colors = [
+            "#b5fffc",
+            "#8ee2e0",
+            "#73cecb",
+            "#60bcb9",
+            "#56b5b1",
+            "#46a8a5",
+            "#3b8e8c",
+            "#318481",
+            "#267775",
+            "#217270",
+            "#1a6867",
+            "#15605f",
+            "#0d5957"        
+        ]
+        const res = colors[currentNoteColorIndex]
+        if (currentNoteColorIndex == colors.length-1)
+            setCurrentNoteColorIndex(0)
+        else
+            setCurrentNoteColorIndex(currentNoteColorIndex + 1)
+        return res
+    } else {
+        let colors = [
+            "#c9b5be",
+            "#afa0a7",
+            "#a09298",
+            "#8c8186",
+            "#756b70",
+            "#635d60",
+            "#5b5457",
+            "#544a4e",
+            "#513e47",
+            "#5e3b4b",       
+            "#56273c"
+        ]
+        const res = colors[currentRestColorIndex]
+        if (currentRestColorIndex == colors.length-1)
+            setCurrentRestColorIndex(0)
+        else
+            setCurrentRestColorIndex(currentRestColorIndex + 1)
+        return res
+    }
+  }
+
+  const updateSelectableItems = () => {
+    if (elementsContainerRef.current) {
+      let temp: Box[] = []
+      Array.from(elementsContainerRef.current.children).forEach((item) => {
+        const { left, top, width, height } = item.getBoundingClientRect()
         temp.push({
-            left,
-            top,
-            width,
-            height
+          left,
+          top,
+          width,
+          height,
         })
-        })
-        selectableItems.current = temp
+      })
+      setSelectableItems(temp)
+    }
+  }
+
+  useEffect(() => {
+    updateSelectableItems()
+  }, [numberOfUnits, elementsContainerRef])
+
+  useEffect(() => {
+    window.addEventListener("resize", updateSelectableItems);
+    return () => {
+      window.removeEventListener("resize", updateSelectableItems);
     }
   }, [])
 
-  return (
-    <div id="rhythmcontainer" className="container">
-      <DragSelection />
-      <div
-        id="elements-container"
-        className="elements-container"
-        ref={elementsContainerRef}
-      >
-        {Array.from({ length: 16 }, (_, i) => (
-          <div
-            data-testid={`grid-cell-${i}`}
-            key={i}
-            className={`element ${
-              selectedIndexes.includes(i) ? "selected" : ""
-            }`}
-          />
-        ))}
-      </div>
+  const typeOptions = [
+	{ label: "note", value: "note" as const },
+	{ label: "rest", value: "rest" as const },
+	{ label: "delete", value: undefined }
+]
 
-      <div className="selection-box-info">
-        Selection Box:
-        <div>top: {selectionBox?.top || ""}</div>
-        <div>left: {selectionBox?.left || ""}</div>
-        <div>width: {selectionBox?.width || ""}</div>
-        <div>height: {selectionBox?.height || ""}</div>
-      </div>
+  return (
+    <div style={{display:"flex", flexDirection:"row", alignContent:"center", justifyContent:"center"}}>
+        <div style={{width:"7em", display: "flex", alignItems: "center", justifyContent: "center"}}>
+            <StringDropownSelector value={type} setValue={setType} options={typeOptions}></StringDropownSelector> 
+        </div>
+        <div id="rhythmcontainer" className="container">
+            <DragSelection/>
+            <div
+                id="elements-container"
+                className="elements-container"
+                ref={elementsContainerRef}
+            >
+                {Array.from({ length: numberOfUnits }, (_, i) => (
+                <div
+                    data-testid={`grid-cell-${i}`}
+                    key={i}
+                    className={`element
+                    ${(Math.floor(i/(16/lower)) % 2 == 0)?"even":"odd"}
+                    ${selectedIndexes.includes(i) ? "selected" : ""}
+                    `}
+                />
+                ))}
+            </div>
+        </div>
     </div>
   );
 }

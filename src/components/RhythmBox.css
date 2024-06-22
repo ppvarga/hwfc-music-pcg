@@ -1,30 +1,36 @@
 
 
 #root {
-width: 100%;
-height: 100vh;
+    width: 100%;
+    height: 100vh;
 }
 
 .container {
-padding: 50px;
+    padding: 50px;
+    width: fit-content;
 }
 
 .elements-container {
-display: flex;
-flex-direction: row;
-width: 30em;
+    display: flex;
+    flex-direction: row;
+    width: fit-content;
 }
 
 .element {
     width: 1em;
     height: 2em;
-    border: 1px solid black;
+    border-radius: 10%;
+    
 }
 
-.selected {
-    background-color: red;
+.element.even {
+    background-color: black;
 }
 
-.selection-box-info {
-margin-top: 10px;
+.element.odd {
+    background-color: #222;
+}
+
+.element.selected {
+    background-color: red !important
 }

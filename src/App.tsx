@@ -12,6 +12,7 @@ import { SectionsPage } from "./components/SectionsPage"
 import { SectionTiles } from "./components/SectionTiles"
 import { Configs } from "./components/Configs"
 import { RhythmPage } from "./components/RhythmPage"
+import { RhythmSettings } from "./components/RhythmSettings"
 
 function App() {
 
@@ -32,6 +33,9 @@ function App() {
 						<NoteTiles />
 						<NoteConstraints />
 					</div>
+					<div style={{width:"fit-content"}} className="main-column">
+						<RhythmSettings></RhythmSettings>
+					</div>
 				</div>
 			</>
 		},
@@ -43,10 +47,10 @@ function App() {
 			title: "Chord prototypes",
 			content: <ChordPrototypesPage />
 		},
-		{
-			title: "Rhythm",
-			content: <RhythmPage/>
-		},
+		// {
+		// 	title: "Rhythm",
+		// 	content: <RhythmPage/>
+		// },
 		{
 			title: "Configs",
 			content: <Configs />

@@ -66,7 +66,7 @@ export class ChordLevelNode {
 
 			if(useRhythm) {
 				
-
+				
 				let rhythm = generateRhythm(rhythmPatternOptions, actualMelodyLength)
 				actualMelodyLength = rhythm.length
 				this.higherValues.melodyLength = rhythm.length

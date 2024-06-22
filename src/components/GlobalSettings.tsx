@@ -4,7 +4,6 @@ import Select from "react-select"
 import { selectStyles } from "../styles"
 import { SelectKeyTypeOption, SelectOption } from "./utils"
 import { ConstantNoteSelector } from "./ConstantNoteSelector"
-import { RhythmSettings } from "./RhythmSettings"
 
 export function GlobalSettings() {
 
@@ -17,7 +16,6 @@ export function GlobalSettings() {
 		<MelodyLengthSelector />
 		<GlobalKeySelector />
 		<MelodyKeySelector />
-		<RhythmSettings />
 	</div>
 }
 
@@ -87,6 +85,30 @@ export function StrictDropownSelector({value, setValue, options}:StrictDropownSe
 		styles={selectStyles}
 		value={{ label: value.toString(), value: value } as SelectSignature}
 		onChange={(option: SelectSignature) => {
+			console.log("option is: " + option!.value)
+			setValue(option!.value)
+		}} />
+}
+
+interface StringDropownSelectorProps {
+	value: string | undefined,
+	setValue: (value: string | undefined) => void,
+	options: SelectString[]
+}
+
+type SelectString = {
+	value: string | undefined
+	label: string
+} | null
+
+export function StringDropownSelector({value, setValue, options}:StringDropownSelectorProps) {
+	const filteredOptions = options?.filter((option): option is { value: string | undefined; label: string } => option !== null)
+	return <Select
+		options={filteredOptions}
+		placeholder={value}
+		styles={selectStyles}
+		value={{ label: value==undefined?"delete":value, value: value } as SelectString}
+		onChange={(option: SelectString) => {
 			console.log("option is: " + option!.value)
 			setValue(option!.value)
 		}} />

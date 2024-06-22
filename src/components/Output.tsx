@@ -17,6 +17,7 @@ import { Section, sectionIRMapToSectionMap, sectionIRToSection } from "../wfc/hi
 import { SectionOnlyPrecededByHardConstraint } from "../wfc/constraints/SectionOnlyPrecededByHardConstraint"
 import { SectionOnlyFollowedByHardConstraint } from "../wfc/constraints/SectionOnlyFollowedByHardConstraint"
 import { SectionLevelNode } from "../wfc/hierarchy/SectionLevelNode"
+import { RhythmPatternOptions } from "../music_theory/Rhythm"
 
 interface ParseChordPrototypesReturn {
 	parsedChordPrototypes: ChordPrototype[]
@@ -60,14 +61,38 @@ export function parseChordPrototypes(chordPrototypes: ChordPrototypeIR[]): Parse
 export function Output() {
 	const [isPlaying, setIsPlaying] = useState(false)
 	const appState = useAppContext()
-	const { output, setOutput, onlyUseChordPrototypes, chordPrototypes, inferKey, inferMelodyKey, differentMelodyKey, numChords, chordOptionsPerCell, chordConstraintSet, melodyLength, noteOptionsPerCell, noteConstraintSet, minNumNotes, startOnNote, maxRestLength, useRhythm, sections, sectionOptionsPerCell, numSections, bpm, upper, lower} = appState
+	const { output,
+		setOutput,
+		onlyUseChordPrototypes,
+		chordPrototypes,
+		inferKey,
+		inferMelodyKey,
+		differentMelodyKey,
+		numChords,
+		chordOptionsPerCell,
+		chordConstraintSet,
+		melodyLength,
+		noteOptionsPerCell,
+		noteConstraintSet,
+		minNumNotes,
+		startOnNote,
+		maxRestLength,
+		useRhythm,
+		sections,
+		sectionOptionsPerCell,
+		numSections,
+		bpm,
+		upper,
+		lower,
+		rhythmPattern
+	} = appState
 
 	const noteCanvasProps: TileCanvasProps<OctavedNote> = {
 		optionsPerCell: new OptionsPerCell(OctavedNote.all(), noteOptionsPerCell.transform(OctavedNote.multipleFromIRs)),
 		constraints: new ConstraintSet(noteConstraintSet.map(noteConstraint => convertIRToNoteConstraint(noteConstraint))),
 	}
 
-	
+// PUT RHYTHMPATTERN HERE, SEND IT AS A HIGHER VALUE?	
 
 	function parseSections(): [Section[], Constraint<Section>[]] {
 		const parsedSections = []
@@ -151,7 +176,8 @@ export function Output() {
 						maximumRestLength: maxRestLength,
 						upper: upper,
 						lower: lower,
-					},
+						baseRhythm: rhythmPattern
+					} as RhythmPatternOptions,
 				},
 				
 			})

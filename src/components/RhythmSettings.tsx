@@ -1,14 +1,17 @@
 import { useEffect } from "react"
 import { useAppContext } from "../AppState"
-import { NumberSelector, StrictDropownSelector } from "./GlobalSettings"
+import { StrictDropownSelector } from "./GlobalSettings"
 import { RhythmBox } from "./RhythmBox"
+import { H2tooltip } from "./tooltips"
 
 export function RhythmSettings() {
 	const { useRhythm, setUseRhythm } = useAppContext()
 	return <>
-		<div style={{ display: "flex", justifyContent: "center", gap: "0.5em", marginTop: "2em" }}>
-			<h2 style={{ marginBottom: 0, marginTop: 0 }}>Rhythm</h2>
-			<input type="checkbox" checked={useRhythm} onChange={(e) => setUseRhythm(e.target.checked)} />
+		<div style={{ display: "flex", justifyContent: "center", gap: "0.5em"}}>
+			<H2tooltip title="Rhythm" hint="Set the options for rhythm."/>
+			<input 
+			style={{alignSelf:"center"}}	
+			type="checkbox" checked={useRhythm} onChange={(e) => setUseRhythm(e.target.checked)} />
 		</div>
 		{useRhythm && <RhythmSettingsInner />}
 	</>
@@ -48,19 +51,31 @@ function RhythmSettingsInner() {
 		upper,
 		lower,
 		setUpper,
-		setLower } = useAppContext()
+		setLower,
+		setRhythmPattern
+	 } = useAppContext()
+
+	const boxLength = () => {
+		return 16 * upper/lower
+	}
 
 	useEffect(() => {
 		if (minNumNotes > melodyLength) setMinNumNotes(melodyLength)
 	}, [melodyLength])
 
+	useEffect(() => {
+		setRhythmPattern([{type:undefined, duration:(boxLength()/4)}])
+	}, [upper, lower])
+
 	return <>
-		<div >
-            <h3>Time Signature</h3>
-			<StrictDropownSelector value={upper} setValue={setUpper} options={upperOptions}></StrictDropownSelector>
-            <StrictDropownSelector value={lower} setValue={setLower} options={lowerOptions}></StrictDropownSelector>
+		<div style={{display:"flex", flexDirection:"row", justifyContent:"center", alignContent:"center"}}>
+            <h3 style={{marginRight:"1em"}}>Time Signature</h3>
+			<div style={{display:"flex", flexDirection:"column", width:"6em", flexWrap:"wrap", justifyContent:"space-between"}}>
+				<StrictDropownSelector value={upper} setValue={setUpper} options={upperOptions}></StrictDropownSelector>
+				<StrictDropownSelector value={lower} setValue={setLower} options={lowerOptions}></StrictDropownSelector>
+			</div>
         </div>
-		<RhythmBox></RhythmBox>
+		<RhythmBox numberOfUnits={boxLength()}></RhythmBox>
 	</>
 }
 
@@ -78,8 +93,8 @@ export function InheritedRhythmSettings({ strategy, setStrategy }: InheritedRhyt
 	}
 
 	return <>
-		<div style={{ display: "flex", justifyContent: "center", gap: "0.5em", marginTop: "2em" }}>
-			<h2 style={{ marginBottom: 0, marginTop: 0 }}>Rhythm: </h2>
+		<div style={{ display: "flex", justifyContent: "center", alignItems:"center", gap: "0.5em", marginTop: "2em" }}>
+			<h2 style={{ marginBottom: 0, marginTop: 0 }}>Rhythm</h2>
 			<button onClick={toggleStrategy}>{strategy}</button>
 		</div>
 		{strategy === "On" && <RhythmSettingsInner />}
