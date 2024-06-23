@@ -68,7 +68,7 @@ function RhythmSettingsInner() {
 	}, [upper, lower])
 
 	return <>
-		<div style={{display:"flex", flexDirection:"row", justifyContent:"center", alignContent:"center"}}>
+		<div style={{display:"flex", flexDirection:"row", justifyContent:"center", alignContent:"center", marginBottom:"1em"}}>
             <h3 style={{marginRight:"1em"}}>Time Signature</h3>
 			<div style={{display:"flex", flexDirection:"column", width:"6em", flexWrap:"wrap", justifyContent:"space-between"}}>
 				<StrictDropownSelector value={upper} setValue={setUpper} options={upperOptions}></StrictDropownSelector>

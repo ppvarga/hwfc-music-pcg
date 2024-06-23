@@ -144,19 +144,13 @@ export function RhythmBox ({numberOfUnits}: RhythmBoxProps) {
   const provideHighlightColor = () => {
     if (type == "note") {
         let colors = [
-            "#b5fffc",
-            "#8ee2e0",
-            "#73cecb",
-            "#60bcb9",
-            "#56b5b1",
-            "#46a8a5",
-            "#3b8e8c",
-            "#318481",
-            "#267775",
-            "#217270",
-            "#1a6867",
-            "#15605f",
-            "#0d5957"        
+            "#71a0ff",
+            "#7da9ff",
+            "#89b1ff",
+            "#95b9ff",
+            "#a1c2ff",
+            "#adcaff"
+       
         ]
         const res = colors[currentNoteColorIndex]
         if (currentNoteColorIndex == colors.length-1)
@@ -166,17 +160,12 @@ export function RhythmBox ({numberOfUnits}: RhythmBoxProps) {
         return res
     } else {
         let colors = [
-            "#c9b5be",
-            "#afa0a7",
-            "#a09298",
-            "#8c8186",
-            "#756b70",
-            "#635d60",
-            "#5b5457",
-            "#544a4e",
-            "#513e47",
-            "#5e3b4b",       
-            "#56273c"
+            "#000000",
+            "#111111",
+            "#1b1b1b",
+            "#252525",
+            "#303030"
+
         ]
         const res = colors[currentRestColorIndex]
         if (currentRestColorIndex == colors.length-1)
@@ -221,7 +210,14 @@ export function RhythmBox ({numberOfUnits}: RhythmBoxProps) {
 ]
 
   return (
-    <div style={{display:"flex", flexDirection:"row", alignContent:"center", justifyContent:"center"}}>
+    <div style={{
+        display:"flex",
+        flexDirection:"row",
+        alignContent:"center",
+        justifyContent:"center",
+        marginLeft:"1em",
+        paddingLeft:"1em",
+        background:"rgba(255,255,255,0.3)"}}>
         <div style={{width:"7em", display: "flex", alignItems: "center", justifyContent: "center"}}>
             <StringDropownSelector value={type} setValue={setType} options={typeOptions}></StringDropownSelector> 
         </div>
