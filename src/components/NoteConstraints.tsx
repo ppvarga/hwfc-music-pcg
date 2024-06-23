@@ -124,6 +124,8 @@ function NoteConstraintConfig({ constraintIR, onConstraintChange, setValid }: No
 
 			return <MelodyShapeSelector size={shapeSize} setResult={setShape} startValue={constraintIR.shape} />
 		}
+		case "DescendingMelodyHardConstraint": return  <></>
+		case "AscendingMelodyHardConstraint": return  <></>
 	}
 	throw new Error("Invalid constraint type")
 }

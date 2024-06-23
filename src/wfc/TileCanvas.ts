@@ -31,7 +31,7 @@ export class TileCanvas<T> {
 	private random: Random
 	private higherValues: HigherValues
 	private constraints: ConstraintSet<T>
-
+	private measure?: number
 	public getSize(): number {
 		return this.size
 	}
@@ -41,10 +41,11 @@ export class TileCanvas<T> {
 		props: TileCanvasProps<T>,
 		higherValues: HigherValues,
 		random: Random,
+		measure?: number
 	) {
 		this.size = size
 		this.collapsed = 0
-
+		this.measure = measure
 		const optionsPerCell = props.optionsPerCell
 
 		this.pq = new TileSelector<T>(random)
@@ -109,6 +110,9 @@ export class TileCanvas<T> {
 
 	public getRandom(): Random {
 		return this.random
+	}
+	public getMeasure(): number {
+		return this.measure!
 	}
 
 	public collapseNext(): Tile<T> {

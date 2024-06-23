@@ -63,6 +63,8 @@ import {
 import { Constraint } from "./concepts/Constraint"
 import { HigherValues } from "../HigherValues"
 import { noteGrabberIRToGrabber } from "../grabbers/noteGrabbers"
+import { AscendingMelodyHardConstraint, AscendingMelodyHardConstraintIR, AscendingMelodyHardConstraintInit } from "./AscendingMelodyHardConstraint"
+import { DescendingMelodyHardConstraint, DescendingMelodyHardConstraintIR,  DescendingMelodyHardConstraintInit } from "./DescendingMelodyHardConstraint"
 
 export type ChordConstraintIR =
 	| ChordInKeyHardConstraintIR
@@ -79,6 +81,8 @@ export type NoteConstraintIR =
 	| MelodyInRangeHardConstraintIR
 	| MelodyShapeHardConstraintIR
 	| MelodyInKeyHardConstraintIR
+	| AscendingMelodyHardConstraintIR
+	| DescendingMelodyHardConstraintIR
 
 export type ChordConstraintType = ChordConstraintIR["type"]
 export type NoteConstraintType = NoteConstraintIR["type"]
@@ -109,12 +113,15 @@ export const chordConstraintOptions = Array.from(
 const noteConstraintTypesNamesHints = [
 	["MelodyInKeyHardConstraint", "Melody in Key", ""],
 	["MelodyAbsoluteStepSizeHardConstraint", "Melody absolute step size", "Restricts the possible notes of the melody to those that are a certain number of steps away from the previous note. Enter a space-separated list of numbers."],
-	["AscendingMelodySoftConstraint", "Ascending Melody", "Makes ascending melodies more likely. The probability of an ascending step is multiplied by the boost factor, relative to all other steps."],
+	["AscendingMelodySoftConstraint", "Ascending Melody Soft", "Makes ascending melodies more likely. The probability of an ascending step is multiplied by the boost factor, relative to all other steps."],
 	["DescendingMelodySoftConstraint", "Descending Melody", "Makes descending melodies more likely. The probability of a descending step is multiplied by the boost factor, relative to all other steps."],
 	["MelodyEndsOnNoteHardConstraint", "Melody ends on note", "The melody piece within a chord ends on a specific note."],
 	["MelodyStartsOnNoteHardConstraint", "Melody starts on note", "The melody piece within a chord starts on a specific note."],
 	["MelodyInRangeHardConstraint", "Melody in range", "The melody piece within a chord is within the specified range, including both boundaries."],
 	["MelodyShapeHardConstraint", "Melody shape", ""],
+	["DescendingMelodyHardConstraint", "Descending Melody Hard", "Makes descending melodies guaranteed"],
+	["AscendingMelodyHardConstraint", "Ascending Melody Hard", "Makes ascending melodies guaranteed"],
+
 ] as const
 
 type NoteConstraintName = (typeof noteConstraintTypesNamesHints)[number][1]
@@ -179,6 +186,10 @@ export const convertIRToNoteConstraint = (
 			)
 		case "MelodyShapeHardConstraint":
 			return new MelodyShapeHardConstraint(constantMelodyShapeGrabber(ir.shape))
+		case "AscendingMelodyHardConstraint":
+			return new AscendingMelodyHardConstraint(noteGrabberIRToGrabber(ir.noteGrabber))
+		case "DescendingMelodyHardConstraint":
+			return new DescendingMelodyHardConstraint(noteGrabberIRToGrabber(ir.noteGrabber))
 	}
 }
 
@@ -217,5 +228,9 @@ export const initializeNoteConstraint = (
 			return MelodyInRangeHardConstraintInit
 		case "MelodyShapeHardConstraint":
 			return MelodyShapeHardConstraintInit
+		case "AscendingMelodyHardConstraint":
+			return AscendingMelodyHardConstraintInit
+		case "DescendingMelodyHardConstraint":
+			return DescendingMelodyHardConstraintInit
 	}
 }

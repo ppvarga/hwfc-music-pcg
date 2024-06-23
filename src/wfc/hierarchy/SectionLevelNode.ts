@@ -126,11 +126,11 @@ export class SectionLevelNode {
 
 			totalDuration += sectionDuration
 		}
-		console.log("generate")
-		console.log(sections)
-		console.log(sections.length)
-		console.log(this.getHigherValues())
-		console.log(this.inferAllConstraints())
+		//console.log("generate")
+		//console.log(sections)
+		//console.log(sections.length)
+		//console.log(this.getHigherValues())
+		//console.log(this.inferAllConstraints())
 		return [noteOutputs, totalDuration]
 	}
 	public getHigherValues(): HigherValues {

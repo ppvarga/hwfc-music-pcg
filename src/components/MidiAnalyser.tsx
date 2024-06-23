@@ -25,9 +25,147 @@ import { Chordesque, chordesqueIRMapToChordesqueMap } from "../wfc/hierarchy/Cho
 import { Section, sectionIRToSection, sectionIRMapToSectionMap } from "../wfc/hierarchy/Section";
 import { SectionLevelNode } from "../wfc/hierarchy/SectionLevelNode";
 import { parseChordPrototypes } from "./Output";
+import Chart from 'chart.js/auto';
+import html2canvas from 'html2canvas';
+import { Column, useTable } from 'react-table';
+
 interface UploadButtonProps {
   onUpload: (data: any) => void;
 }
+
+interface ConstraintTableProps {
+  data: Map<number, string[]>;
+  constraintsSetprop: Set<string>;
+}
+
+const countMap: Map<string, number> = new Map();
+const ConstraintTableMap: Map<number, string[]> = new Map() 
+const constraintSet: Set<string> =  new Set()
+function updateCountMap(constraint: Constraint<OctavedNote>) {
+  
+  const className = constraint.name; // Get the class name as a string
+  if (!constraintSet.has(className)){
+    constraintSet.add(className)
+  }
+  if (countMap.has(className)) {
+    countMap.set(className, countMap.get(className)! + 1);
+  } else {
+    countMap.set(className, 1);
+  }
+}
+
+function updateCountMapChord(constraint: Constraint<Chordesque>) {
+  
+  const className = constraint.name; // Get the class name as a string
+  if (!constraintSet.has(className)){
+    constraintSet.add(className)
+  }
+  if (countMap.has(className)) {
+    countMap.set(className, countMap.get(className)! + 1);
+  } else {
+    countMap.set(className, 1);
+  }
+}
+
+function updateConstraintTableMap(measureNumber: number, constraint: Constraint<OctavedNote>) {
+  
+  const className = constraint.name; // Get the class name as a string
+  if (!constraintSet.has(className)){
+    constraintSet.add(className)
+  }
+  if (ConstraintTableMap.has(measureNumber)) {
+    ConstraintTableMap.get(measureNumber)!.push(className)
+    
+  } else {
+    ConstraintTableMap.set(measureNumber, []);
+    ConstraintTableMap.get(measureNumber)!.push(className)
+  }
+}
+
+function updateConstraintTableMapChord(measureNumber: number, constraint: Constraint<Chordesque>) {
+  
+  const className = constraint.name; // Get the class name as a string
+  if (!constraintSet.has(className)){
+    constraintSet.add(className)
+  }
+  if (ConstraintTableMap.has(measureNumber)) {
+    ConstraintTableMap.get(measureNumber)!.push(className)
+    
+  } else {
+    ConstraintTableMap.set(measureNumber, []);
+    ConstraintTableMap.get(measureNumber)!.push(className)
+  }
+}
+
+export const ConstraintBarChart: React.FC = () => {
+ 
+  const appState = useAppContext();
+  const [chartInstance, setChartInstance] = useState<Chart | null>(null);
+  const chartRef = useRef<HTMLCanvasElement>(null);
+  const constraintCounts: { [key: string]: number } = {};
+  const generateBarChart = () => {
+    for (const key of countMap.keys()) {
+      
+          //const className = constraint.constructor.name;
+          if (!constraintCounts[key]) {
+              constraintCounts[key] = 0;
+          }
+          constraintCounts[key] += countMap.get(key)!;
+      
+  }
+    console.log("countmap")
+    console.log(countMap)
+    const labels = Object.keys(constraintCounts);
+    const data = Object.values(constraintCounts);
+      console.log(countMap.keys())
+      console.log(countMap.values())
+      if (chartRef.current) {
+        if (chartInstance) {
+          chartInstance.destroy();
+      }
+      const newChartInstance = new Chart(chartRef.current, {
+              type: 'bar',
+              data: {
+                  labels: labels,
+                  datasets: [{
+                      label: 'Constraint Occurrences',
+                      data: data,
+                      backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                      borderColor: 'rgba(75, 192, 192, 1)',
+                      borderWidth: 1
+                  }]
+              },
+              options: {
+                  scales: {
+                      y: {
+                          beginAtZero: true
+                      }
+                  }
+              }
+          });
+          setChartInstance(newChartInstance);
+      }
+  };
+
+  const downloadChart = async () => {
+      if (chartRef.current) {
+          const canvas = chartRef.current;
+          const img = await html2canvas(canvas);
+          const link = document.createElement('a');
+          link.href = img.toDataURL('image/png');
+          link.download = 'constraint_chart.png';
+          link.click();
+      }
+  };
+
+  return (
+      <div>
+          <canvas ref={chartRef}></canvas>
+          <button onClick={generateBarChart}>Generate Bar Chart</button>
+          <button onClick={downloadChart}>Download Chart</button>
+      </div>
+  );
+};
 
 
 let newNotes: NoteOutput[] = [];
@@ -47,7 +185,9 @@ const UploadButton: React.FC<UploadButtonProps> = ({ onUpload }) => {
 
     reader.onload = (e) => {
       try {
-
+        countMap.clear()
+        ConstraintTableMap.clear()
+        constraintSet.clear()
         async function analyzeMidi(midiArrayBuffer: ArrayBuffer): Promise<any> {
           const formData = new FormData();
           const blob = new Blob([midiArrayBuffer], { type: 'application/octet-stream' });
@@ -314,18 +454,20 @@ const UploadButton: React.FC<UploadButtonProps> = ({ onUpload }) => {
                   maximumRestLength: maxRestLength,
                 },
               }
-              //console.log("measureChordIndex" + measureChordIndex)
-              //console.log("measureNoteIndex" + measureNoteIndex)
-
-              const chordCanvas = new TileCanvas<Chordesque>(measureChordIndex,chordesqueCanvasProps, noteHigherValues, new Random())
-              const noteCanvas = new TileCanvas<OctavedNote>(measureNoteIndex, noteCanvasProps, noteHigherValues, new Random())
-              
-              if (chordCanvas.getSize() > 0){
-                tileCanvasesChord.push(chordCanvas)
-              }
-              if (noteCanvas.getSize() > 0){
+              console.log("measureChordIndex" + measureChordIndex)
+              console.log("measureNoteIndex" + measureNoteIndex)
+              if (measureNoteIndex > 0){
+                const noteCanvas = new TileCanvas<OctavedNote>(measureNoteIndex, noteCanvasProps, noteHigherValues, new Random(), measure.measureNumber)
                 tileCanvasesOctavedNote.push(noteCanvas)
               }
+
+              if (measureChordIndex > 0){
+                const chordCanvas = new TileCanvas<Chordesque>(measureChordIndex,chordesqueCanvasProps, noteHigherValues, new Random(), measure.measureNumber)
+                tileCanvasesChord.push(chordCanvas)
+
+              }
+              
+              
 
               
               //const key = new MusicalKey()
@@ -345,13 +487,52 @@ const UploadButton: React.FC<UploadButtonProps> = ({ onUpload }) => {
             //let hierarchyConstraints = new ConstraintSet<Section>()
             //hierarchyConstraints.addConstraints(sectionConstraints)
             //IMPORTANT
+            for (let i = 1; i <= measures.flat().length; i++){
+              ConstraintTableMap.set(i, [])
+              
+            }
             for (const canvas of tileCanvasesOctavedNote){
               
-              console.log("huh" + canvas.getTiles())
+              //console.log(canvas)
               const constraintHierarchy = new ConstraintHierarchy<OctavedNote>(canvas.getHigherValues())
               const checkedConstraints = constraintHierarchy.checkConstraintsGeneric(new ConstraintSet(noteConstraintSet.map(noteConstraint => convertIRToNoteConstraint(noteConstraint))), canvas.getTiles())
-              console.log(checkedConstraints)
+             // console.log("checked")
+             
+              
+              
+          //    console.log(ConstraintTableMap)
+              
+              // Iterate through the original map
+
+                for (const constraint of checkedConstraints) {
+                  updateConstraintTableMap(canvas.getMeasure(), constraint )
+                  updateCountMap(constraint);
+                }
+                
             }
+
+            for (const canvas of tileCanvasesChord){
+              
+              console.log(canvas)
+              const constraintHierarchy = new ConstraintHierarchy<Chordesque>(canvas.getHigherValues())
+              const checkedConstraints = constraintHierarchy.checkConstraintsGeneric(new ConstraintSet(chordConstraintSet.map(noteConstraint => convertIRToChordConstraint(noteConstraint))), canvas.getTiles())
+             // console.log("checked")
+             
+              
+              
+              
+              
+              // Iterate through the original map
+
+                for (const constraint of checkedConstraints) {
+                  updateConstraintTableMapChord(canvas.getMeasure(), constraint )
+                  updateCountMapChord(constraint);
+                }
+                
+            }
+            console.log(countMap)
+            console.log(ConstraintTableMap)
+          //  console.log(countMap);
           //  const constraintHierarchy2 = new ConstraintHierarchy<Chordesque>()
           
           //	console.log(constraintHierarchy.check())
@@ -592,8 +773,126 @@ const UploadButton: React.FC<UploadButtonProps> = ({ onUpload }) => {
     </>
   );
 }
-
+interface TableRow {
+  measure: string;
+  [key: string]: string | number;
+}
 export default UploadButton;
+const ConstraintTable: React.FC = () => {
+  const [tableData, setTableData] = useState<TableRow[]>([]);
+  const [columns, setColumns] = useState<Column<TableRow>[]>([]);
+
+  const generateTable = () => {
+    console.log(ConstraintTableMap)
+    const constraints: string[] = Array.from(constraintSet);
+
+    // Get all possible measures (including those with zero constraints met)
+    const allMeasures = Array.from(ConstraintTableMap.keys());
+
+    // Convert the data Map to an array of objects for react-table
+    const newData: TableRow[] = allMeasures.map(measure => {
+      const constraintsMet = ConstraintTableMap.get(measure) || [];
+      const row: TableRow = { measure: measure.toString() };
+      constraints.forEach(constraint => {
+        row[constraint] = constraintsMet.includes(constraint) ? '✔️' : '❌'; // Convert checkmarks and crosses
+      });
+      return row;
+    });
+
+    const newColumns: Column<TableRow>[] = [
+      {
+        Header: 'Measure',
+        accessor: 'measure'
+      },
+      ...constraints.map(constraint => ({
+        Header: constraint,
+        accessor: constraint
+      }))
+    ];
+
+    setTableData(newData);
+    setColumns(newColumns);
+  };
+
+  const convertToCSV = (data: TableRow[]) => {
+    // Generate header row
+    const header = Object.keys(data[0]).join(',') + '\n';
+  
+    // Generate data rows
+    const csvRows = data.map(row => {
+      const values = Object.keys(row).map(key => {
+        if (typeof row[key] === 'string' && (row[key] === '✔️' || row[key] === '❌')) {
+          return row[key] === '✔️' ? 'Yes' : 'No';
+        }
+        return row[key];
+      });
+      return values.join(',');
+    }).join('\n');
+  
+    // Combine header and rows
+    return header + csvRows;
+  };
+  
+
+  const downloadCSV = () => {
+    const csvContent = convertToCSV(tableData);
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    // For other browsers
+    const link = document.createElement('a');
+    if (link.download !== undefined) {
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', 'constraint_table.csv');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    rows,
+    prepareRow,
+  } = useTable({ columns, data: tableData });
+
+  return (
+    <div>
+      <button onClick={generateTable}>Generate Table</button>
+      <button onClick={downloadCSV} disabled={tableData.length === 0}>Download CSV</button>
+      {tableData.length > 0 && (
+        <table {...getTableProps()}>
+          <thead>
+            {headerGroups.map(headerGroup => (
+              <tr {...headerGroup.getHeaderGroupProps()}>
+                {headerGroup.headers.map(column => (
+                  <th {...column.getHeaderProps()}>{column.render('Header')}</th>
+                ))}
+              </tr>
+            ))}
+          </thead>
+          <tbody {...getTableBodyProps()}>
+            {rows.map(row => {
+              prepareRow(row);
+              return (
+                <tr {...row.getRowProps()}>
+                  {row.cells.map(cell => (
+                    <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+                  ))}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      )}
+    </div>
+  );
+};
+
+
+
+
 function updatePlayer() {
   const appState = useAppContext()
 
@@ -624,6 +923,9 @@ export const MidiAnalyser = () => {
     return <div style={{padding:"1em", display:"flex", flexDirection:"row", gap:"1em"}}>
         <button onClick={handleDownload}>Save current MIDI</button>
         <UploadButton onUpload={MidiToNoteOutput} />
+        <ConstraintBarChart/>
+        <h1>Constraint Table</h1>
+        <ConstraintTable />
         <MidiPlayer notes={output[0]} length={output[1]} isPlaying={isPlaying} setIsPlaying={setIsPlaying} updatePlayer={updatePlayer}/> 
         <NoteTiles />
 				<NoteConstraints />

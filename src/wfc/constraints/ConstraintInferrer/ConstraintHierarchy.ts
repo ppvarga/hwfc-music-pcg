@@ -20,25 +20,26 @@ export class ConstraintHierarchy<T>{
     }
 
 
-    checkConstraintsGeneric(currentConstraintsToCheck : ConstraintSet<T>, tileCanvas: Tile<T>[]): Map<T, Constraint<T>[]>{
-        let res: Map<T, Constraint<T>[]> = new Map
+    checkConstraintsGeneric(currentConstraintsToCheck : ConstraintSet<T>, tileCanvas: Tile<T>[]): Constraint<T>[]{
+        
         const sectionTiles = tileCanvas
-        sectionTiles.forEach( sectionTile => {
-            let constraints : Constraint<T>[] = []
-            currentConstraintsToCheck.getAllHardConstraints().forEach( constraint => {
-                
-                if (constraint.check( sectionTile, this.higherValues)){
-                    constraints.push(constraint)
+        let constraints : Constraint<T>[] = []
+
+
+        currentConstraintsToCheck.getAllHardConstraints().forEach( constraint => {
+            let bool = true
+            sectionTiles.forEach( sectionTile => {
+                if (!constraint.check( sectionTile, this.higherValues)){
+                    bool = false
                    
                 }
-                
             })
-            res.set(sectionTile.getValue(), constraints)
-        }
-        
-
-        )
-        return res
+            if (bool){
+                constraints.push(constraint)
+            }
+            
+        })
+        return constraints
 
     }
 
