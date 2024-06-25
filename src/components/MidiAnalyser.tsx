@@ -9,7 +9,7 @@ import { ChordTiles } from "./ChordTiles";
 import axios from "axios";
 import { MidiFile, read } from "midifile-ts";
 import { Chord } from "../music_theory/Chord";
-import { OctavedNote, parseOctavedNoteIR, noteToInt, OctavedNoteIR, intToNote, Note } from "../music_theory/Note";
+import { OctavedNote, parseOctavedNoteIR, noteToInt, OctavedNoteIR, intToNote } from "../music_theory/Note";
 import { Random } from "../util/Random";
 import { ConstraintSet } from "../wfc/ConstraintSet";
 import { InfiniteArray } from "../wfc/InfiniteArray";
@@ -21,10 +21,9 @@ import { SectionOnlyPrecededByHardConstraint } from "../wfc/constraints/SectionO
 import { Constraint } from "../wfc/constraints/concepts/Constraint";
 import { convertIRToNoteConstraint, convertIRToChordConstraint, NoteConstraintIR, ChordConstraintIR } from "../wfc/constraints/constraintUtils";
 import { constantStringArrayGrabber } from "../wfc/grabbers/constantGrabbers";
-import { Chordesque, chordesqueIRMapToChordesqueMap } from "../wfc/hierarchy/Chordesque";
-import { Section, sectionIRToSection, sectionIRMapToSectionMap } from "../wfc/hierarchy/Section";
-import { SectionLevelNode } from "../wfc/hierarchy/SectionLevelNode";
-import { parseChordPrototypes } from "./Output";
+import { Chordesque } from "../wfc/hierarchy/Chordesque";
+import { Section, sectionIRToSection } from "../wfc/hierarchy/Section";
+
 import Chart from 'chart.js/auto';
 import html2canvas from 'html2canvas';
 import { Column, useTable } from 'react-table';
@@ -487,6 +486,13 @@ const UploadButton: React.FC<UploadButtonProps> = ({ onUpload }) => {
             //let hierarchyConstraints = new ConstraintSet<Section>()
             //hierarchyConstraints.addConstraints(sectionConstraints)
             //IMPORTANT
+            const tempConstraints = new ConstraintSet(noteConstraintSet.map(noteConstraint => convertIRToNoteConstraint(noteConstraint)))
+            tempConstraints.getAllHardConstraints().forEach(constraint => {
+              constraintSet.add(constraint.name)
+            }
+
+            )
+            
             for (let i = 1; i <= measures.flat().length; i++){
               ConstraintTableMap.set(i, [])
               
