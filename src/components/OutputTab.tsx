@@ -222,6 +222,8 @@ export function OutputTab({ notes, length, isPlaying, setIsPlaying, updatePlayer
 					container.scrollLeft += event.pageX > container.clientWidth / 2 ? 10 : -10
 				}, 16)
 			}
+		} else if (canvasRef.current && canvasRef.current.parentElement && !isSelecting) {
+			canvasRef.current.style.background = bg
 		}
 	}
 	const mouseIn = () => {
