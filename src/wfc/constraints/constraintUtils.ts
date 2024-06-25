@@ -238,7 +238,7 @@ export const convertIRToInterMelodyConstraint = (
 		case "NoParallelFifthInterMelodyConstraint":
 			return new NoParallelFifthInterMelodyConstraint()
 		case "DifferentVoicesInterMelodyConstraint":
-			return new DifferentVoicesInterMelodyConstraint()
+			return new DifferentVoicesInterMelodyConstraint(ir.lowerNotes, ir.higherNotes)
 		case "NoDirectFifthEightInterMelodyConstraint":
 			return new NoDirectFifthEightInterMelodyConstraint
 		case "ProperSpacingInterMelodyConstraint":

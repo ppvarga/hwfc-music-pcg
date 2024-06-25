@@ -4,6 +4,9 @@ import Select from "react-select";
 import { InterMelodyConstraintIR, InterMelodyConstraintType, initializeInterMelodyConstraint, interMelodyConstraintOptions, interMelodyConstraintTypeToName } from "../wfc/constraints/constraintUtils";
 import { H4tooltip } from "./tooltips";
 import { useAppContext } from "../AppState";
+import { OctavedNoteIR } from "../music_theory/Note";
+import { MelodyInRangeHardConstraint, MelodyInRangeHardConstraintIR } from "../wfc/constraints/MelodyInRangeHardConstraint";
+import { DifferentVoicesInterMelodyConstraintIR } from "../wfc/constraints/DifferentVoicesInterMelodyConstraint";
 
 interface InterMelodyConstraintProps {
 	constraintIR: InterMelodyConstraintIR,
@@ -60,6 +63,7 @@ function AddInterMelodyConstraint({ onAddConstraint }: AddInterMelodyConstraintP
 		if (!selectedType) return
 
 		onAddConstraint(initializeInterMelodyConstraint(selectedType.value))
+		console.log(interMelodyConstraintSet)
 		setSelectedType(null)
 	}
 
@@ -68,7 +72,7 @@ function AddInterMelodyConstraint({ onAddConstraint }: AddInterMelodyConstraintP
 			<Select
 				options={getInterMelodyConstraintOptions()}
 				value={selectedType}
-				placeholder="Note constraints..."
+				placeholder="Intermelody constraints..."
 				onChange={(option) => setSelectedType(option || null)}
 				styles={selectStyles}
 			/>
@@ -82,7 +86,7 @@ export function InterMelodyConstraints() {
 
 	return (
 		<div style={{ flex: 1 }}>
-			<h3>Melody constraints</h3>
+			<h3>Intermelody constraints</h3>
 			<AddInterMelodyConstraint onAddConstraint={addInterMelodyConstraint} />
 			{interMelodyConstraintSet.map((constraintIR, index) => (
 				<InterMelodyConstraintDiv

@@ -1,10 +1,10 @@
 import { createContext, useCallback, useContext, useState } from "react"
 import { MusicalKey } from "./music_theory/MusicalKey"
-import { Note, OctavedNoteIR } from "./music_theory/Note"
+import { Note, OctavedNoteIR, parseOctavedNoteIR } from "./music_theory/Note"
 import { SelectKeyTypeOption } from "./components/utils"
 import { ChordInKeyHardConstraintInit } from "./wfc/constraints/ChordInKeyHardConstraint"
 import { MelodyInKeyHardConstraintInit } from "./wfc/constraints/MelodyInKeyHardConstraint"
-import { MelodyInRangeHardConstraintInit } from "./wfc/constraints/MelodyInRangeHardConstraint"
+import { MelodyInRangeHardConstraintIR, MelodyInRangeHardConstraintInit } from "./wfc/constraints/MelodyInRangeHardConstraint"
 import { ChordConstraintIR, NoteConstraintIR, InterMelodyConstraintIR } from "./wfc/constraints/constraintUtils"
 import { ChordRootAbsoluteStepSizeHardConstraintInit } from "./wfc/constraints/ChordRootAbsoluteStepSizeHardConstraint"
 import { ChordPrototypeIR, ChordesqueIR, nameOfChordPrototypeIR } from "./wfc/hierarchy/Chordesque"
@@ -13,6 +13,7 @@ import { SectionIR, SectionInit, nameOfSectionIR } from "./wfc/hierarchy/Section
 import { InfiniteArray } from "./wfc/InfiniteArray"
 import { unique } from "./util/utils"
 import { CollapseType } from "./components/CollapseType"
+import { DifferentVoicesInterMelodyConstraintIR } from "./wfc/constraints/DifferentVoicesInterMelodyConstraint"
 
 export interface PassiveAppState {
 	bpm: number;
@@ -167,6 +168,15 @@ function AppState() {
 				newNoteConstraintSet.push([...basicNoteConstraintSet])
 			}
 		}
+		for (let i = 0; i < interMelodyConstraintSet.length; i++) {
+			if (interMelodyConstraintSet[i].type == "DifferentVoicesInterMelodyConstraint" && (interMelodyConstraintSet[i] as DifferentVoicesInterMelodyConstraintIR).lowerNotes.length < amount) {
+				const lower = [...(interMelodyConstraintSet[i] as DifferentVoicesInterMelodyConstraintIR).lowerNotes, parseOctavedNoteIR("C5")!]
+				const higher = [...(interMelodyConstraintSet[i] as DifferentVoicesInterMelodyConstraintIR).higherNotes, parseOctavedNoteIR("C6")!]
+				const newInterMelodyConstraintSet = [...interMelodyConstraintSet]
+				newInterMelodyConstraintSet[i] = { type: "DifferentVoicesInterMelodyConstraint", lowerNotes: lower, higherNotes: higher, validByDefault: true }
+				setInterMelodyConstraintSet(newInterMelodyConstraintSet)
+			}
+		}
 		setNumInstruments(amount)
 		setNoteConstraintSet(newNoteConstraintSet)
 	}
@@ -174,7 +184,24 @@ function AppState() {
 	const basicInterMelodyConstraintSet = [] as InterMelodyConstraintIR[]
 	const [interMelodyConstraintSet, setInterMelodyConstraintSet] = useState(basicInterMelodyConstraintSet)
 	const addInterMelodyConstraint = (constraint: InterMelodyConstraintIR) => {
-		setInterMelodyConstraintSet([...interMelodyConstraintSet, constraint])
+		if (constraint.type == "DifferentVoicesInterMelodyConstraint") {
+			let lower: OctavedNoteIR[] = []
+			let higher: OctavedNoteIR[] = []
+			console.log(noteConstraintSet)
+			for (let i = 1; i <= numInstruments; i++) {
+				noteConstraintSet[i - 1].forEach((noteConstraint) => {
+					if (noteConstraint.type == "MelodyInRangeHardConstraint") {
+						lower.push(noteConstraint.lowerNoteIR)
+						higher.push(noteConstraint.higherNoteIR)
+						console.log("here")
+					}
+				})
+			}
+			console.log(lower)
+			setInterMelodyConstraintSet([...interMelodyConstraintSet, { type: "DifferentVoicesInterMelodyConstraint", lowerNotes: lower, higherNotes: higher, validByDefault: true }])
+		} else {
+			setInterMelodyConstraintSet([...interMelodyConstraintSet, constraint])
+		}
 	}
 	const removeInterMelodyConstraint = (index: number) => {
 		const newConstraintSet = [...interMelodyConstraintSet]

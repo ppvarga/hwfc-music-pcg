@@ -1,4 +1,4 @@
-import { OctavedNote, noteToInt } from "../../music_theory/Note";
+import { OctavedNote, OctavedNoteIR } from "../../music_theory/Note";
 import { Tile } from "../Tile";
 import { TileCanvas } from "../TileCanvas";
 import { Chordesque } from "../hierarchy/Chordesque";
@@ -7,6 +7,8 @@ import { InterMelodyConstraint } from "./concepts/Constraint";
 
 export const DifferentVoicesInterMelodyConstraintInit = {
 	type: "DifferentVoicesInterMelodyConstraint" as const,
+    lowerNotes: [{ note: "C", octave: 5 }] as OctavedNoteIR[],
+    higherNotes: [{ note: "B", octave: 6 }] as OctavedNoteIR[],
 	validByDefault: true as const,
 }
 
@@ -15,9 +17,15 @@ export type DifferentVoicesInterMelodyConstraintIR =
 
 export class DifferentVoicesInterMelodyConstraint implements InterMelodyConstraint<OctavedNote> {
     public name: string
+
+    private lower: OctavedNoteIR[]
+    private higher: OctavedNoteIR[]
     
-    constructor() {
+    constructor(lowerNotes: OctavedNoteIR[], higherNotes: OctavedNoteIR[]) {
         this.name = "DifferentVoicesInterMelodyConstraint"
+
+        this.lower = lowerNotes
+        this.higher = higherNotes
     }
 
     public checkIM(tile: Tile<OctavedNote>, otherInstrument: TileCanvas<Chordesque, OctavedNote>) {
@@ -31,7 +39,7 @@ export class DifferentVoicesInterMelodyConstraint implements InterMelodyConstrai
         const instrumentNum = (tile.getCanvas().getNode() as NoteLevelNode).getInstrument()
         const otherInstrumentNum = (otherInstrument.getNode() as NoteLevelNode).getInstrument()
 
-        if (tile.isCollapsed() && (tile.getValue().getOctave() == 5 && (instrumentNum - 1 > noteToInt(tile.getValue().getNote()) || (tile.getValue().getOctave() == 6 && numInstruments - instrumentNum - 1 > 12 - noteToInt(tile.getValue().getNote()))))) {
+        if (tile.isCollapsed() && (instrumentNum - 1 > OctavedNote.getStepSize(new OctavedNote(this.lower[instrumentNum - 1].note, this.lower[instrumentNum - 1].octave), tile.getValue()) || (numInstruments - instrumentNum) > OctavedNote.getStepSize(tile.getValue(), new OctavedNote(this.higher[instrumentNum - 1].note, this.higher[instrumentNum - 1].octave)))) {
             return false
         }
         if (tile.isCollapsed() && ((instrumentNum < otherInstrumentNum && tile.getValue().compareTo(otherTile.getValue()) > -1) || (instrumentNum > otherInstrumentNum && tile.getValue().compareTo(otherTile.getValue()) < 1))) {

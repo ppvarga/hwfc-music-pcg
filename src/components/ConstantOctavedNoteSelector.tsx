@@ -33,7 +33,7 @@ export function ConstantOctavedNoteSelector({ defaultValue, setResult, onChange,
 	}
 
 	return <div className="constant-octaved-note-selector">
-		{label && <p style={{margin:"-0.5em"}}>{label}</p>}
+		{label && <p style={{margin:"0.5em"}}>{label}</p>}
 		<div style={{ display: "flex" }}>
 			<ConstantNoteSelector
 				style={{ flex: 1 }}

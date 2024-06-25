@@ -230,7 +230,7 @@ export class ChordLevelNode extends HWFCNode<Section, Chordesque> {
 				// )
 				// out.push(...subResult)
 				// offset = newOffset
-				throw new Error("no rhythm yet ya bozo")
+				throw new Error("Disable rhythm, not yet compatible with several instruments")
 				
 			} else {
 				

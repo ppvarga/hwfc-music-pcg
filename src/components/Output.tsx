@@ -154,6 +154,11 @@ export function Output() {
 				position: 0
 			})
 
+			if (useRhythm) {
+				alert("Disable Rhythm, no compatibility with several instrument generation yet.")
+				return
+			}
+
 			//setOutput(node.generateOtherInstruments(numInstruments, collapseType, collapseTypeK))
 			if (test) {
 				let numFails = 0

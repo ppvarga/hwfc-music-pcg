@@ -10,6 +10,7 @@ import { MelodyShape, } from "../wfc/constraints/concepts/MelodyShape"
 import { MelodyShapeSelector } from "./MelodyShapeSelector"
 import { SimpleConstraintConfigDiv } from "./SimpleConstraintConfigDiv"
 import { H4tooltip } from "./tooltips"
+import { DifferentVoicesInterMelodyConstraintIR } from "../wfc/constraints/DifferentVoicesInterMelodyConstraint"
 
 interface NoteConstraintConfigProps {
 	constraintIR: NoteConstraintIR
@@ -18,6 +19,8 @@ interface NoteConstraintConfigProps {
 }
 
 function NoteConstraintConfig({ constraintIR, onConstraintChange, setValid }: NoteConstraintConfigProps) {
+	const { interMelodyConstraintSet, handleInterMelodyConstraintChange, selectedInstrument } = useAppContext()
+
 	switch (constraintIR.type) {
 		case "MelodyInKeyHardConstraint": return <></>
 		case "AscendingMelodySoftConstraint": return <SimpleConstraintConfigDiv>
@@ -101,14 +104,26 @@ function NoteConstraintConfig({ constraintIR, onConstraintChange, setValid }: No
 				if (OctavedNote.getStepSize(OctavedNote.fromIR(lowerNoteIR), OctavedNote.fromIR(higherNoteIR)) < 0) return setValid(false)
 				setValid(true)
 				onConstraintChange({ ...constraintIR, lowerNoteIR, higherNoteIR })
+				for (let i = 0; i < interMelodyConstraintSet.length; i++) {
+					if (interMelodyConstraintSet[i].type == "DifferentVoicesInterMelodyConstraint") {
+						let lower = [...(interMelodyConstraintSet[i] as DifferentVoicesInterMelodyConstraintIR).lowerNotes]
+						let higher = [...(interMelodyConstraintSet[i] as DifferentVoicesInterMelodyConstraintIR).higherNotes]
+						lower[selectedInstrument - 1] = lowerNoteIR
+						higher[selectedInstrument - 1] = higherNoteIR
+						handleInterMelodyConstraintChange(i, { type: "DifferentVoicesInterMelodyConstraint", lowerNotes: lower, higherNotes: higher, validByDefault: true})
+						break;
+					}
+				}
 			}
 			return <>
-				<ConstantOctavedNoteSelector label={"Lower bound:"} defaultValue={lowerNoteIR} setResult={newLowerNote => {
+				<div>Current lower bound: {constraintIR.lowerNoteIR.note.toString() + constraintIR.lowerNoteIR.octave}</div>
+				<div style={{ marginBottom: "1em"}}>Current higher bound: {constraintIR.higherNoteIR.note.toString() + constraintIR.higherNoteIR.octave}</div>
+				<ConstantOctavedNoteSelector label={"Lower bound selector:"} defaultValue={lowerNoteIR} setResult={newLowerNote => {
 					setLowerNoteIR(newLowerNote)
 					checkValid(newLowerNote, higherNoteIR)
 				}} />
 				<div style={{height: "0.5em"}}/>
-				<ConstantOctavedNoteSelector label={"Higher bound:"} defaultValue={higherNoteIR} setResult={newHigherNote => {
+				<ConstantOctavedNoteSelector label={"Higher bound selector:"} defaultValue={higherNoteIR} setResult={newHigherNote => {
 					setHigherNoteIR(newHigherNote)
 					checkValid(lowerNoteIR, newHigherNote)
 				}} />
@@ -196,7 +211,10 @@ export function NoteConstraints() {
 				<NoteConstraintDiv
 					key={index}
 					constraintIR={constraintIR}
-					onConstraintChange={(updatedIR) => handleNoteConstraintChange(index, updatedIR, selectedInstrument)}
+					onConstraintChange={(updatedIR) => { 
+						handleNoteConstraintChange(index, updatedIR, selectedInstrument)
+						console.log(noteConstraintSet)
+					} }
 					onRemove={() => removeNoteConstraint(index, selectedInstrument)}
 				/>
 			))}
