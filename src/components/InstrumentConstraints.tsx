@@ -4,9 +4,6 @@ import Select from "react-select";
 import { InterMelodyConstraintIR, InterMelodyConstraintType, initializeInterMelodyConstraint, interMelodyConstraintOptions, interMelodyConstraintTypeToName } from "../wfc/constraints/constraintUtils";
 import { H4tooltip } from "./tooltips";
 import { useAppContext } from "../AppState";
-import { OctavedNoteIR } from "../music_theory/Note";
-import { MelodyInRangeHardConstraint, MelodyInRangeHardConstraintIR } from "../wfc/constraints/MelodyInRangeHardConstraint";
-import { DifferentVoicesInterMelodyConstraintIR } from "../wfc/constraints/DifferentVoicesInterMelodyConstraint";
 
 interface InterMelodyConstraintProps {
 	constraintIR: InterMelodyConstraintIR,
