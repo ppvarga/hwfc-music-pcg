@@ -162,7 +162,6 @@ function chordToNoteOutput(
 			octavedNote: new OctavedNote(note, 3),
 			startTime,
 			duration,
-			instrument: instrument,
 		})
 	})
 

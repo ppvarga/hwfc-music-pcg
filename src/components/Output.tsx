@@ -106,7 +106,7 @@ export function Output() {
 		return [parsedSections, sectionConstraints]
 	}
 
-	function updatePlayer() {
+	function updatePlayer(test?: boolean) {
 		const errors = errorsInAppState(appState)
 		if (errors.length > 0) {
 			alert(errors.join("\n"))
@@ -155,27 +155,42 @@ export function Output() {
 			})
 
 			//setOutput(node.generateOtherInstruments(numInstruments, collapseType, collapseTypeK))
-			//let numFails = 0
-			//let totEfficiency = 0
-			for (let i = 0; i < 10000; i++) {
-				//const curTime = Date.now()
+			if (test) {
+				let numFails = 0
+				let totEfficiency = 0
+				for (let i = 0; i < 10000; i++) {
+					const curTime = Date.now()
+					try {
+						// res = node.generateOtherInstruments(numInstruments, collapseType, collapseTypeK)
+						node.generateOtherInstruments(numInstruments, collapseType, collapseTypeK)
+					} catch (e) {
+						numFails++
+						continue;
+					}
+					const laterTime = Date.now()
+					totEfficiency += laterTime - curTime
+				}
+				setNumFailures(numFails)
+				setEfficiency(totEfficiency / (10000 - numFails))
+			} else {
 				let res = null
-				try {
-					res = node.generateOtherInstruments(numInstruments, collapseType, collapseTypeK)
-				} catch (e) {
-					//numFails++
-					continue;
+				for (let i = 0; i < 10000; i++) {
+					try {
+						// res = node.generateOtherInstruments(numInstruments, collapseType, collapseTypeK)
+						res = node.generateOtherInstruments(numInstruments, collapseType, collapseTypeK)
+					} catch (e) {
+						continue;
+					}
+					if (res){
+						setOutput(res)
+						break;
+					}
 				}
-				if (res){
-					setOutput(res)
-					break;
+				if (!res) {
+					alert("No valid solution found, try making parameters less complex.")
 				}
-
-				//const laterTime = Date.now()
-				//totEfficiency += laterTime - curTime
 			}
-			//setNumFailures(numFails)
-			//setEfficiency(totEfficiency / (500 - numFails))
+			
 		// } catch (e) {
 		// 	console.error(e)
 		//	alert(e)
@@ -197,7 +212,12 @@ export function Output() {
 			backgroundColor: "rgba(0,0,0,0.75)",
 			maxWidth:"90vw",
 		}}>
+		<div style={{  maxWidth: "90vw", alignItems:"center" }}><button onClick={() => {
+			updatePlayer(true)
+		}}>Run tests, this might take a while</button></div>
 		<MidiPlayer notes={output[0]} length={output[1]} isPlaying={isPlaying} setIsPlaying={setIsPlaying} updatePlayer={updatePlayer}/>
+		
+		
 		<div>
 			Num failures: {numFailures}, efficiency avg: {efficiency} ms
 		</div>
