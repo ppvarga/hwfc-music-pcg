@@ -1,6 +1,13 @@
 # Read me right now
 
-Hey! I'm so glad you made it. Welcome to this hell of a repository, for the official _ppvarga_ Honours Project as well as our Research Project.
+Hey! I'm so glad you made it. Welcome to the repository for the TU Delft CSE3000 Research Project of Daniel Lihotský, Ágnes Mikó, Chaan van den Oudenhoven, Pál Patrik Varga and Raphael de Wolff. The main branch is an old version, to access specific functionality, please check out:
+- RQ1_Lihotsky (for locking in parts of the composition)
+- rhythm (for extended rhythm functionality)
+- Chaan-branch (for extracting properties of a piece of music)
+- ppvarga-breadthfirst (for the experiment setup with breadth-first backtracking)
+- ppvarga-depthfirst (for the experiment setup with depth-first backtracking)
+- ppvarga-functional (for the app with working backtracking functionality)
+- rcdewolff (for compositions with multiple instruments in the melody)
 
 In the following, I will be assuming that you understand the conceptual background of the project, regarding a rudimentary understanding of music theory and the WFC algorithm.
 
