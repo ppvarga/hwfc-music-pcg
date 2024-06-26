@@ -12,7 +12,9 @@ For managing dependencies, make sure you have Node.js and npm installed, you can
 
 Now, you can run `npm install` to install the libraries that this project depends on.
 
-To run the app locally, use the command `npx vite` or `npm run dev`, both should achieve the same thing. This will also give you a URL on localhost, which now hosts your application. Any time you save a file in the project, it updates automatically! :)
+To run the app locally, use the command `npx vite` or `npm run dev`, both should achieve the same thing.This will also give you a URL on localhost, which now hosts your application. Any time you save a file in the project, it updates automatically! :) 
+
+ aditioanlly, you should navigate to src\wfc\constraints\ConstraintInferrer\Server.py and run Python Server.py.The MidiAnalyser depends on this. 
 
 # Project structure
 
