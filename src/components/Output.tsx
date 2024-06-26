@@ -133,61 +133,38 @@ export function Output() {
 
 			const inferredKey = inferKey()
 
-			let time = Date.now()
-			const durations = []
-			for(let i = 0; i<100; i++){
-				const decisionManager = new DecisionManager()
-				const random = new Random()
-				seed = random.getSeed()
-	
-				const node = new SectionLevelNode({
-					noteCanvasProps,
-					chordesqueCanvasProps,
-					sectionCanvasProps,
-					random,
-					higherValues: {
-						key: inferredKey, 
-						melodyKey: differentMelodyKey ? inferMelodyKey() : inferredKey,
-						bpm,
-						useRhythm,
-						numChords,
-						numSections,
-						melodyLength,
-						rhythmPatternOptions: {
-							minimumNumberOfNotes: minNumNotes,
-							onlyStartOnNote: startOnNote,
-							maximumRestLength: maxRestLength,
-						},
+			const decisionManager = new DecisionManager()
+			const random = new Random()
+			seed = random.getSeed()
+
+			const node = new SectionLevelNode({
+				noteCanvasProps,
+				chordesqueCanvasProps,
+				sectionCanvasProps,
+				random,
+				higherValues: {
+					key: inferredKey, 
+					melodyKey: differentMelodyKey ? inferMelodyKey() : inferredKey,
+					bpm,
+					useRhythm,
+					numChords,
+					numSections,
+					melodyLength,
+					rhythmPatternOptions: {
+						minimumNumberOfNotes: minNumNotes,
+						onlyStartOnNote: startOnNote,
+						maximumRestLength: maxRestLength,
 					},
-					position: 0,
-					decisionManager
-				})
-	
-				node.getCanvas().initialize()
-				const resultManager = new ResultManager(node)
-				BreadthFirstTraverser.generate(node, resultManager)
-				const result = resultManager.generate()
-				setOutput(entireResultToOutput(result, 0))
+				},
+				position: 0,
+				decisionManager
+			})
 
-				const newTime = Date.now()
-				const duration = newTime - time
-				durations.push(duration)
-				time = newTime
-			}
-
-			let txt = ""
-			for(let duration of durations){
-				txt = txt + duration + "\n"
-			}
-			console.log(txt)
-
-			const blob = new Blob([txt], { type: 'text/plain' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = 'durations.txt';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+			node.getCanvas().initialize()
+			const resultManager = new ResultManager(node)
+			BreadthFirstTraverser.generate(node, resultManager)
+			const result = resultManager.generate()
+			setOutput(entireResultToOutput(result, 0))
 			
 		} catch (e) {
 			console.error(seed)

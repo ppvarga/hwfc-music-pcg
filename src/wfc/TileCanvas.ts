@@ -224,7 +224,6 @@ export class TileCanvas<P extends Canvasable<P>, T extends Canvasable<T>, C exte
 				return
 			}
 			if (tileToCollapse.collapse(value)){
-				if(this.decisions.length > 30) throw new Error("saved you from infinite loop")
 				switch(this.level){
 					case "section":
 						this.decisions.push({
