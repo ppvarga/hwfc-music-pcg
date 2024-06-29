@@ -1,23 +1,26 @@
-# Read me right now
+# Welcome!
 
-Hey! I'm so glad you made it. Welcome to the repository for the TU Delft CSE3000 Research Project of Daniel Lihotský, Ágnes Mikó, Chaan van den Oudenhoven, Pál Patrik Varga and Raphael de Wolff. The main branch is an old version, to access specific functionality, please check out:
-- RQ1_Lihotsky (for locking in parts of the composition)
-- rhythm (for extended rhythm functionality)
-- Chaan-branch (for extracting properties of a piece of music)
-- ppvarga-breadthfirst (for the experiment setup with breadth-first backtracking)
-- ppvarga-depthfirst (for the experiment setup with depth-first backtracking)
-- ppvarga-functional (for the app with working backtracking functionality)
-- rcdewolff (for compositions with multiple instruments in the melody)
-
-In the following, I will be assuming that you understand the conceptual background of the project, regarding a rudimentary understanding of music theory and the WFC algorithm.
+Hey! I'm so glad you made it. Welcome to the repository for the TU Delft CSE3000 2024 Research Project of Daniel Lihotský, Ágnes Mikó, Chaan van den Oudenhoven, Pál Patrik Varga and Raphael de Wolff. The main branch is an old version, to access specific functionality, please check out:
+- `RQ1_Lihotsky` (for locking in parts of the composition)
+- `rhythm` (for extended rhythm functionality)
+- `Chaan-branch` (for extracting properties of a piece of music)
+- `ppvarga-breadthfirst` (for the experiment setup with breadth-first backtracking)
+- `ppvarga-depthfirst` (for the experiment setup with depth-first backtracking)
+- `ppvarga-functional` (for the app with working backtracking functionality)
+- `rcdewolff` (for compositions with multiple instruments in the melody)
 
 # Running the app
 
-This application is written in TypeScript with React, and it is deployed using Vite (pronounced "veet" - I will get upset if you don't pronounce it like that). 
+This application is written in TypeScript with React, and it is deployed using Vite. 
 
 For managing dependencies, make sure you have Node.js and npm installed, you can check this with `node -v` and `npm -v`
 
 Now, you can run `npm install` to install the libraries that this project depends on.
+
+For the branch `Chaan-branch` (with the functionality for extracting constraints), you need an additional Python server which needs some extra setup. 
+Make sure you have Python and pip installed, and install the packages `flask`, `flask_cors`, `music21` and `musicpy`. 
+Then, in a secondary terminal, start the Python `python src/wfc/constraints/ConstraintInferrer/Server.py`.
+After this, you can run the app in your main terminal as you would with any other branch:
 
 To run the app locally, use the command `npx vite` or `npm run dev`, both should achieve the same thing. This will also give you a URL on localhost, which now hosts your application. Any time you save a file in the project, it updates automatically! :)
 
@@ -68,7 +71,3 @@ Just a dump for miscallenious code that seems a bit too generic to put into any 
 ### The `wfc`  subdirectory
 
 This is where the model resides. This is probably where we will spend most of our time in the live rundown, but afterwards it should be clear (also, I'm sorry, I don't really feel like writing everything out in here, I think telling you about it in person is way more efficient).
-
-# This is it, I guess
-
-hell yea
