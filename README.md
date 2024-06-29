@@ -19,7 +19,7 @@ Now, you can run `npm install` to install the libraries that this project depend
 
 For the branch `Chaan-branch` (with the functionality for extracting constraints), you need an additional Python server which needs some extra setup. 
 Make sure you have Python and pip installed, and install the packages `flask`, `flask_cors`, `music21` and `musicpy`. 
-Then, in a secondary terminal, start the Python `python src/wfc/constraints/ConstraintInferrer/Server.py`.
+Then, in a secondary terminal, start the Python server by running: `python src/wfc/constraints/ConstraintInferrer/Server.py`.
 After this, you can run the app in your main terminal as you would with any other branch:
 
 To run the app locally, use the command `npx vite` or `npm run dev`, both should achieve the same thing. This will also give you a URL on localhost, which now hosts your application. Any time you save a file in the project, it updates automatically! :)
