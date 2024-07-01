@@ -11,6 +11,7 @@ import { ChordPrototypesPage } from "./components/ChordPrototypesPage"
 import { SectionsPage } from "./components/SectionsPage"
 import { SectionTiles } from "./components/SectionTiles"
 import { Configs } from "./components/Configs"
+import { HashRouter, Routes, Route } from "react-router-dom";
 
 function App() {
 
@@ -48,11 +49,18 @@ function App() {
 		}
 	]
 
-	return (
+	const PLApp = () =>
 		<AppProvider>
 			<TabComponent tabs={tabs} />
 			<Output/>
 		</AppProvider>
+	
+	return (
+		<HashRouter basename="/proceduraliszt/">
+		<Routes>
+			<Route index path="" element={<PLApp/>} />
+		</Routes>
+	</HashRouter>
 	)
 }
 
